@@ -1,0 +1,51 @@
+From cc1d59642aa1bc685fd588be917f6b72ae2ebd7b Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Sun, 22 Jun 2025 13:31:56 -0300
+Subject: [PATCH] Change GCC's C++ standard library name to libstdcxx
+
+Android has its own version of libstdc++ (/system/lib/libstdc++.so). That library, however, is not the GNU C++ standard library, but just a basic C++ standard library with very limited features.
+
+Usually, two libraries sharing the same name would not cause a conflict, but in the context of Android, the dynamic linker prioritizes loading libraries from /system/lib before checking other locations. As a result, a binary dynamically linked with libstdc++ will actually load Android's libstdc++ at runtime rather than GCC's libstdc++.
+---
+ libsanitizer/configure       | 2 +-
+ libstdc++-v3/src/Makefile.in | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/libsanitizer/configure b/libsanitizer/configure
+index 6bfd28916..23365096e 100755
+--- a/libsanitizer/configure
++++ b/libsanitizer/configure
+@@ -4233,7 +4233,7 @@ esac
+     -I\$(top_builddir)/../libstdc++-v3/include/\$(target_noncanonical) \
+     -I\$(top_srcdir)/../libstdc++-v3/libsupc++"
+   LIBSTDCXX_RAW_CXX_LDFLAGS="\
+-    \$(top_builddir)/../libstdc++-v3/src/libstdc++.la"
++    \$(top_builddir)/../libstdc++-v3/src/libstdcxx.la"
+ 
+ 
+ 
+diff --git a/libstdc++-v3/src/Makefile.in b/libstdc++-v3/src/Makefile.in
+index 2f871cb45..75c115652 100644
+--- a/libstdc++-v3/src/Makefile.in
++++ b/libstdc++-v3/src/Makefile.in
+@@ -494,7 +494,7 @@ AM_CPPFLAGS = $(GLIBCXX_INCLUDES) $(CPPFLAGS)
+ SUBDIRS = c++98 c++11 c++17 c++20 c++23 c++26 \
+ 	$(filesystem_dir) $(backtrace_dir) $(experimental_dir)
+ 
+-@VTV_CYGMIN_FALSE@toolexeclib_LTLIBRARIES = libstdc++.la
++@VTV_CYGMIN_FALSE@toolexeclib_LTLIBRARIES = libstdcxx.la
+ 
+ # Cross compiler support.
+ @VTV_CYGMIN_TRUE@toolexeclib_LTLIBRARIES = libvtv.la libstdc++.la
+@@ -759,7 +759,7 @@ clean-toolexeclibLTLIBRARIES:
+ 	  rm -f $${locs}; \
+ 	}
+ 
+-libstdc++.la: $(libstdc___la_OBJECTS) $(libstdc___la_DEPENDENCIES) $(EXTRA_libstdc___la_DEPENDENCIES) 
++libstdcxx.la: $(libstdc___la_OBJECTS) $(libstdc___la_DEPENDENCIES) $(EXTRA_libstdc___la_DEPENDENCIES) 
+ 	$(AM_V_GEN)$(libstdc___la_LINK) $(am_libstdc___la_rpath) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(LIBS)
+ 
+ libvtv.la: $(libvtv_la_OBJECTS) $(libvtv_la_DEPENDENCIES) $(EXTRA_libvtv_la_DEPENDENCIES) 
+-- 
+2.49.0
+

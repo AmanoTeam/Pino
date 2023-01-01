@@ -1,0 +1,26 @@
+From 530d72e6ba0cbc168067f1e896288342f521ead2 Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Mon, 9 Jun 2025 01:17:56 +0200
+Subject: [PATCH] Avoid relying on dynamic shadow when building libsanitizer
+
+Dynamic shadow memory is not supported in GCC; it is only available in Clang.
+---
+ libsanitizer/asan/asan_init_version.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libsanitizer/asan/asan_init_version.h b/libsanitizer/asan/asan_init_version.h
+index b806d79..2d75895 100644
+--- a/libsanitizer/asan/asan_init_version.h
++++ b/libsanitizer/asan/asan_init_version.h
+@@ -33,7 +33,7 @@ extern "C" {
+   // v6=>v7: added 'odr_indicator' to __asan_global
+   // v7=>v8: added '__asan_(un)register_image_globals' functions for dead
+   //         stripping support on Mach-O platforms
+-#if SANITIZER_WORDSIZE == 32 && SANITIZER_ANDROID
++#if 0 /* SANITIZER_WORDSIZE == 32 && SANITIZER_ANDROID */
+   // v8=>v9: 32-bit Android switched to dynamic shadow
+   #define __asan_version_mismatch_check __asan_version_mismatch_check_v9
+ #else
+-- 
+2.36.6
+

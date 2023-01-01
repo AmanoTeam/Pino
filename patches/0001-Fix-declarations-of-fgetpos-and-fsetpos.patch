@@ -1,0 +1,33 @@
+From a4ed36c52e5a0779e9b3a5a325b97feea62c0ca0 Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Tue, 3 Jun 2025 17:46:19 -0300
+Subject: [PATCH] Fix declarations of fgetpos() and fsetpos()
+
+fgetpos() and fsetpos() are available by default on Android 64-bit platforms, but on 32-bit ones, they require __ANDROID_API__ >= 24.
+---
+diff --git a/libstdc++-v3/include/c_global/cstdio b/libstdc++-v3/include/c_global/cstdio
+index 8d4aa8b..4e85408 100644
+--- a/libstdc++-v3/include/c_global/cstdio
++++ b/libstdc++-v3/include/c_global/cstdio
+@@ -106,7 +106,6 @@ namespace std
+   using ::ferror;
+   using ::fflush;
+   using ::fgetc;
+-  using ::fgetpos;
+   using ::fgets;
+   using ::fopen;
+   using ::fprintf;
+@@ -116,7 +115,10 @@ namespace std
+   using ::freopen;
+   using ::fscanf;
+   using ::fseek;
++#if defined(__ANDROID__) && (__ANDROID_API__ >= 24 || defined(__aarch64__) || defined(__x86_64__))
+   using ::fsetpos;
++  using ::fgetpos;
++#endif
+   using ::ftell;
+   using ::fwrite;
+   using ::getc;
+-- 
+2.49.0
+
