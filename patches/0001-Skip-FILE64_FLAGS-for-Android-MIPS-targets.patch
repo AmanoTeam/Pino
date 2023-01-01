@@ -1,0 +1,25 @@
+From c0aba34d915977b07fd738df4968414f325815b7 Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Thu, 21 Aug 2025 22:02:35 -0300
+Subject: [PATCH] Skip FILE64_FLAGS for Android MIPS targets
+
+---
+ libsanitizer/configure | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libsanitizer/configure b/libsanitizer/configure
+index 6bfd28916..29655c7b5 100755
+--- a/libsanitizer/configure
++++ b/libsanitizer/configure
+@@ -17233,6 +17233,8 @@ fi
+ # Always set -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 to sync with LLVM,
+ # and keep struct *stat* have the same size.
+ case "${host}" in
++  mips*-android)
++    FILE64_FLAGS="" ;;
+   mips*-*) FILE64_FLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" ;;
+   *) FILE64_FLAGS="" ;;
+ esac
+-- 
+2.50.1
+
