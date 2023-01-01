@@ -1,0 +1,25 @@
+From ca3af0e00bf3af51536f7563ac4e7b93adb6237e Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Sun, 22 Jun 2025 20:38:37 -0300
+Subject: [PATCH] Rename GCC's libgcc library to libegcc
+
+---
+ libgcc/config/t-slibgcc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libgcc/config/t-slibgcc b/libgcc/config/t-slibgcc
+index b2d09012c..5598f2fd3 100644
+--- a/libgcc/config/t-slibgcc
++++ b/libgcc/config/t-slibgcc
+@@ -21,7 +21,7 @@
+ SHLIB_EXT = .so
+ SHLIB_SOLINK = @shlib_base_name@.so
+ SHLIB_SOVERSION = 1
+-SHLIB_SONAME = libgcc$(SHLIB_EXT)
++SHLIB_SONAME = libegcc$(SHLIB_EXT)
+ SHLIB_MAP = @shlib_map_file@
+ SHLIB_OBJS = @shlib_objs@
+ SHLIB_DIR = @multilib_dir@
+-- 
+2.49.0
+
