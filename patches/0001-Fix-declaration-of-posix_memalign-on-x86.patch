@@ -1,0 +1,25 @@
+From ec299567992b4f0326d66ca0e0196d79f3a12821 Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Sat, 7 Jun 2025 20:40:09 +0200
+Subject: [PATCH] Fix declaration of posix_memalign() on x86 
+
+---
+ gcc/config/i386/pmm_malloc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gcc/config/i386/pmm_malloc.h b/gcc/config/i386/pmm_malloc.h
+index d1d79a3..b5bd28a 100644
+--- a/gcc/config/i386/pmm_malloc.h
++++ b/gcc/config/i386/pmm_malloc.h
+@@ -31,7 +31,7 @@
+ #ifndef __cplusplus
+ extern int posix_memalign (void **, size_t, size_t);
+ #else
+-extern "C" int posix_memalign (void **, size_t, size_t) throw ();
++extern "C" int posix_memalign (void **, size_t, size_t);
+ #endif
+ 
+ static __inline void *
+-- 
+2.36.6
+

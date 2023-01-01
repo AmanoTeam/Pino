@@ -1,0 +1,100 @@
+From 0e4383f84b08a42f7dd45f0c4f2be94ccaedcddb Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Sat, 5 Jul 2025 01:36:08 -0300
+Subject: [PATCH] Add support to riscv64
+
+---
+ gcc/config.gcc           |  3 ++-
+ gcc/config/riscv/linux.h | 34 +++++++++++++++++++++++++++++++++-
+ 2 files changed, 35 insertions(+), 2 deletions(-)
+
+diff --git a/gcc/config.gcc b/gcc/config.gcc
+index 5725704e0..5fab55f9a 100644
+--- a/gcc/config.gcc
++++ b/gcc/config.gcc
+@@ -2520,7 +2520,8 @@ microblaze*-*-elf)
+ 	tmake_file="${tmake_file} microblaze/t-microblaze"
+         ;;
+ riscv*-*-linux*)
+-	tm_file="elfos.h gnu-user.h linux.h glibc-stdint.h ${tm_file} riscv/linux.h"
++	tm_file="elfos.h gnu-user.h linux.h linux-android.h glibc-stdint.h ${tm_file} riscv/linux.h"
++	extra_options="${extra_options} linux-android.opt"
+ 	case "x${enable_multilib}" in
+ 	xno) ;;
+ 	xyes) tmake_file="${tmake_file} riscv/t-linux-multilib" ;;
+diff --git a/gcc/config/riscv/linux.h b/gcc/config/riscv/linux.h
+index 9060c940a..0f08eec81 100644
+--- a/gcc/config/riscv/linux.h
++++ b/gcc/config/riscv/linux.h
+@@ -17,9 +17,11 @@ You should have received a copy of the GNU General Public License
+ along with GCC; see the file COPYING3.  If not see
+ <http://www.gnu.org/licenses/>.  */
+ 
++#undef TARGET_OS_CPP_BUILTINS
+ #define TARGET_OS_CPP_BUILTINS()				\
+   do {								\
+     GNU_USER_TARGET_OS_CPP_BUILTINS();				\
++    ANDROID_TARGET_OS_CPP_BUILTINS();				\
+   } while (0)
+ 
+ #define GLIBC_DYNAMIC_LINKER "/lib/ld-linux-riscv" XLEN_SPEC "-" ABI_SPEC ".so.1"
+@@ -35,6 +37,9 @@ along with GCC; see the file COPYING3.  If not see
+ #undef MUSL_DYNAMIC_LINKER
+ #define MUSL_DYNAMIC_LINKER "/lib/ld-musl-riscv" XLEN_SPEC MUSL_ABI_SUFFIX ".so.1"
+ 
++#undef BIONIC_DYNAMIC_LINKER
++#define BIONIC_DYNAMIC_LINKER BIONIC_DYNAMIC_LINKER64
++
+ #define ICACHE_FLUSH_FUNC "__riscv_flush_icache"
+ 
+ #define CPP_SPEC "%{pthread:-D_REENTRANT}"
+@@ -47,7 +52,7 @@ along with GCC; see the file COPYING3.  If not see
+   "%{mabi=ilp32f:_ilp32f}" \
+   "%{mabi=ilp32:_ilp32}"
+ 
+-#define LINK_SPEC "\
++#define LINUX_TARGET_LINK_SPEC "\
+ -melf" XLEN_SPEC DEFAULT_ENDIAN_SPEC "riscv" LD_EMUL_SUFFIX " \
+ %{mno-relax:--no-relax} \
+ -X \
+@@ -61,6 +66,32 @@ along with GCC; see the file COPYING3.  If not see
+ 	-dynamic-linker " GNU_USER_DYNAMIC_LINKER "}} \
+     %{static:-static} %{static-pie:-static -pie --no-dynamic-linker -z text}}"
+ 
++#undef CC1_SPEC
++#define CC1_SPEC \
++  LINUX_OR_ANDROID_CC (GNU_USER_TARGET_CC1_SPEC, \
++		       GNU_USER_TARGET_CC1_SPEC " " ANDROID_CC1_SPEC("-fpic"))
++
++#undef CC1PLUS_SPEC
++#define CC1PLUS_SPEC \
++  LINUX_OR_ANDROID_CC ("", ANDROID_CC1PLUS_SPEC)
++
++#undef LINK_SPEC
++#define LINK_SPEC LINUX_OR_ANDROID_LD (LINUX_TARGET_LINK_SPEC,				\
++		       LINUX_TARGET_LINK_SPEC " " ANDROID_LINK_SPEC)
++
++#undef LIB_SPEC
++#define LIB_SPEC \
++  LINUX_OR_ANDROID_LD (GNU_USER_TARGET_LIB_SPEC, \
++		    GNU_USER_TARGET_NO_PTHREADS_LIB_SPEC " " ANDROID_LIB_SPEC)
++
++#undef STARTFILE_SPEC
++#define STARTFILE_SPEC \
++  LINUX_OR_ANDROID_LD (GNU_USER_TARGET_STARTFILE_SPEC, ANDROID_STARTFILE_SPEC)
++
++#undef ENDFILE_SPEC
++#define ENDFILE_SPEC \
++  LINUX_OR_ANDROID_LD (GNU_USER_TARGET_ENDFILE_SPEC, ANDROID_ENDFILE_SPEC)
++
+ #define STARTFILE_PREFIX_SPEC 			\
+    "/lib" XLEN_SPEC "/" ABI_SPEC "/ "		\
+    "/usr/lib" XLEN_SPEC "/" ABI_SPEC "/ "	\
+@@ -68,3 +99,4 @@ along with GCC; see the file COPYING3.  If not see
+    "/usr/lib/ "
+ 
+ #define RISCV_USE_CUSTOMISED_MULTI_LIB select_by_abi
++
+-- 
+2.49.0
+
