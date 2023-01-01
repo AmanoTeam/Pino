@@ -1,0 +1,26 @@
+From a098eb62f1a4dc7662a8b17ab695680a471bca6c Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Wed, 6 Aug 2025 04:01:42 +0000
+Subject: [PATCH] Rename SIOCGSTAMP and SIOCGSTAMPNS
+
+---
+ asm/sockios.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/asm/sockios.h b/asm/sockios.h
+index 5b40a88..a070db0 100644
+--- a/asm/sockios.h
++++ b/asm/sockios.h
+@@ -21,7 +21,7 @@
+ #define SIOCSPGRP	_IOW('s', 8, pid_t)
+ #define SIOCGPGRP	_IOR('s', 9, pid_t)
+ 
+-#define SIOCGSTAMP	0x8906		/* Get stamp (timeval) */
+-#define SIOCGSTAMPNS	0x8907		/* Get stamp (timespec) */
++#define SIOCGSTAMP_OLD	0x8906		/* Get stamp (timeval) */
++#define SIOCGSTAMPNS_OLD	0x8907		/* Get stamp (timespec) */
+ 
+ #endif /* _ASM_SOCKIOS_H */
+-- 
+2.25.1
+
