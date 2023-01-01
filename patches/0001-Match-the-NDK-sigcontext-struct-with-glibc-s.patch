@@ -1,0 +1,86 @@
+From cdd131a278b080756fa144a3f75dbbbbca732fdf Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Sat, 5 Jul 2025 19:24:43 +0200
+Subject: [PATCH] Match the NDK sigcontext struct with glibc's
+
+---
+ include/bits/sigcontext.h | 27 +++++++++++++++++++++++++++
+ include/signal.h          |  3 ++-
+ include/sys/ucontext.h    |  6 ++++--
+ 3 files changed, 33 insertions(+), 3 deletions(-)
+ create mode 100644 include/bits/sigcontext.h
+
+diff --git a/include/bits/sigcontext.h b/include/bits/sigcontext.h
+new file mode 100644
+index 0000000..24465a3
+--- /dev/null
++++ b/include/bits/sigcontext.h
+@@ -0,0 +1,27 @@
++/* Machine-dependent signal context structure for Linux.  RISC-V version.
++   Copyright (C) 1996-2020 Free Software Foundation, Inc.  This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library.  If not, see
++   <https://www.gnu.org/licenses/>.  */
++
++#ifndef _BITS_SIGCONTEXT_H
++#define _BITS_SIGCONTEXT_H 1
++
++struct sigcontext {
++  /* gregs[0] holds the program counter.  */
++  unsigned long int gregs[32];
++  unsigned long long int fpregs[66] __attribute__ ((__aligned__ (16)));
++};
++
++#endif
+diff --git a/include/signal.h b/include/signal.h
+index bcf57b7..db1d0b4 100644
+--- a/include/signal.h
++++ b/include/signal.h
+@@ -32,7 +32,8 @@
+ #include <sys/cdefs.h>
+ #include <sys/types.h>
+ 
+-#include <asm/sigcontext.h>
++/* #include <asm/sigcontext.h> */
++#include <bits/sigcontext.h>
+ #include <bits/pthread_types.h>
+ #include <bits/signal_types.h>
+ #include <bits/timespec.h>
+diff --git a/include/sys/ucontext.h b/include/sys/ucontext.h
+index 4f4d5ce..ff5ee6f 100644
+--- a/include/sys/ucontext.h
++++ b/include/sys/ucontext.h
+@@ -78,7 +78,8 @@ typedef int greg_t;
+ typedef greg_t gregset_t[NGREG];
+ typedef struct user_fpregs fpregset_t;
+ 
+-#include <asm/sigcontext.h>
++/* #include <asm/sigcontext.h> */
++#include <bits/sigcontext.h>
+ typedef struct sigcontext mcontext_t;
+ 
+ typedef struct ucontext {
+@@ -106,7 +107,8 @@ typedef unsigned long greg_t;
+ typedef greg_t gregset_t[NGREG];
+ typedef struct user_fpsimd_struct fpregset_t;
+ 
+-#include <asm/sigcontext.h>
++/* #include <asm/sigcontext.h> */
++#include <bits/sigcontext.h>
+ typedef struct sigcontext mcontext_t;
+ 
+ typedef struct ucontext {
+-- 
+2.36.6
+
