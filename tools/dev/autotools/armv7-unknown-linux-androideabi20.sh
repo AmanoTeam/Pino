@@ -1,0 +1,51 @@
+#/bin/bash
+
+kopt="${-}"
+
+set +u
+set -e
+
+if [ -z "${PINO_HOME}" ]; then
+	PINO_HOME="$(realpath "$(( [ -n "${BASH_SOURCE}" ] && dirname "$(realpath "${BASH_SOURCE[0]}")" ) || dirname "$(realpath "${0}")")""/../../../../..")"
+fi
+
+set -u
+
+CROSS_COMPILE_TRIPLET='armv7-unknown-linux-androideabi'
+CROSS_COMPILE_SYSTEM='android'
+CROSS_COMPILE_ARCHITECTURE='armv7'
+CROSS_COMPILE_API_LEVEL='20'
+CROSS_COMPILE_SYSROOT="${PINO_HOME}/${CROSS_COMPILE_TRIPLET}${CROSS_COMPILE_API_LEVEL}"
+
+CC="${PINO_HOME}/bin/${CROSS_COMPILE_TRIPLET}${CROSS_COMPILE_API_LEVEL}-gcc"
+CXX="${PINO_HOME}/bin/${CROSS_COMPILE_TRIPLET}${CROSS_COMPILE_API_LEVEL}-g++"
+AR="${PINO_HOME}/bin/${CROSS_COMPILE_TRIPLET}-ar"
+AS="${PINO_HOME}/bin/${CROSS_COMPILE_TRIPLET}-as"
+LD="${PINO_HOME}/bin/${CROSS_COMPILE_TRIPLET}-ld"
+NM="${PINO_HOME}/bin/${CROSS_COMPILE_TRIPLET}-nm"
+RANLIB="${PINO_HOME}/bin/${CROSS_COMPILE_TRIPLET}-ranlib"
+STRIP="${PINO_HOME}/bin/${CROSS_COMPILE_TRIPLET}-strip"
+OBJCOPY="${PINO_HOME}/bin/${CROSS_COMPILE_TRIPLET}-objcopy"
+READELF="${PINO_HOME}/bin/${CROSS_COMPILE_TRIPLET}-readelf"
+PKG_CONFIG="${PINO_HOME}/bin/${CROSS_COMPILE_TRIPLET}-pkg-config"
+
+export \
+	CROSS_COMPILE_TRIPLET \
+	CROSS_COMPILE_SYSTEM \
+	CROSS_COMPILE_ARCHITECTURE \
+	CROSS_COMPILE_API_LEVEL \
+	CROSS_COMPILE_SYSROOT \
+	CC \
+	CXX \
+	AR \
+	AS \
+	LD \
+	NM \
+	RANLIB \
+	STRIP \
+	OBJCOPY \
+	READELF \
+	PKG_CONFIG
+
+[[ "${kopt}" = *e*  ]] || set +e
+[[ "${kopt}" = *u*  ]] || set +u
