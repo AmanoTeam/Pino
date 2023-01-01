@@ -1,0 +1,325 @@
+name: Build
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    branches:
+        - '**'
+  push:
+    branches:
+        - '**'
+
+permissions: write-all
+
+jobs:
+  native-build:
+    name: 'Native build'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@main
+      with:
+        submodules: true
+    - name: Check for cache
+      id: check-cache
+      uses: actions/cache@main
+      with:
+        key:  gcc-16.0.0-5
+        lookup-only: true
+        path: |
+          /tmp/x86_64-linux-gnu.tar.xz
+          /tmp/x86_64-linux-gnu.tar.xz.sha256
+    - name: Build Pino
+      if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
+      run: |
+        bash './build.sh' 'native'
+    - name: Create logs
+      if: always()
+      run: |
+        declare logs=''
+        
+        while read file; do
+            logs+="${file} "
+        done <<< $(find "/tmp/"*"/build" -wholename '*/config.log')
+        
+        tar --create --file=- ${logs} | xz --threads='0' --compress -9 > '/tmp/logs.tar.xz'
+    - name: Upload logs
+      if:  always()
+      uses: actions/upload-artifact@main
+      with:
+        name: logs
+        if-no-files-found: error
+        path: |
+            /tmp/logs.tar.xz
+    - name: Generate tarball
+      if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
+      run: |
+        declare tarball_filename='/tmp/x86_64-linux-gnu.tar.xz'
+        tar --directory='/tmp' --create --file=- 'pino' | xz --threads='0' --compress -9 > "${tarball_filename}"
+        sha256sum "${tarball_filename}" | sed 's|/tmp/||' > "${tarball_filename}.sha256"
+    - name: Cache artifact
+      if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
+      uses: actions/cache@main
+      with:
+        key:  gcc-16.0.0-5
+        path: |
+          /tmp/x86_64-linux-gnu.tar.xz
+          /tmp/x86_64-linux-gnu.tar.xz.sha256
+  
+  cross-build:
+    name: 'Cross build'
+    needs: native-build
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        target: [
+          # macOS
+          'aarch64-unknown-apple-darwin',
+          'x86_64-unknown-apple-darwin',
+          
+          # Linux (glibc)
+          'x86_64-unknown-linux-gnu',
+          'i386-unknown-linux-gnu',
+          'arm-unknown-linux-gnueabi',
+          'arm-unknown-linux-gnueabihf',
+          'aarch64-unknown-linux-gnu',
+          
+          # Linux (musl)
+          'aarch64-unknown-linux-musl',
+          'x86_64-unknown-linux-musl',
+          'arm-unknown-linux-musleabihf',
+          'i386-unknown-linux-musl',
+          'armv7l-unknown-linux-musleabihf',
+          
+          # FreeBSD
+          'x86_64-unknown-freebsd',
+          'aarch64-unknown-freebsd',
+          'i386-unknown-freebsd',
+         
+          # NetBSD
+          'i386-unknown-netbsdelf',
+          'x86_64-unknown-netbsd',
+          
+          # OpenBSD
+          'x86_64-unknown-openbsd',
+          'i386-unknown-openbsd',
+          'aarch64-unknown-openbsd',
+          'arm-unknown-openbsd',
+          
+          # DragonFly BSD
+          'x86_64-unknown-dragonfly',
+          
+          # Haiku
+          'i586-unknown-haiku',
+          'x86_64-unknown-haiku',
+          
+          # Android
+          'x86_64-unknown-linux-android',
+          'i686-unknown-linux-android21',
+          'aarch64-unknown-linux-android',
+          'riscv64-unknown-linux-android',
+          'armv5-unknown-linux-androideabi21',
+          'armv7-unknown-linux-androideabi21',
+          'mips64el-unknown-linux-android',
+          'mipsel-unknown-linux-android21'
+        ]
+    steps:
+    - uses: actions/checkout@main
+      with:
+        submodules: true
+    - name: Free up some space
+      run: |
+        curl 'https://raw.githubusercontent.com/AmanoTeam/gha-free-space/refs/heads/master/main.sh' -sSf | bash 
+    - name: Install required dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install build-essential || true
+    - name: Restore from cache
+      uses: actions/cache@main
+      with:
+        key:  gcc-16.0.0-5
+        fail-on-cache-miss: true
+        path: |
+          /tmp/x86_64-linux-gnu.tar.xz
+          /tmp/x86_64-linux-gnu.tar.xz.sha256
+    - name: Setup toolchain
+      run: |
+        tar --directory='/tmp' --extract --file='/tmp/x86_64-linux-gnu.tar.xz'
+        mv '/tmp/pino' '/tmp/pino-toolchain'
+    - name: Cross-compile Pino to ${{ matrix.target }}
+      run: |
+        source './tools/setup_toolchain.sh'
+        
+        if [[ '${{ matrix.target }}' == *'-linux-musl'* ]]; then
+            declare -r RAIDEN_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/Raiden/releases/latest')")"
+            declare -r RAIDEN_TARBALL='/tmp/toolchain.tar.xz'
+            declare -r RAIDEN_URL="https://github.com/AmanoTeam/Raiden/releases/download/${RAIDEN_TAG}/x86_64-unknown-linux-gnu.tar.xz"
+            
+            curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --location --url "${RAIDEN_URL}" --output "${RAIDEN_TARBALL}"
+            tar --directory="$(dirname "${RAIDEN_TARBALL}")" --extract --file="${RAIDEN_TARBALL}"
+            
+            export RAIDEN_HOME='/tmp/raiden'
+            export PATH="${RAIDEN_HOME}/bin:${PATH}"
+            
+            source "${RAIDEN_HOME}/usr/local/share/raiden/autotools/${{ matrix.target }}.sh"
+        elif [[ '${{ matrix.target }}' == *'-linux-gnu'* ]]; then
+            declare -r OBGGCC_TAG="$(jq --raw-output '.[0].tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/obggcc/releases')")"
+            declare -r OBGGCC_TARBALL='/tmp/toolchain.tar.xz'
+            declare -r OBGGCC_URL="https://github.com/AmanoTeam/obggcc/releases/download/${OBGGCC_TAG}/x86_64-unknown-linux-gnu.tar.xz"
+            
+            curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --location --url "${OBGGCC_URL}" --output "${OBGGCC_TARBALL}"
+            tar --directory="$(dirname "${OBGGCC_TARBALL}")" --extract --file="${OBGGCC_TARBALL}"
+            
+            export OBGGCC_HOME='/tmp/obggcc'
+            export PATH="${OBGGCC_HOME}/bin:${PATH}"
+            
+            source "${OBGGCC_HOME}/usr/local/share/obggcc/autotools/${{ matrix.target }}.sh"
+        elif [[ '${{ matrix.target }}' == *'-freebsd' ]]; then
+            declare -r LOKI_TAG="$(jq --raw-output '.tag_name' <<< "$(curl  --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/Loki/releases/latest')")"
+            declare -r LOKI_TARBALL='/tmp/toolchain.tar.xz'
+            declare -r LOKI_URL="https://github.com/AmanoTeam/Loki/releases/download/${LOKI_TAG}/x86_64-unknown-linux-gnu.tar.xz"
+            
+            curl --silent --connect-timeout '10' --retry '15' --retry-all-errors --fail --location --url "${LOKI_URL}" --output "${LOKI_TARBALL}"
+            tar --directory="$(dirname "${LOKI_TARBALL}")" --extract --file="${LOKI_TARBALL}"
+            
+            export LOKI_HOME='/tmp/loki'
+            export PATH="${LOKI_HOME}/bin:${PATH}"
+            
+            source "${LOKI_HOME}/usr/local/share/loki/autotools/${{ matrix.target }}.sh"
+        elif [[ '${{ matrix.target }}' == *'-netbsd'* ]]; then
+            declare -r DAKINI_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/Dakini/releases/latest')")"
+            declare -r DAKINI_TARBALL='/tmp/toolchain.tar.xz'
+            declare -r DAKINI_URL="https://github.com/AmanoTeam/Dakini/releases/download/${DAKINI_TAG}/x86_64-unknown-linux-gnu.tar.xz"
+            
+            curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --location --url "${DAKINI_URL}" --output "${DAKINI_TARBALL}"
+            tar --directory="$(dirname "${DAKINI_TARBALL}")" --extract --file="${DAKINI_TARBALL}"
+            
+            export DAKINI_HOME='/tmp/dakini'
+            export PATH="${DAKINI_HOME}/bin:${PATH}"
+            
+            source "${DAKINI_HOME}/usr/local/share/dakini/autotools/${{ matrix.target }}.sh"
+        elif [[ '${{ matrix.target }}' == *'-openbsd'* ]]; then
+            declare -r ATAR_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/Atar/releases/latest')")"
+            declare -r ATAR_TARBALL='/tmp/toolchain.tar.xz'
+            declare -r ATAR_URL="https://github.com/AmanoTeam/Atar/releases/download/${ATAR_TAG}/x86_64-unknown-linux-gnu.tar.xz"
+            
+            curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --location --url "${ATAR_URL}" --output "${ATAR_TARBALL}"
+            tar --directory="$(dirname "${ATAR_TARBALL}")" --extract --file="${ATAR_TARBALL}"
+            
+            export ATAR_HOME='/tmp/atar'
+            export PATH="${ATAR_HOME}/bin:${PATH}"
+            
+            source "${ATAR_HOME}/usr/local/share/atar/autotools/${{ matrix.target }}.sh"
+        elif [[ '${{ matrix.target }}' == *'-dragonfly' ]]; then
+            declare -r VENTI_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/Venti/releases/latest')")"
+            declare -r VENTI_TARBALL='/tmp/toolchain.tar.xz'
+            declare -r VENTI_URL="https://github.com/AmanoTeam/Venti/releases/download/${VENTI_TAG}/x86_64-unknown-linux-gnu.tar.xz"
+            
+            curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --location --url "${VENTI_URL}" --output "${VENTI_TARBALL}"
+            tar --directory="$(dirname "${VENTI_TARBALL}")" --extract --file="${VENTI_TARBALL}"
+            
+            export VENTI_HOME='/tmp/venti'
+            export PATH="${VENTI_HOME}/bin:${PATH}"
+            
+            source "${VENTI_HOME}/usr/local/share/venti/autotools/${{ matrix.target }}.sh"
+        elif [[ '${{ matrix.target }}' == *'-haiku' ]]; then
+            declare -r SIL_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/Sil/releases/latest')")"
+            declare -r SIL_TARBALL='/tmp/toolchain.tar.xz'
+            declare -r SIL_URL="https://github.com/AmanoTeam/Sil/releases/download/${SIL_TAG}/x86_64-unknown-linux-gnu.tar.xz"
+            
+            curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --location --url "${SIL_URL}" --output "${SIL_TARBALL}"
+            tar --directory="$(dirname "${SIL_TARBALL}")" --extract --file="${SIL_TARBALL}"
+            
+            export SIL_HOME='/tmp/sil'
+            export PATH="${SIL_HOME}/bin:${PATH}"
+            
+            source "${SIL_HOME}/usr/local/share/sil/autotools/${{ matrix.target }}.sh"
+        elif [[ '${{ matrix.target }}' == *'-darwin' ]]; then
+            curl \
+                --silent \
+                --show-error \
+                --fail \
+                --url 'https://raw.githubusercontent.com/AmanoTeam/OSXCross-Builds/refs/heads/master/main.sh' \
+                    | bash -s -- install
+            
+            export DARWIN_HOME='/tmp/darwin'
+            export PATH="${DARWIN_HOME}/bin:${PATH}"
+            
+            source "${DARWIN_HOME}/usr/local/share/darwin/autotools/${{ matrix.target }}.sh"
+        elif [[ '${{ matrix.target }}' == *'-android'* ]]; then
+            # declare -r PINO_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/Pino/releases/latest')")"
+            # declare -r PINO_TARBALL='/tmp/toolchain.tar.xz'
+            # declare -r PINO_URL="https://github.com/AmanoTeam/Pino/releases/download/${PINO_TAG}/x86_64-unknown-linux-gnu.tar.xz"
+            
+            # curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --location --url "${PINO_URL}" --output "${PINO_TARBALL}"
+            # tar --directory="$(dirname "${PINO_TARBALL}")" --extract --file="${PINO_TARBALL}"
+            
+            # export PINO_HOME='/tmp/pino-toolchain'
+            export PATH="${PINO_HOME}/bin:${PATH}"
+            
+            source "${PINO_HOME}/usr/local/share/pino/autotools/${{ matrix.target }}.sh"
+            
+            rm \
+                 --force \
+                "${PINO_HOME}/include/bionic/"{zconf,zlib}'.h' \
+                "${PINO_HOME}/"*'-unknown-linux-'{androideabi,android}'/include/'{zconf,zlib}'.h' \
+                "${PINO_HOME}/"*'-unknown-linux-android'*'/lib/libz.so' \
+                "${PINO_HOME}/"*'-unknown-linux-android'*'/lib/static/libz.so'
+        fi
+        
+        echo "CROSS_COMPILE_TRIPLET=${CROSS_COMPILE_TRIPLET}" >> "${GITHUB_ENV}"
+        
+        bash './build.sh' "${CROSS_COMPILE_TRIPLET}"
+    - name: Create logs
+      if: always()
+      run: |
+        declare logs=''
+        
+        while read file; do
+            logs+="${file} "
+        done <<< $(find "/tmp/"*"/build" -wholename '*.log' -o -wholename '*.yaml')
+        
+        tar --create --file=- ${logs} | xz --threads='0' --compress -9 > '/tmp/logs.tar.xz'
+    - name: Upload logs
+      if:  always()
+      uses: actions/upload-artifact@main
+      with:
+        name: ${{ matrix.target }}-logs
+        if-no-files-found: error
+        path: |
+            /tmp/logs.tar.xz
+    - name: Generate tarball
+      run: |
+        declare tarball_filename='/tmp/${{ env.CROSS_COMPILE_TRIPLET }}.tar.xz'
+        tar --directory='/tmp' --create --file=- 'pino' | xz --threads='0' --compress -9 > "${tarball_filename}"
+        sha256sum "${tarball_filename}" | sed 's|/tmp/||' > "${tarball_filename}.sha256"
+    - name: Upload artifact
+      uses: actions/upload-artifact@main
+      with:
+        name: ${{ env.CROSS_COMPILE_TRIPLET }}
+        if-no-files-found: error
+        path: |
+          /tmp/${{ env.CROSS_COMPILE_TRIPLET }}.tar.xz
+          /tmp/${{ env.CROSS_COMPILE_TRIPLET }}.tar.xz.sha256
+
+  release:
+    needs: cross-build
+    runs-on: ubuntu-latest
+    name: Create release
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@main
+      - name: Create release
+        uses: softprops/action-gh-release@master
+        with:
+          tag_name: 1.1
+          name: Pino v1.1
+          files: ./*/*-unknown-*.tar.xz*
+          draft: false
+          prerelease: true
+          fail_on_unmatched_files: true
+          body: "* Update to latest GCC 16 trunk"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

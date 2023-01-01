@@ -1,0 +1,72 @@
+From b0eccf928375c96f8f53f0f83663152da954203d Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Wed, 2 Jul 2025 18:52:13 -0300
+Subject: [PATCH] Change GCC's C++ standard library name to libestdc++
+
+Android has its own version of libstdc++ (/system/lib/libstdc++.so). However,
+that library is not the GNU C++ standard library, but rather a basic C++ standard library
+with very limited features:
+
+- https://developer.android.com/ndk/guides/cpp-support#system
+
+Normally, two libraries sharing the same name wouldn't cause a conflict,
+but in the context of Android, where the dynamic linker prioritizes loading libraries from
+/system/lib before checking other locations, a binary dynamically linked with libstdc++
+will actually load Android's version of libstdc++ at runtime.
+---
+ gcc/cp/g++spec.cc            | 2 +-
+ libsanitizer/configure       | 2 +-
+ libstdc++-v3/src/Makefile.in | 4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/gcc/cp/g++spec.cc b/gcc/cp/g++spec.cc
+index 165a91d45..3f936f020 100644
+--- a/gcc/cp/g++spec.cc
++++ b/gcc/cp/g++spec.cc
+@@ -42,7 +42,7 @@ along with GCC; see the file COPYING3.  If not see
+ #endif
+ 
+ #ifndef LIBSTDCXX
+-#define LIBSTDCXX "stdc++"
++#define LIBSTDCXX "estdc++"
+ #endif
+ #ifndef LIBSTDCXX_PROFILE
+ #define LIBSTDCXX_PROFILE LIBSTDCXX
+diff --git a/libsanitizer/configure b/libsanitizer/configure
+index 6bfd28916..2e5bef939 100755
+--- a/libsanitizer/configure
++++ b/libsanitizer/configure
+@@ -4233,7 +4233,7 @@ esac
+     -I\$(top_builddir)/../libstdc++-v3/include/\$(target_noncanonical) \
+     -I\$(top_srcdir)/../libstdc++-v3/libsupc++"
+   LIBSTDCXX_RAW_CXX_LDFLAGS="\
+-    \$(top_builddir)/../libstdc++-v3/src/libstdc++.la"
++    \$(top_builddir)/../libstdc++-v3/src/libestdc++.la"
+ 
+ 
+ 
+diff --git a/libstdc++-v3/src/Makefile.in b/libstdc++-v3/src/Makefile.in
+index 2f871cb45..b308bf32f 100644
+--- a/libstdc++-v3/src/Makefile.in
++++ b/libstdc++-v3/src/Makefile.in
+@@ -494,7 +494,7 @@ AM_CPPFLAGS = $(GLIBCXX_INCLUDES) $(CPPFLAGS)
+ SUBDIRS = c++98 c++11 c++17 c++20 c++23 c++26 \
+ 	$(filesystem_dir) $(backtrace_dir) $(experimental_dir)
+ 
+-@VTV_CYGMIN_FALSE@toolexeclib_LTLIBRARIES = libstdc++.la
++@VTV_CYGMIN_FALSE@toolexeclib_LTLIBRARIES = libestdc++.la
+ 
+ # Cross compiler support.
+ @VTV_CYGMIN_TRUE@toolexeclib_LTLIBRARIES = libvtv.la libstdc++.la
+@@ -759,7 +759,7 @@ clean-toolexeclibLTLIBRARIES:
+ 	  rm -f $${locs}; \
+ 	}
+ 
+-libstdc++.la: $(libstdc___la_OBJECTS) $(libstdc___la_DEPENDENCIES) $(EXTRA_libstdc___la_DEPENDENCIES) 
++libestdc++.la: $(libstdc___la_OBJECTS) $(libstdc___la_DEPENDENCIES) $(EXTRA_libstdc___la_DEPENDENCIES) 
+ 	$(AM_V_GEN)$(libstdc___la_LINK) $(am_libstdc___la_rpath) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(LIBS)
+ 
+ libvtv.la: $(libvtv_la_OBJECTS) $(libvtv_la_DEPENDENCIES) $(EXTRA_libvtv_la_DEPENDENCIES) 
+-- 
+2.49.0
+
