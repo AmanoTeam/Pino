@@ -1,0 +1,149 @@
+name: Build
+
+on:
+  push:
+    branches:
+        - '**'
+
+jobs:
+  native-build:
+    name: 'Native build'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@main
+      with:
+        submodules: true
+    - name: Check for cache
+      id: check-cache
+      uses: actions/cache@main
+      with:
+        key: gcc-15.1.0-500
+        lookup-only: true
+        path: |
+          /tmp/x86_64-linux-gnu.tar.xz
+          /tmp/x86_64-linux-gnu.tar.xz.sha256
+    - name: Build Pino
+      if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
+      run: |
+        bash './build.sh' 'native'
+    - name: Create logs
+      if: always()
+      run: |
+        declare logs=''
+        
+        while read file; do
+            logs+="${file} "
+        done <<< $(find "/tmp/"*"/build" -wholename '*/config.log')
+        
+        tar --create --file=- ${logs} | xz --threads='0' --compress -9 > '/tmp/logs.tar.xz'
+    - name: Upload logs
+      if:  always()
+      uses: actions/upload-artifact@main
+      with:
+        name: logs
+        if-no-files-found: error
+        path: |
+            /tmp/logs.tar.xz
+    - name: Generate tarball
+      if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
+      run: |
+        declare tarball_filename='/tmp/x86_64-linux-gnu.tar.xz'
+        tar --directory='/tmp' --create --file=- 'pino' | xz --threads='0' --compress -9 > "${tarball_filename}"
+        sha256sum "${tarball_filename}" | sed 's|/tmp/||' > "${tarball_filename}.sha256"
+    - name: Upload artifact
+      if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
+      uses: actions/upload-artifact@main
+      with:
+        name: native-toolchain
+        if-no-files-found: error
+        path: |
+          /tmp/x86_64-linux-gnu.tar.xz
+          /tmp/x86_64-linux-gnu.tar.xz.sha256
+    - name: Cache artifact
+      if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
+      uses: actions/cache@main
+      with:
+        key: gcc-15.1.0-500
+        path: |
+          /tmp/x86_64-linux-gnu.tar.xz
+          /tmp/x86_64-linux-gnu.tar.xz.sha256
+  
+  cross-build:
+    name: 'Cross build'
+    needs: native-build
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        target: [
+          # 'ia64-unknown-linux-gnu',
+          # 'alpha-unknown-linux-gnu',
+          'x86_64-unknown-linux-gnu',
+          'i386-unknown-linux-gnu',
+          # 'arm-unknown-linux-gnueabi',
+          'arm-unknown-linux-gnueabihf',
+          # 'hppa-unknown-linux-gnu',
+          'aarch64-unknown-linux-gnu',
+          # 'mips-unknown-linux-gnu',
+          # 'mipsel-unknown-linux-gnu',
+          # 'powerpc-unknown-linux-gnu',
+          # 's390-unknown-linux-gnu',
+          # 's390x-unknown-linux-gnu',
+          # 'sparc-unknown-linux-gnu',
+          # 'powerpc64le-unknown-linux-gnu',
+          # 'mips64el-unknown-linux-gnuabi64'
+        ]
+    steps:
+    - uses: actions/checkout@main
+      with:
+        submodules: true
+    - name: Restore from cache
+      uses: actions/cache@main
+      with:
+        key: gcc-15.1.0-500
+        fail-on-cache-miss: true
+        path: |
+          /tmp/x86_64-linux-gnu.tar.xz
+          /tmp/x86_64-linux-gnu.tar.xz.sha256
+    - name: Setup toolchain
+      run: |
+        tar --directory='/tmp' --extract --file='/tmp/x86_64-linux-gnu.tar.xz'
+        mv '/tmp/pino' '/tmp/pino-toolchain'
+    - name: Build Pino with OBGGCC
+      run: |
+        source './tools/setup_toolchain.sh'
+        source './submodules/obggcc/tools/setup_toolchain.sh'
+        
+        bash './build.sh' '${{ matrix.target }}'
+    - name: Create logs
+      if: always()
+      run: |
+        declare logs=''
+        
+        while read file; do
+            logs+="${file} "
+        done <<< $(find "/tmp/"*"/build" -wholename '*/config.log')
+        
+        tar --create --file=- ${logs} | xz --threads='0' --compress -9 > '/tmp/logs.tar.xz'
+    - name: Upload logs
+      if:  always()
+      uses: actions/upload-artifact@main
+      with:
+        name: ${{ matrix.target }}-logs
+        if-no-files-found: error
+        path: |
+            /tmp/logs.tar.xz
+    - name: Generate tarball
+      run: |
+        declare tarball_filename='/tmp/${{ matrix.target }}.tar.xz'
+        tar --directory='/tmp' --create --file=- 'pino' | xz --threads='0' --compress -9 > "${tarball_filename}"
+        sha256sum "${tarball_filename}" | sed 's|/tmp/||' > "${tarball_filename}.sha256"
+    - name: Upload artifact
+      uses: actions/upload-artifact@main
+      with:
+        name: ${{ matrix.target }}
+        if-no-files-found: error
+        path: |
+          /tmp/${{ matrix.target }}.tar.xz
+          /tmp/${{ matrix.target }}.tar.xz.sha256
+

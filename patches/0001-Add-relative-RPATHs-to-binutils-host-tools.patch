@@ -1,0 +1,108 @@
+From 6758dbf15a7fe75875600b512d0c2e0423c35b75 Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Sat, 21 Jun 2025 12:04:13 -0300
+Subject: [PATCH] Add relative RPATHs to binutils host tools
+
+This change adds relative RPATHs to the host tools built as part of binutils.
+
+With this change, we can use the --without-static-standard-libraries configure option and place all runtime dependencies inside <toolchain_directory>/lib.
+This eliminates the need to statically link any libraries and also saves disk space by producing smaller executables.
+---
+ bfd/Makefile.in      | 2 +-
+ binutils/Makefile.in | 2 +-
+ gas/Makefile.in      | 2 +-
+ gold/Makefile.in     | 4 ++--
+ gprof/Makefile.in    | 2 +-
+ ld/Makefile.in       | 2 +-
+ 6 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/bfd/Makefile.in b/bfd/Makefile.in
+index ee674a36..3358f987 100644
+--- a/bfd/Makefile.in
++++ b/bfd/Makefile.in
+@@ -224,7 +224,7 @@ am__v_CC_1 =
+ CCLD = $(CC)
+ LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
++	$(AM_LDFLAGS) -Xlinker -rpath -Xlinker \$$ORIGIN/../lib $(LDFLAGS) -o $@
+ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
+ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
+ am__v_CCLD_0 = @echo "  CCLD    " $@;
+diff --git a/binutils/Makefile.in b/binutils/Makefile.in
+index 8029bc29..dd979f77 100644
+--- a/binutils/Makefile.in
++++ b/binutils/Makefile.in
+@@ -346,7 +346,7 @@ am__v_CC_1 =
+ CCLD = $(CC)
+ LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
++	$(AM_LDFLAGS) -Xlinker -rpath -Xlinker \$$ORIGIN/../lib $(LDFLAGS) -o $@
+ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
+ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
+ am__v_CCLD_0 = @echo "  CCLD    " $@;
+diff --git a/gas/Makefile.in b/gas/Makefile.in
+index 1f24d4a5..47d294e2 100644
+--- a/gas/Makefile.in
++++ b/gas/Makefile.in
+@@ -223,7 +223,7 @@ am__v_CC_1 =
+ CCLD = $(CC)
+ LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
++	$(AM_LDFLAGS) -Xlinker -rpath -Xlinker \$$ORIGIN/../lib $(LDFLAGS) -o $@
+ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
+ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
+ am__v_CCLD_0 = @echo "  CCLD    " $@;
+diff --git a/gold/Makefile.in b/gold/Makefile.in
+index 02df5383..51c4c740 100644
+--- a/gold/Makefile.in
++++ b/gold/Makefile.in
+@@ -242,7 +242,7 @@ am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
+ am__v_CC_0 = @echo "  CC      " $@;
+ am__v_CC_1 = 
+ CCLD = $(CC)
+-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
++LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) -Xlinker -rpath -Xlinker \$$ORIGIN/../lib $(LDFLAGS) -o $@
+ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
+ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
+ am__v_CCLD_0 = @echo "  CCLD    " $@;
+@@ -254,7 +254,7 @@ am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+ am__v_CXX_0 = @echo "  CXX     " $@;
+ am__v_CXX_1 = 
+ CXXLD = $(CXX)
+-CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
++CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) -Xlinker -rpath -Xlinker \$$ORIGIN/../lib $(LDFLAGS) \
+ 	-o $@
+ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+diff --git a/gprof/Makefile.in b/gprof/Makefile.in
+index 93fb3781..9aad7841 100644
+--- a/gprof/Makefile.in
++++ b/gprof/Makefile.in
+@@ -189,7 +189,7 @@ am__v_CC_1 =
+ CCLD = $(CC)
+ LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
++	$(AM_LDFLAGS) -Xlinker -rpath -Xlinker \$$ORIGIN/../lib $(LDFLAGS) -o $@
+ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
+ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
+ am__v_CCLD_0 = @echo "  CCLD    " $@;
+diff --git a/ld/Makefile.in b/ld/Makefile.in
+index 3e24bd4d..7e2b84f2 100644
+--- a/ld/Makefile.in
++++ b/ld/Makefile.in
+@@ -251,7 +251,7 @@ am__v_CC_1 =
+ CCLD = $(CC)
+ LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
++	$(AM_LDFLAGS) -Xlinker -rpath -Xlinker \$$ORIGIN/../lib $(LDFLAGS) -o $@
+ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
+ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
+ am__v_CCLD_0 = @echo "  CCLD    " $@;
+-- 
+2.49.0
+
