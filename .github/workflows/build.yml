@@ -17,7 +17,7 @@ jobs:
       id: check-cache
       uses: actions/cache@main
       with:
-        key: gcc-14.2.0
+        key: gcc-15.1.0
         lookup-only: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -26,6 +26,24 @@ jobs:
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       run: |
         bash './build.sh' 'native'
+    - name: Create logs
+      if: ${{ steps.check-cache.outputs.cache-hit != 'true' }} && '!cancelled()'
+      run: |
+        declare logs=''
+        
+        while read file; do
+            logs+="${file} "
+        done <<< $(find "/tmp/gcc-"*"/build" -wholename '*/config.log')
+        
+        tar --create --file=- ${logs} | xz --threads='0' --compress -9 > '/tmp/logs.tar.xz'
+    - name: Upload logs
+      if:  ${{ steps.check-cache.outputs.cache-hit != 'true' }} && '!cancelled()'
+      uses: actions/upload-artifact@main
+      with:
+        name: logs
+        if-no-files-found: error
+        path: |
+            /tmp/logs.tar.xz
     - name: Generate tarball
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       run: |
@@ -45,7 +63,7 @@ jobs:
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       uses: actions/cache@main
       with:
-        key: gcc-14.2.0
+        key: gcc-15.1.0
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
           /tmp/x86_64-linux-gnu.tar.xz.sha256
@@ -58,22 +76,22 @@ jobs:
     strategy:
       matrix:
         target: [
-          'ia64-unknown-linux-gnu',
-          'alpha-unknown-linux-gnu',
+          # 'ia64-unknown-linux-gnu',
+          # 'alpha-unknown-linux-gnu',
           'x86_64-unknown-linux-gnu',
           'i386-unknown-linux-gnu',
-          'arm-unknown-linux-gnueabi',
+          # 'arm-unknown-linux-gnueabi',
           'arm-unknown-linux-gnueabihf',
-          'hppa-unknown-linux-gnu',
+          # 'hppa-unknown-linux-gnu',
           'aarch64-unknown-linux-gnu',
-          'mips-unknown-linux-gnu',
-          'mipsel-unknown-linux-gnu',
-          'powerpc-unknown-linux-gnu',
-          's390-unknown-linux-gnu',
-          's390x-unknown-linux-gnu',
-          'sparc-unknown-linux-gnu',
-          'powerpc64le-unknown-linux-gnu',
-          'mips64el-unknown-linux-gnuabi64'
+          # 'mips-unknown-linux-gnu',
+          # 'mipsel-unknown-linux-gnu',
+          # 'powerpc-unknown-linux-gnu',
+          # 's390-unknown-linux-gnu',
+          # 's390x-unknown-linux-gnu',
+          # 'sparc-unknown-linux-gnu',
+          # 'powerpc64le-unknown-linux-gnu',
+          # 'mips64el-unknown-linux-gnuabi64'
         ]
     steps:
     - uses: actions/checkout@main
@@ -82,7 +100,7 @@ jobs:
     - name: Restore from cache
       uses: actions/cache@main
       with:
-        key: gcc-14.2.0
+        key: gcc-15.1.0
         fail-on-cache-miss: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz

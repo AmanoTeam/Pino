@@ -2,6 +2,9 @@
 
 set -eu
 
+declare -r toolchain_directory="/tmp/loki"
+declare -r share_directory="${toolchain_directory}/usr/local/share/loki"
+
 declare -r workdir="${PWD}"
 
 declare -r revision="$(git rev-parse --short HEAD)"
@@ -10,21 +13,49 @@ declare -r gmp_tarball='/tmp/gmp.tar.xz'
 declare -r gmp_directory='/tmp/gmp-6.3.0'
 
 declare -r mpfr_tarball='/tmp/mpfr.tar.xz'
-declare -r mpfr_directory='/tmp/mpfr-4.2.1'
+declare -r mpfr_directory='/tmp/mpfr-4.2.2'
 
 declare -r mpc_tarball='/tmp/mpc.tar.gz'
 declare -r mpc_directory='/tmp/mpc-1.3.1'
 
+declare -r isl_tarball='/tmp/isl.tar.xz'
+declare -r isl_directory='/tmp/isl-0.27'
+
 declare -r binutils_tarball='/tmp/binutils.tar.xz'
-declare -r binutils_directory='/tmp/binutils-2.43'
+declare -r binutils_directory='/tmp/binutils-with-gold-2.44'
 
-declare -r gcc_tarball='/tmp/gcc.tar.gz'
-declare -r gcc_directory='/tmp/gcc-14.2.0'
+declare -r gcc_tarball='/tmp/gcc.tar.xz'
+declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 
-declare -r optflags='-Os'
-declare -r linkflags='-Wl,-s'
+declare -r max_jobs='40'
 
-declare -r max_jobs="$(($(nproc) * 17))"
+declare -r pieflags='-fPIE'
+declare -r optflags='-w -Os -Xlinker --allow-multiple-definition'
+declare -r linkflags='-Xlinker -s'
+
+declare -ra asan_libraries=(
+	'libasan'
+	'libhwasan'
+	'liblsan'
+	'libtsan'
+	'libubsan'
+)
+
+declare -ra plugin_libraries=(
+	'libcc1plugin'
+	'libcp1plugin'
+)
+
+declare -ra targets=(
+	'x86_64-unknown-freebsd12.3'
+	'sparc64-unknown-freebsd12.3'
+	'aarch64-unknown-freebsd12.3'
+	'i386-unknown-freebsd12.3'
+	'powerpc-unknown-freebsd12.3'
+	'powerpc64-unknown-freebsd12.3'
+	'powerpc64-unknown-freebsd13.0'
+	'riscv64-unknown-freebsd14.2'
+)
 
 declare build_type="${1}"
 
@@ -38,56 +69,136 @@ if [ "${build_type}" == 'native' ]; then
 	is_native='1'
 fi
 
-declare OBGGCC_TOOLCHAIN='/tmp/obggcc-toolchain'
 declare CROSS_COMPILE_TRIPLET=''
-
-declare cross_compile_flags=''
 
 if ! (( is_native )); then
 	source "./submodules/obggcc/toolchains/${build_type}.sh"
-	cross_compile_flags+="--host=${CROSS_COMPILE_TRIPLET}"
 fi
 
+declare -r \
+	build_type \
+	is_native
+
 if ! [ -f "${gmp_tarball}" ]; then
-	wget --no-verbose 'https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz' --output-document="${gmp_tarball}"
-	tar --directory="$(dirname "${gmp_directory}")" --extract --file="${gmp_tarball}"
+	curl \
+		--url 'https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz' \
+		--retry '30' \
+		--retry-all-errors \
+		--retry-delay '0' \
+		--retry-max-time '0' \
+		--location \
+		--silent \
+		--output "${gmp_tarball}"
+	
+	tar \
+		--directory="$(dirname "${gmp_directory}")" \
+		--extract \
+		--file="${gmp_tarball}"
 fi
 
 if ! [ -f "${mpfr_tarball}" ]; then
-	wget --no-verbose 'https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.1.tar.xz' --output-document="${mpfr_tarball}"
-	tar --directory="$(dirname "${mpfr_directory}")" --extract --file="${mpfr_tarball}"
+	curl \
+		--url 'https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.2.tar.xz' \
+		--retry '30' \
+		--retry-all-errors \
+		--retry-delay '0' \
+		--retry-max-time '0' \
+		--location \
+		--silent \
+		--output "${mpfr_tarball}"
+	
+	tar \
+		--directory="$(dirname "${mpfr_directory}")" \
+		--extract \
+		--file="${mpfr_tarball}"
 fi
 
 if ! [ -f "${mpc_tarball}" ]; then
-	wget --no-verbose 'https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz' --output-document="${mpc_tarball}"
-	tar --directory="$(dirname "${mpc_directory}")" --extract --file="${mpc_tarball}"
+	curl \
+		--url 'https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz' \
+		--retry '30' \
+		--retry-all-errors \
+		--retry-delay '0' \
+		--retry-max-time '0' \
+		--location \
+		--silent \
+		--output "${mpc_tarball}"
+	
+	tar \
+		--directory="$(dirname "${mpc_directory}")" \
+		--extract \
+		--file="${mpc_tarball}"
+fi
+
+if ! [ -f "${isl_tarball}" ]; then
+	curl \
+		--url 'https://libisl.sourceforge.io/isl-0.27.tar.xz' \
+		--retry '30' \
+		--retry-all-errors \
+		--retry-delay '0' \
+		--retry-max-time '0' \
+		--location \
+		--silent \
+		--output "${isl_tarball}"
+	
+	tar \
+		--directory="$(dirname "${isl_directory}")" \
+		--extract \
+		--file="${isl_tarball}"
 fi
 
 if ! [ -f "${binutils_tarball}" ]; then
-	wget --no-verbose 'https://ftp.gnu.org/gnu/binutils/binutils-2.43.tar.xz' --output-document="${binutils_tarball}"
-	tar --directory="$(dirname "${binutils_directory}")" --extract --file="${binutils_tarball}"
+	curl \
+		--url 'https://ftp.gnu.org/gnu/binutils/binutils-with-gold-2.44.tar.xz' \
+		--retry '30' \
+		--retry-all-errors \
+		--retry-delay '0' \
+		--retry-max-time '0' \
+		--location \
+		--silent \
+		--output "${binutils_tarball}"
 	
-	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/patches/0001-Revert-gold-Use-char16_t-char32_t-instead-of-uint16_.patch"
+	tar \
+		--directory="$(dirname "${binutils_directory}")" \
+		--extract \
+		--file="${binutils_tarball}"
+	
+	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Revert-gold-Use-char16_t-char32_t-instead-of-uint16_.patch"
+	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Disable-annoying-linker-warnings.patch"
 fi
 
 if ! [ -f "${gcc_tarball}" ]; then
-	wget --no-verbose 'https://ftp.gnu.org/gnu/gcc/gcc-14.2.0/gcc-14.2.0.tar.xz' --output-document="${gcc_tarball}"
-	tar --directory="$(dirname "${gcc_directory}")" --extract --file="${gcc_tarball}"
+	curl \
+		--url 'https://github.com/gcc-mirror/gcc/archive/refs/heads/releases/gcc-15.tar.gz' \
+		--retry '30' \
+		--retry-all-errors \
+		--retry-delay '0' \
+		--retry-max-time '0' \
+		--location \
+		--silent \
+		--output "${gcc_tarball}"
+	
+	tar \
+		--directory="$(dirname "${gcc_directory}")" \
+		--extract \
+		--file="${gcc_tarball}"
+	
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-libgcc-build-on-arm.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Change-the-default-language-version-for-C-compilatio.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Turn-Wimplicit-int-back-into-an-warning.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Turn-Wint-conversion-back-into-an-warning.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Revert-GCC-change-about-turning-Wimplicit-function-d.patch"
 fi
-
-[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
-
-declare -r toolchain_directory="/tmp/loki"
 
 [ -d "${gmp_directory}/build" ] || mkdir "${gmp_directory}/build"
 
 cd "${gmp_directory}/build"
 
 ../configure \
+	--host="${CROSS_COMPILE_TRIPLET}" \
 	--prefix="${toolchain_directory}" \
 	--enable-shared \
-	--enable-static \
-	${cross_compile_flags} \
+	--disable-static \
 	CFLAGS="${optflags}" \
 	CXXFLAGS="${optflags}" \
 	LDFLAGS="${linkflags}"
@@ -100,11 +211,11 @@ make install
 cd "${mpfr_directory}/build"
 
 ../configure \
+	--host="${CROSS_COMPILE_TRIPLET}" \
 	--prefix="${toolchain_directory}" \
 	--with-gmp="${toolchain_directory}" \
 	--enable-shared \
-	--enable-static \
-	${cross_compile_flags} \
+	--disable-static \
 	CFLAGS="${optflags}" \
 	CXXFLAGS="${optflags}" \
 	LDFLAGS="${linkflags}"
@@ -117,11 +228,11 @@ make install
 cd "${mpc_directory}/build"
 
 ../configure \
+	--host="${CROSS_COMPILE_TRIPLET}" \
 	--prefix="${toolchain_directory}" \
 	--with-gmp="${toolchain_directory}" \
 	--enable-shared \
-	--enable-static \
-	${cross_compile_flags} \
+	--disable-static \
 	CFLAGS="${optflags}" \
 	CXXFLAGS="${optflags}" \
 	LDFLAGS="${linkflags}"
@@ -129,77 +240,43 @@ cd "${mpc_directory}/build"
 make all --jobs
 make install
 
-sed -i 's/#include <stdint.h>/#include <stdint.h>\n#include <stdio.h>/g' "${toolchain_directory}/include/mpc.h"
+[ -d "${isl_directory}/build" ] || mkdir "${isl_directory}/build"
 
-[ -d "${binutils_directory}/build" ] || mkdir "${binutils_directory}/build"
+cd "${isl_directory}/build"
+rm --force --recursive ./*
 
-declare -r targets=(
-	'riscv/riscv64'
-	'amd64'
-	'arm64'
-	'i386'
-	'powerpc/powerpc'
-	'powerpc/powerpc64'
-	'powerpc/powerpc64_elfv2'
-	'sparc64/sparc64'
-)
+../configure \
+	--host="${CROSS_COMPILE_TRIPLET}" \
+	--prefix="${toolchain_directory}" \
+	--with-gmp-prefix="${toolchain_directory}" \
+	--enable-shared \
+	--disable-static \
+	CFLAGS="${pieflags} ${optflags}" \
+	CXXFLAGS="${pieflags} ${optflags}" \
+	LDFLAGS="-Xlinker -rpath-link -Xlinker ${toolchain_directory}/lib ${linkflags}"
 
-for target in "${targets[@]}"; do
+make all --jobs
+make install
+
+for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	
-	declare version='12.3-RELEASE'
-	
-	if [ "${target}" == 'riscv/riscv64' ]; then
-		version='14.1-STABLE'
-	elif [ "${target}" == 'powerpc/powerpc64_elfv2' ]; then
-		# Required due to https://reviews.freebsd.org/D20383
+	# Required due to https://reviews.freebsd.org/D20383
+	if [ "${triplet}" == 'powerpc64-unknown-freebsd13.0' ]; then
 		extra_configure_flags+='--with-abi=elfv2'
-		version='13.0-RELEASE'
 	fi
 	
-	if [ "${target}" == 'riscv/riscv64' ]; then
-		declare url="http://ftp.freebsd.org/pub/FreeBSD/snapshots/$(cut -d '_' -f '1' <<< "${target}")/${version}/base.txz"
-	else
-		declare url="http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/$(cut -d '_' -f '1' <<< "${target}")/${version}/base.txz"
+	if [ "${triplet}" == 'sparc64-unknown-freebsd12.3' ]; then
+		extra_configure_flags+=' --disable-libsanitizer'
 	fi
 	
-	declare output="/tmp/freebsd-${target//\//_}-base.tar.xz"
-	
-	case "${target}" in
-		amd64)
-			declare triplet='x86_64-unknown-freebsd12.3';;
-		arm64)
-			declare triplet='aarch64-unknown-freebsd12.3';;
-		i386)
-			declare triplet='i386-unknown-freebsd12.3';;
-		powerpc/powerpc)
-			declare triplet='powerpc-unknown-freebsd12.3';;
-		powerpc/powerpc64)
-			declare triplet='powerpc64-unknown-freebsd12.3';;
-		powerpc/powerpc64_elfv2)
-			declare triplet='powerpc64-unknown-freebsd13.0';;
-		riscv/riscv64)
-			declare triplet='riscv64-unknown-freebsd14.0';;
-		sparc64/sparc64)
-			declare triplet='sparc64-unknown-freebsd12.3';;
-	esac
-	
-	echo "${url}"
-	
-	curl \
-		--url "${url}" \
-		--retry '30' \
-		--retry-all-errors \
-		--retry-delay '0' \
-		--retry-max-time '0' \
-		--location \
-		--silent \
-		--output "${output}"
+	[ -d "${binutils_directory}/build" ] || mkdir "${binutils_directory}/build"
 	
 	cd "${binutils_directory}/build"
 	rm --force --recursive ./*
 	
 	../configure \
+		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
 		--prefix="${toolchain_directory}" \
 		--enable-gold \
@@ -208,7 +285,6 @@ for target in "${targets[@]}"; do
 		--disable-gprofng \
 		--with-static-standard-libraries \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
-		${cross_compile_flags} \
 		CFLAGS="${optflags}" \
 		CXXFLAGS="${optflags}" \
 		LDFLAGS="${linkflags}"
@@ -216,52 +292,60 @@ for target in "${targets[@]}"; do
 	make all --jobs="${max_jobs}"
 	make install
 	
-	tar --directory="${toolchain_directory}/${triplet}" --strip=2 --extract --file="${output}" './usr/lib' './usr/include'
-	tar --directory="${toolchain_directory}/${triplet}" --extract --file="${output}"  './lib'
+	cd "$(mktemp --directory)"
 	
-	pushd "${toolchain_directory}/${triplet}/lib"
+	declare sysroot_url="https://github.com/AmanoTeam/freebsd-sysroot/releases/latest/download/${triplet}.tar.xz"
+	declare sysroot_file="${PWD}/${triplet}.tar.xz"
+	declare sysroot_directory="${PWD}/${triplet}"
 	
-	if [ -f './libc++.so' ]; then
-		chmod 777 './libc++.so'
-		echo 'GROUP ( ./libc++.so.1 ./libcxxrt.so )' > './libc++.so'
-		chmod 444 './libc++.so'
-	fi
+	curl \
+		--url "${sysroot_url}" \
+		--retry '30' \
+		--retry-all-errors \
+		--retry-delay '0' \
+		--retry-max-time '0' \
+		--location \
+		--silent \
+		--output "${sysroot_file}"
 	
-	chmod 777 './libc.so'
+	tar \
+		--extract \
+		--file="${sysroot_file}"
 	
-	if [ "${target}" == 'riscv/riscv64' ] || [ "${target}" == 'powerpc/powerpc64_elfv2' ]; then
-		echo 'GROUP ( ./libc.so.7 ./libc_nonshared.a )' > './libc.so'
-	else
-		echo 'GROUP ( ./libc.so.7 ./libc_nonshared.a ./libssp_nonshared.a )' > './libc.so'
-	fi
+	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
 	
-	chmod 444 './libc.so'
-	
-	find . -type l | xargs ls -l | grep '/lib/' | awk '{print "unlink "$9" && ln -s $(basename "$11") $(basename "$9")"}' | bash 
-	
-	pushd
+	rm --force --recursive ./*
 	
 	# Required due to https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78251
-	if [ "${target}" == 'riscv/riscv64' ]; then
+	if [ "${triplet}" == 'riscv64-unknown-freebsd14.2' ]; then
 		mv "${toolchain_directory}/${triplet}/include/unwind.h" "${toolchain_directory}/${triplet}/include/unwind.h.bak"
 	fi
+	
+	if ! (( is_native )); then
+		extra_configure_flags+=' --enable-default-pie'
+	fi
+	
+	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
 	cd "${gcc_directory}/build"
 	
 	rm --force --recursive ./*
 	
 	../configure \
+		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
 		--prefix="${toolchain_directory}" \
 		--with-linker-hash-style='gnu' \
 		--with-gmp="${toolchain_directory}" \
 		--with-mpc="${toolchain_directory}" \
 		--with-mpfr="${toolchain_directory}" \
+		--with-isl="${toolchain_directory}" \
 		--with-bugurl='https://github.com/AmanoTeam/Loki/issues' \
 		--with-gcc-major-version-only \
-		--with-pkgversion="Loki v0.6-${revision}" \
+		--with-pkgversion="Loki v0.7-${revision}" \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-native-system-header-dir='/include' \
+		--with-default-libstdcxx-abi='new' \
 		--includedir="${toolchain_directory}/${triplet}/include" \
 		--enable-__cxa_atexit \
 		--enable-cet='auto' \
@@ -270,15 +354,25 @@ for target in "${targets[@]}"; do
 		--enable-gnu-indirect-function \
 		--enable-languages='c,c++' \
 		--enable-libstdcxx-backtrace \
+		--enable-libstdcxx-filesystem-ts \
+		--enable-libstdcxx-static-eh-pool \
+		--with-libstdcxx-zoneinfo='static' \
+		--with-libstdcxx-lock-policy='auto' \
 		--enable-link-serialization='1' \
 		--enable-linker-build-id \
 		--enable-lto \
 		--enable-plugin \
+		--enable-libsanitizer \
 		--enable-shared \
 		--enable-threads='posix' \
+		--enable-libstdcxx-threads \
 		--enable-libssp \
 		--enable-ld \
 		--enable-gold \
+		--enable-cxx-flags="${linkflags}" \
+		--enable-host-pie \
+		--enable-host-shared \
+		--disable-fixincludes \
 		--disable-libstdcxx-pch \
 		--disable-werror \
 		--disable-libgomp \
@@ -287,10 +381,9 @@ for target in "${targets[@]}"; do
 		--disable-gnu-unique-object \
 		--without-headers \
 		${extra_configure_flags} \
-		${cross_compile_flags} \
 		CFLAGS="${optflags}" \
 		CXXFLAGS="${optflags}" \
-		LDFLAGS="-Wl,-rpath-link,${OBGGCC_TOOLCHAIN}/${CROSS_COMPILE_TRIPLET}/lib ${linkflags}"
+		LDFLAGS="${linkflags}"
 	
 	LD_LIBRARY_PATH="${toolchain_directory}/lib" PATH="${PATH}:${toolchain_directory}/bin" make \
 		CFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
@@ -298,21 +391,24 @@ for target in "${targets[@]}"; do
 		all --jobs="${max_jobs}"
 	make install
 	
-	if [ "${target}" == 'riscv/riscv64' ]; then
+	if [ "${triplet}" == 'riscv64-unknown-freebsd14.2' ]; then
 		mv "${toolchain_directory}/${triplet}/include/unwind.h.bak" "${toolchain_directory}/${triplet}/include/unwind.h"
 	fi
-	
-	cd "${toolchain_directory}/${triplet}/bin"
-	
-	for name in *; do
-		rm "${name}"
-		ln -s "../../bin/${triplet}-${name}" "${name}"
-	done
-	
-	rm --recursive "${toolchain_directory}/share"
-	rm --recursive "${toolchain_directory}/lib/gcc/${triplet}/"*"/include-fixed"
 	
 	patchelf --add-rpath '$ORIGIN/../../../../lib' "${toolchain_directory}/libexec/gcc/${triplet}/"*"/cc1"
 	patchelf --add-rpath '$ORIGIN/../../../../lib' "${toolchain_directory}/libexec/gcc/${triplet}/"*"/cc1plus"
 	patchelf --add-rpath '$ORIGIN/../../../../lib' "${toolchain_directory}/libexec/gcc/${triplet}/"*"/lto1"
+	
+	for library in "${asan_libraries[@]}"; do
+		patchelf --set-rpath '$ORIGIN' "${toolchain_directory}/lib"*"/${library}.so" || true
+		patchelf --set-rpath '$ORIGIN' "${toolchain_directory}/${triplet}/lib"*"/${library}.so" || true
+	done
+	
+	for library in "${plugin_libraries[@]}"; do
+		patchelf --set-rpath "\$ORIGIN/../../../../../${triplet}/lib64:\$ORIGIN/../../../../../${triplet}/lib:\$ORIGIN/../../../../../lib64:\$ORIGIN/../../../../../lib" "${toolchain_directory}/lib/gcc/${triplet}/"*"/plugin/${library}.so"
+	done
 done
+
+mkdir --parent "${share_directory}"
+
+cp --recursive "${workdir}/tools/dev/"* "${share_directory}"
