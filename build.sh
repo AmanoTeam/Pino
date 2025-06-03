@@ -30,7 +30,7 @@ declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 declare -r max_jobs='30'
 
 declare -r pieflags='-fPIE'
-declare -r optflags='-D_Nonnull -D_Nullable -w -Os -Xlinker --allow-multiple-definition'
+declare -r optflags='-w -Os -Xlinker --allow-multiple-definition'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra asan_libraries=(
@@ -320,6 +320,9 @@ for triplet in "${targets[@]}"; do
 	tar \
 		--extract \
 		--file="${sysroot_file}"
+	
+	
+	patch --directory="${sysroot_file}/include" --strip='1' --input="${workdir}/patches/0001-a.patch"
 	
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
 	
