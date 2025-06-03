@@ -281,7 +281,7 @@ for triplet in "${targets[@]}"; do
 	elif [ "${triplet}" = 'x86_64-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=x86-64 --with-fpmath=sse'
 	fi
-	sed -i '/BFD_ASSERT/d' "${binutils_directory}/bfd/elfnn-aarch64.c"
+	#sed -i '/BFD_ASSERT/d' "${binutils_directory}/bfd/elfnn-aarch64.c"
 	[ -d "${binutils_directory}/build" ] || mkdir "${binutils_directory}/build"
 	
 	cd "${binutils_directory}/build"
