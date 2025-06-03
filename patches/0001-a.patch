@@ -1,0 +1,29 @@
+From 62b97eb9b1de89f0b2ce8660005826b8ba979a3a Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Tue, 3 Jun 2025 05:28:13 +0200
+Subject: [PATCH] a
+
+---
+ sys/cdefs.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/sys/cdefs.h b/sys/cdefs.h
+index 5d1718e..a9260bc 100644
+--- a/sys/cdefs.h
++++ b/sys/cdefs.h
+@@ -42,6 +42,12 @@
+  */
+ #define __BIONIC__ 1
+ 
++#if defined(__GNUC__) && __STDC_VERSION__ < 202311L
++#define _Nonnull
++#define _Nullable
++#define _Null_unspecified
++#endif
++
+ #if defined(__cplusplus)
+ #define __BEGIN_DECLS extern "C" {
+ #define __END_DECLS }
+-- 
+2.36.6
+
