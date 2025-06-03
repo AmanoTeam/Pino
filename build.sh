@@ -30,7 +30,7 @@ declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 declare -r max_jobs='30'
 
 declare -r pieflags='-fPIE'
-declare -r optflags='-D_Nonnull -w -Os -Xlinker --allow-multiple-definition'
+declare -r optflags='-D_Nonnull -D_Nullable -w -Os -Xlinker --allow-multiple-definition'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra asan_libraries=(
