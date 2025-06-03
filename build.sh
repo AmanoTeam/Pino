@@ -27,7 +27,7 @@ declare -r binutils_directory='/tmp/binutils-with-gold-2.44'
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
 declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 
-declare -r max_jobs='40'
+declare -r max_jobs='30'
 
 declare -r pieflags='-fPIE'
 declare -r optflags='-w -Os -Xlinker --allow-multiple-definition'
