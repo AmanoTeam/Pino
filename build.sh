@@ -387,7 +387,7 @@ for triplet in "${targets[@]}"; do
 		--enable-version-specific-runtime-libs \
 		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
-		--with-specs='nce --with-specs=%{!fno-common:%{!fcommon:-fcommon}}' \
+		--with-specs='%{!fno-common:%{!fcommon:-fcommon}}' \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
