@@ -384,7 +384,6 @@ for triplet in "${targets[@]}"; do
 		--enable-host-shared \
 		--enable-version-specific-runtime-libs \
 		--enable-eh-frame-hdr-for-static \
-		--with-specs="${specs}" \
 		 --with-stage1-ldflags="-specs=/tmp/a" \
 		--enable-initfini-array \
 		--disable-tls \
