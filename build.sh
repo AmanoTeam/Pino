@@ -400,7 +400,7 @@ for triplet in "${targets[@]}"; do
 		LDFLAGS="${linkflags}"
 	#--with-stage1-ldflags="-specs=/tmp/a" \
 	LD_LIBRARY_PATH="${toolchain_directory}/lib" PATH="${PATH}:${toolchain_directory}/bin" make \
-		CFLAGS_FOR_TARGET="-ffixed-x18 -D__ANDROID_API__=21 ${optflags} ${linkflags}" \
+		CFLAGS_FOR_TARGET="-ffixed-x18 -fcommon -D__ANDROID_API__=21 ${optflags} ${linkflags}" \
 		CXXFLAGS_FOR_TARGET="-ffixed-x18 -D__ANDROID_API__=21 ${optflags} ${linkflags}" \
 		all --jobs="${max_jobs}"
 	make install
