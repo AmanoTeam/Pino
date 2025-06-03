@@ -1,26 +1,53 @@
-From bbf0b5107a4ef1c78140d7daa387baa1c2311f85 Mon Sep 17 00:00:00 2001
+From 579474b7399ce34cb225ef46c1c8be31a3198863 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Tue, 3 Jun 2025 17:46:19 -0300
 Subject: [PATCH] a
 
 ---
- libstdc++-v3/include/c_compatibility/stdio.h | 2 ++
- 1 file changed, 2 insertions(+)
+ libstdc++-v3/include/c_compatibility/stdio.h | 4 +++-
+ libstdc++-v3/src/c++23/std-clib.cc.in        | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/libstdc++-v3/include/c_compatibility/stdio.h b/libstdc++-v3/include/c_compatibility/stdio.h
-index 7241481..b9e90b3 100644
+index 7241481..dee6495 100644
 --- a/libstdc++-v3/include/c_compatibility/stdio.h
 +++ b/libstdc++-v3/include/c_compatibility/stdio.h
-@@ -72,7 +72,9 @@ using std::puts;
+@@ -72,9 +72,11 @@ using std::puts;
  using std::ungetc;
  using std::fread;
  using std::fwrite;
 +#if defined(__ANDROID__) && __ANDROID_API__ >= 24
  using std::fgetpos;
-+#endif
- using std::fseek;
+-using std::fseek;
  using std::fsetpos;
++#endif
++using std::fseek;
  using std::ftell;
+ using std::rewind;
+ using std::clearerr;
+diff --git a/libstdc++-v3/src/c++23/std-clib.cc.in b/libstdc++-v3/src/c++23/std-clib.cc.in
+index 10fc03e..eb2cc29 100644
+--- a/libstdc++-v3/src/c++23/std-clib.cc.in
++++ b/libstdc++-v3/src/c++23/std-clib.cc.in
+@@ -438,7 +438,6 @@ export C_LIB_NAMESPACE
+   using std::ferror;
+   using std::fflush;
+   using std::fgetc;
+-  using std::fgetpos;
+   using std::fgets;
+   using std::FILE;
+   using std::fopen;
+@@ -450,7 +449,10 @@ export C_LIB_NAMESPACE
+   using std::freopen;
+   using std::fscanf;
+   using std::fseek;
++#if defined(__ANDROID__) && __ANDROID_API__ >= 24
++  using std::fgetpos;
+   using std::fsetpos;
++#endif
+   using std::ftell;
+   using std::fwrite;
+   using std::getc;
 -- 
 2.49.0
 
