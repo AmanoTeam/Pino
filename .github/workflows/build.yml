@@ -22,7 +22,7 @@ jobs:
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
           /tmp/x86_64-linux-gnu.tar.xz.sha256
-    - name: Build Loki
+    - name: Build Pino
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       run: |
         bash './build.sh' 'native'
@@ -48,7 +48,7 @@ jobs:
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       run: |
         declare tarball_filename='/tmp/x86_64-linux-gnu.tar.xz'
-        tar --directory='/tmp' --create --file=- 'loki' | xz --threads='0' --compress -9 > "${tarball_filename}"
+        tar --directory='/tmp' --create --file=- 'pino' | xz --threads='0' --compress -9 > "${tarball_filename}"
         sha256sum "${tarball_filename}" | sed 's|/tmp/||' > "${tarball_filename}.sha256"
     - name: Upload artifact
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
@@ -108,8 +108,8 @@ jobs:
     - name: Setup toolchain
       run: |
         tar --directory='/tmp' --extract --file='/tmp/x86_64-linux-gnu.tar.xz'
-        mv '/tmp/loki' '/tmp/loki-toolchain'
-    - name: Build Loki with OBGGCC
+        mv '/tmp/pino' '/tmp/pino-toolchain'
+    - name: Build Pino with OBGGCC
       run: |
         source './tools/setup_toolchain.sh'
         source './submodules/obggcc/tools/setup_toolchain.sh'
@@ -118,7 +118,7 @@ jobs:
     - name: Generate tarball
       run: |
         declare tarball_filename='/tmp/${{ matrix.target }}.tar.xz'
-        tar --directory='/tmp' --create --file=- 'loki' | xz --threads='0' --compress -9 > "${tarball_filename}"
+        tar --directory='/tmp' --create --file=- 'pino' | xz --threads='0' --compress -9 > "${tarball_filename}"
         sha256sum "${tarball_filename}" | sed 's|/tmp/||' > "${tarball_filename}.sha256"
     - name: Upload artifact
       uses: actions/upload-artifact@main
