@@ -268,13 +268,16 @@ make install
 
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
+	declare specs=$(cat ${workdir}/patches/specs.txt)
 	
 	if [ "${triplet}" = 'arm-linux-androideabi' ]; then
 		extra_configure_flags+=' --with-arch=armv7-a --with-float=soft --with-fpu=vfp'
 	elif [ "${triplet}" = 'aarch64-linux-android' ]; then
 		extra_configure_flags+=' --enable-fix-cortex-a53-835769 --enable-fix-cortex-a53-843419'
+		specs+="\n*cc1:\n+ -ffixed-x18\n\n*cc1plus:\n+ -ffixed-x18\n"
 	elif [ "${triplet}" = 'i686-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=i686 --with-fpmath=sse'
+		specs+="\n*link_emulation:\nelf_i386\n\n*dynamic_linker:\n/system/bin/linker\n"
 	elif [ "${triplet}" = 'x86_64-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=x86-64 --with-fpmath=sse'
 	fi

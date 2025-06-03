@@ -1,0 +1,13 @@
+*cc1:
++ %{Oz:-Os}  %>Oz %>Werror=unguarded-availability-new %{static-openmp:-fopenmp} %>static-openmp  
+
+*cc1_options:
++ %{!fpie: %{!fPIE: %{!fpic: %{!fPIC: %{!fno-pic:-fPIC}}}}} %{!fno-common:-fcommon} 
+
+*cc1plus:
++ %{!fpie: %{!fPIE: %{!fpic: %{!fPIC: %{!fno-pic:-fPIC}}}}} %{!frtti: %{!fno-rtti: -frtti}} 
+
+*link:
++ %{!nopie: %{!static: %{!shared: %{!nostdlib: %{!nostartfiles: %{!fno-PIE: %{!fno-pie: -pie}}}}}}} --enable-new-dtags --eh-frame-hdr
+
+*link_gomp: -lgomp %{static: -ldl } 
