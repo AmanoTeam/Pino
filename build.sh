@@ -284,7 +284,7 @@ for triplet in "${targets[@]}"; do
 	#sed -i '/BFD_ASSERT/d' "${binutils_directory}/bfd/elfnn-aarch64.c"
 	[ -d "${binutils_directory}/build" ] || mkdir "${binutils_directory}/build"
 	
-	specs=$(sed 's|%|\\%|g' <<< $specs)
+	#specs=$(sed 's|%|\\%|g' <<< $specs)
 	
 	cd "${binutils_directory}/build"
 	rm --force --recursive ./*
@@ -338,7 +338,7 @@ for triplet in "${targets[@]}"; do
 	cd "${gcc_directory}/build"
 	
 	rm --force --recursive ./*
-	
+	echo $specs > /tmp/a
 	../configure \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
@@ -385,6 +385,7 @@ for triplet in "${targets[@]}"; do
 		--enable-version-specific-runtime-libs \
 		--enable-eh-frame-hdr-for-static \
 		--with-specs="${specs}" \
+		 --with-stage1-ldflags="-specs=/tmp/a" \
 		--enable-initfini-array \
 		--disable-tls \
 		--disable-fixincludes \
