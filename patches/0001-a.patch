@@ -1,21 +1,22 @@
-From 62b97eb9b1de89f0b2ce8660005826b8ba979a3a Mon Sep 17 00:00:00 2001
+From 71732ac7e7ed9e7dbad44b9116f2336feea1b4dd Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
-Date: Tue, 3 Jun 2025 05:28:13 +0200
+Date: Tue, 3 Jun 2025 06:05:14 +0200
 Subject: [PATCH] a
 
 ---
- sys/cdefs.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+ sys/cdefs.h | 44 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
 diff --git a/sys/cdefs.h b/sys/cdefs.h
-index 5d1718e..a9260bc 100644
+index 5d1718e..f6428a0 100644
 --- a/sys/cdefs.h
 +++ b/sys/cdefs.h
-@@ -42,6 +42,12 @@
+@@ -42,6 +42,13 @@
   */
  #define __BIONIC__ 1
  
-+#if defined(__GNUC__) && __STDC_VERSION__ < 202311L
++#if !defined(__clang__)
++// TODO: Replace all the functions use _Nonnull with __nonnull__
 +#define _Nonnull
 +#define _Nullable
 +#define _Null_unspecified
@@ -24,6 +25,92 @@ index 5d1718e..a9260bc 100644
  #if defined(__cplusplus)
  #define __BEGIN_DECLS extern "C" {
  #define __END_DECLS }
+@@ -142,12 +149,25 @@
+ 
+ #define __wur __attribute__((__warn_unused_result__))
+ 
++#ifdef __clang__
+ #define __errorattr(msg) __attribute__((__unavailable__(msg)))
+ #define __warnattr(msg) __attribute__((__deprecated__(msg)))
+ #define __warnattr_real(msg) __attribute__((__deprecated__(msg)))
+ #define __enable_if(cond, msg) __attribute__((__enable_if__(cond, msg)))
+ #define __clang_error_if(cond, msg) __attribute__((__diagnose_if__(cond, msg, "error")))
+ #define __clang_warning_if(cond, msg) __attribute__((__diagnose_if__(cond, msg, "warning")))
++#else
++#  define __errorattr(msg) __attribute__((__error__(msg)))
++#  define __warnattr(msg) __attribute__((__warning__(msg)))
++#  define __warnattr_real __warnattr
++/* enable_if doesn't exist on other compilers; give an error if it's used. */
++/* diagnose_if doesn't exist either, but it's often tagged on non-clang-specific functions */
++#  define __clang_error_if(cond, msg)
++#  define __clang_warning_if(cond, msg)
++
++/* errordecls really don't work as well in clang as they do in GCC. */
++#  define __errordecl(name, msg) extern void name(void) __errorattr(msg)
++#endif
+ 
+ #if defined(ANDROID_STRICT)
+ /*
+@@ -251,6 +271,7 @@
+ 
+ #if defined(__BIONIC_FORTIFY)
+ #  define __bos0(s) __bosn((s), 0)
++#if defined(__clang__)
+ #  define __pass_object_size_n(n) __attribute__((__pass_object_size__(n)))
+ /*
+  * FORTIFY'ed functions all have either enable_if or pass_object_size, which
+@@ -275,6 +296,18 @@
+ /* Error functions don't have bodies, so they can just be static. */
+ #  define __BIONIC_ERROR_FUNCTION_VISIBILITY static __unused
+ #else
++/*
++ * Where they can, GCC and clang-style FORTIFY share implementations.
++ * So, make these nops in GCC.
++ */
++#  define __pass_object_size_n(n)
++#  define __call_bypassing_fortify(fn) (fn)
++/* __BIONIC_FORTIFY_NONSTATIC_INLINE is pointless in GCC's FORTIFY */
++#  define __BIONIC_FORTIFY_INLINE extern __inline__ __always_inline __attribute__((gnu_inline)) __attribute__((__artificial__))
++/* __always_inline is probably okay and ignored by gcc in __BIONIC_FORTIFY_VARIADIC */
++#  define __BIONIC_FORTIFY_VARIADIC __BIONIC_FORTIFY_INLINE
++#endif
++#else
+ /* Further increase sharing for some inline functions */
+ #  define __pass_object_size_n(n)
+ #endif
+@@ -303,7 +336,16 @@
+ #  define __BIONIC_INCLUDE_FORTIFY_HEADERS 1
+ #endif
+ 
++#if !defined(__clang__) && defined(__BIONIC_INCLUDE_FORTIFY_HEADERS)
++#undef __BIONIC_INCLUDE_FORTIFY_HEADERS
++#warning "Fortify headers are not supported and will not used without clang."
++#endif
++
++#if defined(__clang__)
+ #define __overloadable __attribute__((__overloadable__))
++#else
++#define __overloadable
++#endif
+ 
+ #define __diagnose_as_builtin(...) __attribute__((__diagnose_as_builtin__(__VA_ARGS__)))
+ 
+@@ -323,6 +365,7 @@
+ /* Used to rename functions so that the compiler emits a call to 'x' rather than the function this was applied to. */
+ #define __RENAME(x) __asm__(#x)
+ 
++#if defined(__clang__)
+ /*
+  * Used when we need to check for overflow when multiplying x and y. This
+  * should only be used where __builtin_umull_overflow can not work, because it makes
+@@ -331,6 +374,7 @@
+  * __builtin_umull_overflow.
+  */
+ #define __unsafe_check_mul_overflow(x, y) ((__SIZE_TYPE__)-1 / (x) < (y))
++#endif
+ 
+ #include <android/versioning.h>
+ #include <android/api-level.h>
 -- 
 2.36.6
 
