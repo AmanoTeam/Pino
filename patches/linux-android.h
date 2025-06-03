@@ -30,7 +30,7 @@
 #else
 # define NOANDROID "!mandroid"
 #endif
-/*
+
 #ifdef HAVE_LD_AS_NEEDED
 #define USE_LD_AS_NEEDED 1
 #endif
@@ -38,7 +38,7 @@
 #if defined(HAVE_LD_EH_FRAME_HDR)
 #define LINK_EH_SPEC "%{!static|static-pie:--eh-frame-hdr} "
 #endif
-*/
+
 #define LINUX_OR_ANDROID_CC(LINUX_SPEC, ANDROID_SPEC) \
   "%{" NOANDROID "|tno-android-cc:" LINUX_SPEC ";:" ANDROID_SPEC "}"
 
