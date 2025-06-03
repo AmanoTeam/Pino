@@ -30,7 +30,7 @@ declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 declare -r max_jobs='30'
 
 declare -r pieflags='-fPIE'
-declare -r optflags='-w -Os -Xlinker --allow-multiple-definition'
+declare -r optflags='-Wfatal-errors -w -Os -Xlinker --allow-multiple-definition'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra asan_libraries=(
@@ -395,8 +395,8 @@ for triplet in "${targets[@]}"; do
 		LDFLAGS="${linkflags}"
 	
 	LD_LIBRARY_PATH="${toolchain_directory}/lib" PATH="${PATH}:${toolchain_directory}/bin" make \
-		CFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
-		CXXFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
+		CFLAGS_FOR_TARGET="-D__ANDROID_API__=21 ${optflags} ${linkflags}" \
+		CXXFLAGS_FOR_TARGET="-D__ANDROID_API__=21 ${optflags} ${linkflags}" \
 		all --jobs="${max_jobs}"
 	make install
 	
