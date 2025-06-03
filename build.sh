@@ -270,7 +270,7 @@ for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	declare specs=$(cat ${workdir}/patches/specs.txt)
 	
-	cp ${workdir}/patches/linux-android.h $gcc_directory/gcc/config/linux-android.h
+	#cp ${workdir}/patches/linux-android.h $gcc_directory/gcc/config/linux-android.h
 	
 	if [ "${triplet}" = 'arm-linux-androideabi' ]; then
 		extra_configure_flags+=' --with-arch=armv7-a --with-float=soft --with-fpu=vfp'
@@ -374,7 +374,7 @@ for triplet in "${targets[@]}"; do
 		--enable-linker-build-id \
 		--enable-lto \
 		--enable-plugin \
-		--enable-libsanitizer \
+		--disable-libsanitizer \
 		--enable-shared \
 		--enable-threads='posix' \
 		--enable-libstdcxx-threads \
