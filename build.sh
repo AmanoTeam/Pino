@@ -284,6 +284,8 @@ for triplet in "${targets[@]}"; do
 	#sed -i '/BFD_ASSERT/d' "${binutils_directory}/bfd/elfnn-aarch64.c"
 	[ -d "${binutils_directory}/build" ] || mkdir "${binutils_directory}/build"
 	
+	specs=$(sed 's|%|\\%|g' <<< $specs)
+	
 	cd "${binutils_directory}/build"
 	rm --force --recursive ./*
 	
