@@ -322,7 +322,7 @@ for triplet in "${targets[@]}"; do
 		--file="${sysroot_file}"
 	
 	
-	patch --directory="${sysroot_file}/include" --strip='1' --input="${workdir}/patches/0001-a.patch"
+	patch --directory="${sysroot_directory}/include" --strip='1' --input="${workdir}/patches/0001-a.patch"
 	
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
 	
