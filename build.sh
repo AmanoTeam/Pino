@@ -187,6 +187,10 @@ if ! [ -f "${gcc_tarball}" ]; then
 		--extract \
 		--file="${gcc_tarball}"
 	
+	for name in "${workdir}/submodules/tur/tur/gcc-15/"*'.patch'; do
+		patch --directory="${gcc_directory}" --strip='1' --input="${name}"
+	done
+	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-libgcc-build-on-arm.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Change-the-default-language-version-for-C-compilatio.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Turn-Wimplicit-int-back-into-an-warning.patch"
