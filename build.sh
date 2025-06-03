@@ -321,7 +321,7 @@ for triplet in "${targets[@]}"; do
 		--extract \
 		--file="${sysroot_file}"
 	
-	
+	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	#patch --directory="${sysroot_directory}/include" --strip='1' --input="${workdir}/patches/0001-a.patch"
 	
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
