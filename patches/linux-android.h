@@ -50,7 +50,7 @@
 
 #define ANDROID_CC1_SPEC						\
   "%{!mglibc:%{!muclibc:%{!mbionic: -mbionic}}} "			\
-  "%{!fno-pic:%{!fno-PIC:%{!fpic:%{!fPIC: -fPIC}}}}"			\
+  "%{!fno-pic:%{!fno-PIC:%{!fpic:%{!fPIC: -fPIC}}}} "			\
   "%{!fcommon:%{!fno-common: -fcommon}}"
 
 #define ANDROID_CC1PLUS_SPEC						\
