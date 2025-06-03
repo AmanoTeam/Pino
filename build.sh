@@ -295,9 +295,9 @@ for triplet in "${targets[@]}"; do
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
 		--prefix="${toolchain_directory}" \
-		--enable-gold \
+		--disable-gold \
 		--enable-ld \
-		--enable-lto \
+		--disable-lto \
 		--disable-gprofng \
 		--with-static-standard-libraries \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
