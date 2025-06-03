@@ -2,8 +2,8 @@
 
 set -eu
 
-declare -r toolchain_directory="/tmp/loki"
-declare -r share_directory="${toolchain_directory}/usr/local/share/loki"
+declare -r toolchain_directory="/tmp/pino"
+declare -r share_directory="${toolchain_directory}/usr/local/share/pino"
 
 declare -r workdir="${PWD}"
 
@@ -47,15 +47,19 @@ declare -ra plugin_libraries=(
 )
 
 declare -ra targets=(
-	'x86_64-unknown-freebsd12.3'
-	'sparc64-unknown-freebsd12.3'
-	'aarch64-unknown-freebsd12.3'
-	'i386-unknown-freebsd12.3'
-	'powerpc-unknown-freebsd12.3'
-	'powerpc64-unknown-freebsd12.3'
-	'powerpc64-unknown-freebsd13.0'
-	'riscv64-unknown-freebsd14.2'
+	'aarch64-linux-android'
+	# 'riscv64-linux-android'
+	'arm-linux-androideabi'
+	'x86_64-linux-android'
+	'i686-linux-android'
 )
+
+export \
+	ac_cv_func_aligned_alloc=no \
+	ac_cv_func__aligned_malloc=no \
+	ac_cv_func_memalign=no \
+	ac_cv_c_bigendian=no
+
 
 declare build_type="${1}"
 
@@ -65,7 +69,7 @@ fi
 
 declare is_native='0'
 
-if [ "${build_type}" == 'native' ]; then
+if [ "${build_type}" = 'native' ]; then
 	is_native='1'
 fi
 
@@ -261,13 +265,14 @@ make install
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	
-	# Required due to https://reviews.freebsd.org/D20383
-	if [ "${triplet}" == 'powerpc64-unknown-freebsd13.0' ]; then
-		extra_configure_flags+='--with-abi=elfv2'
-	fi
-	
-	if [ "${triplet}" == 'sparc64-unknown-freebsd12.3' ]; then
-		extra_configure_flags+=' --disable-libsanitizer'
+	if [ "${triplet}" = 'arm-linux-androideabi' ]; then
+		extra_configure_flags+=' --with-arch=armv7-a --with-float=soft --with-fpu=vfp'
+	elif [ "${triplet}" = 'aarch64-linux-android' ]; then
+		extra_configure_flags+=' --enable-fix-cortex-a53-835769 --enable-fix-cortex-a53-843419'
+	elif [ "${triplet}" = 'i686-linux-android' ]; then
+		extra_configure_flags+=' --with-arch=i686 --with-fpmath=sse'
+	elif [ "${triplet}" = 'x86_64-linux-android' ]; then
+		extra_configure_flags+=' --with-arch=x86-64 --with-fpmath=sse'
 	fi
 	
 	[ -d "${binutils_directory}/build" ] || mkdir "${binutils_directory}/build"
@@ -294,7 +299,7 @@ for triplet in "${targets[@]}"; do
 	
 	cd "$(mktemp --directory)"
 	
-	declare sysroot_url="https://github.com/AmanoTeam/freebsd-sysroot/releases/latest/download/${triplet}.tar.xz"
+	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}.tar.xz"
 	declare sysroot_file="${PWD}/${triplet}.tar.xz"
 	declare sysroot_directory="${PWD}/${triplet}"
 	
@@ -316,15 +321,6 @@ for triplet in "${targets[@]}"; do
 	
 	rm --force --recursive ./*
 	
-	# Required due to https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78251
-	if [ "${triplet}" == 'riscv64-unknown-freebsd14.2' ]; then
-		mv "${toolchain_directory}/${triplet}/include/unwind.h" "${toolchain_directory}/${triplet}/include/unwind.h.bak"
-	fi
-	
-	if ! (( is_native )); then
-		extra_configure_flags+=' --enable-default-pie'
-	fi
-	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
 	cd "${gcc_directory}/build"
@@ -340,9 +336,9 @@ for triplet in "${targets[@]}"; do
 		--with-mpc="${toolchain_directory}" \
 		--with-mpfr="${toolchain_directory}" \
 		--with-isl="${toolchain_directory}" \
-		--with-bugurl='https://github.com/AmanoTeam/Loki/issues' \
+		--with-bugurl='https://github.com/AmanoTeam/Pino/issues' \
 		--with-gcc-major-version-only \
-		--with-pkgversion="Loki v0.7-${revision}" \
+		--with-pkgversion="Pino v0.1-${revision}" \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-native-system-header-dir='/include' \
 		--with-default-libstdcxx-abi='new' \
@@ -350,14 +346,16 @@ for triplet in "${targets[@]}"; do
 		--enable-__cxa_atexit \
 		--enable-cet='auto' \
 		--enable-checking='release' \
+		--enable-default-pie \
 		--enable-default-ssp \
 		--enable-gnu-indirect-function \
+		--enable-gnu-unique-object \
 		--enable-languages='c,c++' \
 		--enable-libstdcxx-backtrace \
 		--enable-libstdcxx-filesystem-ts \
 		--enable-libstdcxx-static-eh-pool \
 		--with-libstdcxx-zoneinfo='static' \
-		--with-libstdcxx-lock-policy='auto' \
+		--with-libstdcxx-lock-policy='atomic' \
 		--enable-link-serialization='1' \
 		--enable-linker-build-id \
 		--enable-lto \
@@ -372,6 +370,10 @@ for triplet in "${targets[@]}"; do
 		--enable-cxx-flags="${linkflags}" \
 		--enable-host-pie \
 		--enable-host-shared \
+		--enable-version-specific-runtime-libs \
+		--enable-eh-frame-hdr-for-static \
+		--enable-initfini-array \
+		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
 		--disable-werror \
@@ -391,10 +393,6 @@ for triplet in "${targets[@]}"; do
 		all --jobs="${max_jobs}"
 	make install
 	
-	if [ "${triplet}" == 'riscv64-unknown-freebsd14.2' ]; then
-		mv "${toolchain_directory}/${triplet}/include/unwind.h.bak" "${toolchain_directory}/${triplet}/include/unwind.h"
-	fi
-	
 	patchelf --add-rpath '$ORIGIN/../../../../lib' "${toolchain_directory}/libexec/gcc/${triplet}/"*"/cc1"
 	patchelf --add-rpath '$ORIGIN/../../../../lib' "${toolchain_directory}/libexec/gcc/${triplet}/"*"/cc1plus"
 	patchelf --add-rpath '$ORIGIN/../../../../lib' "${toolchain_directory}/libexec/gcc/${triplet}/"*"/lto1"
@@ -411,4 +409,4 @@ done
 
 mkdir --parent "${share_directory}"
 
-cp --recursive "${workdir}/tools/dev/"* "${share_directory}"
+# cp --recursive "${workdir}/tools/dev/"* "${share_directory}"
