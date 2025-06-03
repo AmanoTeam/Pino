@@ -47,9 +47,9 @@ declare -ra plugin_libraries=(
 )
 
 declare -ra targets=(
+	'arm-linux-androideabi'
 	'aarch64-linux-android'
 	# 'riscv64-linux-android'
-	'arm-linux-androideabi'
 	'x86_64-linux-android'
 	'i686-linux-android'
 )
