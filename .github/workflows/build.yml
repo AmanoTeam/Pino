@@ -27,7 +27,7 @@ jobs:
       run: |
         bash './build.sh' 'native'
     - name: Create logs
-      if: ${{ steps.check-cache.outputs.cache-hit != 'true' }} && '!cancelled()'
+      if: always()
       run: |
         declare logs=''
         
@@ -37,7 +37,7 @@ jobs:
         
         tar --create --file=- ${logs} | xz --threads='0' --compress -9 > '/tmp/logs.tar.xz'
     - name: Upload logs
-      if:  ${{ steps.check-cache.outputs.cache-hit != 'true' }} && '!cancelled()'
+      if:  always()
       uses: actions/upload-artifact@main
       with:
         name: logs
@@ -116,7 +116,7 @@ jobs:
         
         bash './build.sh' '${{ matrix.target }}'
     - name: Create logs
-      if: ${{ steps.check-cache.outputs.cache-hit != 'true' }} && '!cancelled()'
+      if: always()
       run: |
         declare logs=''
         
@@ -126,7 +126,7 @@ jobs:
         
         tar --create --file=- ${logs} | xz --threads='0' --compress -9 > '/tmp/logs.tar.xz'
     - name: Upload logs
-      if:  ${{ steps.check-cache.outputs.cache-hit != 'true' }} && '!cancelled()'
+      if:  always()
       uses: actions/upload-artifact@main
       with:
         name: ${{ matrix.target }}-logs
