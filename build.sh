@@ -347,6 +347,10 @@ for triplet in "${targets[@]}"; do
 		specs+=' -ffixed-x18'
 	fi
 	
+	if ! (( is_native )); then
+		extra_configure_flags+=' --enable-libsanitizer'
+	fi
+	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
 	cd "${gcc_directory}/build"
@@ -386,7 +390,6 @@ for triplet in "${targets[@]}"; do
 		--enable-linker-build-id \
 		--enable-lto \
 		--enable-plugin \
-		--enable-libsanitizer \
 		--enable-shared \
 		--enable-threads='posix' \
 		--enable-libstdcxx-threads \
