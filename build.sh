@@ -48,9 +48,9 @@ declare -ra plugin_libraries=(
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	'x86_64-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'arm-unknown-linux-androideabi'
+	# 'x86_64-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'arm-unknown-linux-androideabi'
 )
 
 export \
@@ -347,10 +347,10 @@ for triplet in "${targets[@]}"; do
 		specs+=' -ffixed-x18'
 	fi
 	
-	if ! (( is_native )); then
-		extra_configure_flags+=' --enable-libsanitizer'
-	else
+	if (( is_native )); then
 		extra_configure_flags+=' --disable-libsanitizer'
+	else
+		extra_configure_flags+=' --enable-libsanitizer'
 	fi
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
@@ -428,7 +428,7 @@ for triplet in "${targets[@]}"; do
 	
 	unlink './libstdc++.so'
 	
-	for library in "../../lib/gcc/${triplet}/"*'/lib'*.{so,a}; do
+	for library in "../../lib/gcc/${triplet}/"*'/lib'*.{so,a,1}; do
 		name="$(basename "${library}")"
 		
 		[ -f "${name}" ] && unlink "${name}"
