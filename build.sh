@@ -388,7 +388,7 @@ for triplet in "${targets[@]}"; do
 		--enable-version-specific-runtime-libs \
 		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
-		--with-specs='%{!fno-common:%{!fcommon:-fcommon}} %{!fno-rtti:%{!frtti:-frtti}} %{!r:-Xlinker --eh-frame-hdr}' \
+		--with-specs='%{!fno-common:%{!fcommon:-fcommon}} *cc1plus: %{!fno-rtti:%{!frtti:-frtti}} %{!r:-Xlinker --eh-frame-hdr}' \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
