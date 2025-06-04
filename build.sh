@@ -424,6 +424,8 @@ for triplet in "${targets[@]}"; do
 	
 	pushd "${toolchain_directory}/${triplet}/lib"
 	
+	unlink './libstdc++.so'
+	
 	for library in "../../lib/gcc/${triplet}/"*'/lib'*.{so,a}; do
 		ln --symbolic "${library}" './'
 	done
