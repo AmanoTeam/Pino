@@ -30,7 +30,7 @@ declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 declare -r max_jobs='30'
 
 declare -r pieflags='-fPIE'
-declare -r optflags='-w -O2 -Xlinker --allow-multiple-definition'
+declare -r optflags='-w -Os -Xlinker --allow-multiple-definition'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra asan_libraries=(
@@ -189,7 +189,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 		patch --directory="${gcc_directory}" --strip='1' --input="${name}"
 	done
 	
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-a.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declarations.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-libgcc-build-on-arm.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Change-the-default-language-version-for-C-compilatio.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Turn-Wimplicit-int-back-into-an-warning.patch"
@@ -347,7 +347,7 @@ for triplet in "${targets[@]}"; do
 		specs+=' -ffixed-x18'
 	fi
 	
-	if (( is_native )); then
+	if (( 1 )); then
 		extra_configure_flags+=' --disable-libsanitizer'
 	else
 		extra_configure_flags+=' --enable-libsanitizer'
