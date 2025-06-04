@@ -2,7 +2,7 @@
 
 set -eu
 
-declare -r toolchain_directory="/tmp/pino"
+declare -r toolchain_directory='/tmp/pino'
 declare -r share_directory="${toolchain_directory}/usr/local/share/pino"
 
 declare -r workdir="${PWD}"
@@ -49,7 +49,6 @@ declare -ra plugin_libraries=(
 declare -ra targets=(
 	'arm-linux-androideabi'
 	'aarch64-linux-android'
-	# 'riscv64-linux-android'
 	'x86_64-linux-android'
 	'i686-linux-android'
 )
@@ -269,18 +268,14 @@ make install
 
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
-	declare specs=$(cat ${workdir}/patches/specs.txt)
-	
-	#cp ${workdir}/patches/linux-android.h $gcc_directory/gcc/config/linux-android.h
 	
 	if [ "${triplet}" = 'arm-linux-androideabi' ]; then
 		extra_configure_flags+=' --with-arch=armv7-a --with-float=soft --with-fpu=vfp'
 	elif [ "${triplet}" = 'aarch64-linux-android' ]; then
 		extra_configure_flags+=' --enable-fix-cortex-a53-835769 --enable-fix-cortex-a53-843419'
-		specs+="\n*cc1:\n+ -ffixed-x18\n\n*cc1plus:\n+ -ffixed-x18\n"
 	elif [ "${triplet}" = 'i686-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=i686 --with-fpmath=sse'
-		specs+="\n*link_emulation:\nelf_i386\n\n*dynamic_linker:\n/system/bin/linker\n"
+		#specs+="\n*link_emulation:\nelf_i386\n\n*dynamic_linker:\n/system/bin/linker\n"
 	elif [ "${triplet}" = 'x86_64-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=x86-64 --with-fpmath=sse'
 	fi

@@ -2,27 +2,27 @@
 
 set -eu
 
-declare -r LOKI_HOME='/tmp/loki-toolchain'
+declare -r PINO_HOME='/tmp/pino-toolchain'
 
-if [ -d "${LOKI_HOME}" ]; then
-	PATH+=":${LOKI_HOME}/bin"
-	export LOKI_HOME \
+if [ -d "${PINO_HOME}" ]; then
+	PATH+=":${PINO_HOME}/bin"
+	export PINO_HOME \
 		PATH
 	return 0
 fi
 
-declare -r LOKI_CROSS_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --retry 10 --retry-delay 3 --silent --url 'https://api.github.com/repos/AmanoTeam/Loki/releases/latest')")"
-declare -r LOKI_CROSS_TARBALL='/tmp/loki.tar.xz'
-declare -r LOKI_CROSS_URL="https://github.com/AmanoTeam/Loki/releases/download/${LOKI_CROSS_TAG}/x86_64-unknown-linux-gnu.tar.xz"
+declare -r PINO_CROSS_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --retry 10 --retry-delay 3 --silent --url 'https://api.github.com/repos/AmanoTeam/Pino/releases/latest')")"
+declare -r PINO_CROSS_TARBALL='/tmp/pino.tar.xz'
+declare -r PINO_CROSS_URL="https://github.com/AmanoTeam/Pino/releases/download/${PINO_CROSS_TAG}/x86_64-unknown-linux-gnu.tar.xz"
 
-curl --retry 10 --retry-delay 3 --silent --location --url "${LOKI_CROSS_URL}" --output "${LOKI_CROSS_TARBALL}"
-tar --directory="$(dirname "${LOKI_CROSS_TARBALL}")" --extract --file="${LOKI_CROSS_TARBALL}"
+curl --retry 10 --retry-delay 3 --silent --location --url "${PINO_CROSS_URL}" --output "${PINO_CROSS_TARBALL}"
+tar --directory="$(dirname "${PINO_CROSS_TARBALL}")" --extract --file="${PINO_CROSS_TARBALL}"
 
-rm "${LOKI_CROSS_TARBALL}"
+rm "${PINO_CROSS_TARBALL}"
 
-mv '/tmp/loki' "${LOKI_HOME}"
+mv '/tmp/pino' "${PINO_HOME}"
 
-PATH+=":${LOKI_HOME}/bin"
+PATH+=":${PINO_HOME}/bin"
 
-export LOKI_HOME \
+export PINO_HOME \
 	PATH
