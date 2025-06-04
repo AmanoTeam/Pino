@@ -303,9 +303,11 @@ for triplet in "${targets[@]}"; do
 	
 	cd "$(mktemp --directory)"
 	
-	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet/-unknown//}.tar.xz"
+	a=${triplet/-unknown/}
+	
+	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${a}.tar.xz"
 	declare sysroot_file="${PWD}/${triplet}.tar.xz"
-	declare sysroot_directory="${PWD}/${triplet}"
+	declare sysroot_directory="${PWD}/${a}"
 	
 	curl \
 		--url "${sysroot_url}" \
