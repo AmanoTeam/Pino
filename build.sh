@@ -334,7 +334,7 @@ for triplet in "${targets[@]}"; do
 			%>Werror=unguarded-availability-new
 			%{!fno-common:%{!fcommon:-fcommon}}
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
-			%{!D__ANDROID_API__*:-D__ANDROID_API__=21}
+			-D__ANDROID_API__=21
 			-Xlinker --eh-frame-hdr
 		specs
 	)"
