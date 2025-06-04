@@ -115,6 +115,24 @@ jobs:
         source './submodules/obggcc/tools/setup_toolchain.sh'
         
         bash './build.sh' '${{ matrix.target }}'
+    - name: Create logs
+      if: ${{ steps.check-cache.outputs.cache-hit != 'true' }} && '!cancelled()'
+      run: |
+        declare logs=''
+        
+        while read file; do
+            logs+="${file} "
+        done <<< $(find "/tmp/gcc-"*"/build" -wholename '*/config.log')
+        
+        tar --create --file=- ${logs} | xz --threads='0' --compress -9 > '/tmp/logs.tar.xz'
+    - name: Upload logs
+      if:  ${{ steps.check-cache.outputs.cache-hit != 'true' }} && '!cancelled()'
+      uses: actions/upload-artifact@main
+      with:
+        name: ${{ matrix.target }}-logs
+        if-no-files-found: error
+        path: |
+            /tmp/logs.tar.xz
     - name: Generate tarball
       run: |
         declare tarball_filename='/tmp/${{ matrix.target }}.tar.xz'
