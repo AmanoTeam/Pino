@@ -268,14 +268,14 @@ make install
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	
-	if [ "${triplet}" = 'arm-linux-androideabi' ]; then
+	if [ "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
 		extra_configure_flags+=' --with-arch=armv7-a --with-float=soft --with-fpu=vfp'
-	elif [ "${triplet}" = 'aarch64-linux-android' ]; then
+	elif [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --enable-fix-cortex-a53-835769 --enable-fix-cortex-a53-843419'
-	elif [ "${triplet}" = 'i686-linux-android' ]; then
+	elif [ "${triplet}" = 'i686-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=i686 --with-fpmath=sse'
 		#specs+="\n*link_emulation:\nelf_i386\n\n*dynamic_linker:\n/system/bin/linker\n"
-	elif [ "${triplet}" = 'x86_64-linux-android' ]; then
+	elif [ "${triplet}" = 'x86_64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=x86-64 --with-fpmath=sse'
 	fi
 	
@@ -339,11 +339,11 @@ for triplet in "${targets[@]}"; do
 		specs
 	)"
 	
-	if [ "${triplet}" = 'aarch64-linux-android' ] ||  "${triplet}" = 'arm-linux-androideabi' ]; then
+	if [ "${triplet}" = 'aarch64-unknown-linux-android' ] ||  "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
 		specs+=' -Xlinker -z -Xlinker max-page-size=16384'
 	fi
 	
-	if [ "${triplet}" = 'aarch64-linux-android' ]; then
+	if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
 		specs+=' -ffixed-x18'
 	fi
 	
