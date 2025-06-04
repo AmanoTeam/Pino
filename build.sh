@@ -429,6 +429,10 @@ for triplet in "${targets[@]}"; do
 	unlink './libstdc++.so'
 	
 	for library in "../../lib/gcc/${triplet}/"*'/lib'*.{so,a}; do
+		name="$(basename "${library}")"
+		
+		[ -f "${name}" ] && unlink "${name}"
+		
 		ln --symbolic "${library}" './'
 	done
 	
