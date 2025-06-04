@@ -387,7 +387,7 @@ for triplet in "${targets[@]}"; do
 		--enable-linker-build-id \
 		--enable-lto \
 		--enable-plugin \
-		--disable-libsanitizer \
+		--enable-libsanitizer \
 		--enable-shared \
 		--enable-threads='posix' \
 		--enable-libstdcxx-threads \
