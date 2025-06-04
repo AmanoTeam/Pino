@@ -349,6 +349,8 @@ for triplet in "${targets[@]}"; do
 	
 	if ! (( is_native )); then
 		extra_configure_flags+=' --enable-libsanitizer'
+	else
+		extra_configure_flags+=' --disable-libsanitizer'
 	fi
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
