@@ -27,6 +27,8 @@ declare -r binutils_directory='/tmp/binutils-with-gold-2.44'
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
 declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 
+declare -r lld_tarball='/tmp/lld.tar.xz'
+
 declare -r max_jobs='30'
 
 declare -r pieflags='-fPIE'
@@ -197,6 +199,32 @@ if ! [ -f "${gcc_tarball}" ]; then
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Revert-GCC-change-about-turning-Wimplicit-function-d.patch"
 fi
 
+if ! [ -f "${lld_tarball}" ]; then
+	[ -d "${toolchain_directory}" ] || mkdir "${toolchain_directory}"
+	
+	declare target="${build_type}"
+	
+	if [ "${target}" = 'native' ]; then
+		target='x86_64-unknown-linux-gnu'
+	fi
+	
+	curl \
+		--url "https://github.com/AmanoTeam/LLVM-LLD-Builds/releases/latest/download/${target}.tar.xz" \
+		--retry '30' \
+		--retry-all-errors \
+		--retry-delay '0' \
+		--retry-max-time '0' \
+		--location \
+		--silent \
+		--output "${lld_tarball}"
+	
+	tar \
+		--directory="${toolchain_directory}" \
+		--extract \
+		--strip='1' \
+		--file="${lld_tarball}"
+fi
+
 [ -d "${gmp_directory}/build" ] || mkdir "${gmp_directory}/build"
 
 cd "${gmp_directory}/build"
@@ -301,6 +329,10 @@ for triplet in "${targets[@]}"; do
 	make all --jobs="${max_jobs}"
 	make install
 	
+	cd "${toolchain_directory}/bin"
+	
+	ln --symbolic './ld.lld' "./${triplet}-ld.lld"
+	
 	cd "$(mktemp --directory)"
 	
 	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}.tar.xz"
@@ -347,7 +379,7 @@ for triplet in "${targets[@]}"; do
 		specs+=' -ffixed-x18'
 	fi
 	
-	if (( 1 )); then
+	if (( is_native )); then
 		extra_configure_flags+=' --disable-libsanitizer'
 	else
 		extra_configure_flags+=' --enable-libsanitizer'
@@ -374,6 +406,7 @@ for triplet in "${targets[@]}"; do
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-native-system-header-dir='/include' \
 		--with-default-libstdcxx-abi='new' \
+		--with-ld="${toolchain_directory}/bin/ld.lld" \
 		--includedir="${toolchain_directory}/${triplet}/include" \
 		--enable-__cxa_atexit \
 		--enable-cet='auto' \
