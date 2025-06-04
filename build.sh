@@ -303,11 +303,9 @@ for triplet in "${targets[@]}"; do
 	
 	cd "$(mktemp --directory)"
 	
-	a=${triplet/-unknown/}
-	
-	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${a}.tar.xz"
+	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}.tar.xz"
 	declare sysroot_file="${PWD}/${triplet}.tar.xz"
-	declare sysroot_directory="${PWD}/${a}"
+	declare sysroot_directory="${PWD}/${triplet}"
 	
 	curl \
 		--url "${sysroot_url}" \
@@ -388,7 +386,7 @@ for triplet in "${targets[@]}"; do
 		--enable-linker-build-id \
 		--enable-lto \
 		--enable-plugin \
-		--disable-libsanitizer \
+		--enable-libsanitizer \
 		--enable-shared \
 		--enable-threads='posix' \
 		--enable-libstdcxx-threads \
