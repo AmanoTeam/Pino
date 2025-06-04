@@ -323,7 +323,7 @@ for triplet in "${targets[@]}"; do
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	
-	mv "${sysroot_directory}" "${toolchain_directory}/${triplet}"
+	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
 	
 	rm --force --recursive ./*
 	
@@ -407,7 +407,6 @@ for triplet in "${targets[@]}"; do
 		--disable-libgomp \
 		--disable-bootstrap \
 		--disable-multilib \
-		--disable-gnu-unique-object \
 		--without-headers \
 		${extra_configure_flags} \
 		CFLAGS="${optflags}" \
