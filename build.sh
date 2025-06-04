@@ -385,6 +385,8 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=' --enable-libsanitizer'
 	fi
 	
+	extra_configure_flags+=' --enable-libsanitizer'
+	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
 	cd "${gcc_directory}/build"
