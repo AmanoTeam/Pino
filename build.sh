@@ -30,7 +30,7 @@ declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 declare -r max_jobs='30'
 
 declare -r pieflags='-fPIE'
-declare -r optflags='-w -Os -Xlinker --allow-multiple-definition'
+declare -r optflags='-w -O2 -Xlinker --allow-multiple-definition'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra asan_libraries=(
@@ -47,10 +47,10 @@ declare -ra plugin_libraries=(
 )
 
 declare -ra targets=(
-	'aarch64-linux-android'
-	'x86_64-linux-android'
-	'i686-linux-android'
-	'arm-linux-androideabi'
+	'aarch64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'arm-unknown-linux-androideabi'
 )
 
 export \
@@ -58,7 +58,6 @@ export \
 	ac_cv_func__aligned_malloc=no \
 	ac_cv_func_memalign=no \
 	ac_cv_c_bigendian=no
-
 
 declare build_type="${1}"
 
@@ -328,10 +327,11 @@ for triplet in "${targets[@]}"; do
 	
 	rm --force --recursive ./*
 	
+	# %{Oz:-Os} %>Oz
+	# %>Werror=unguarded-availability-new
+	
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
-			%{Oz:-Os} %>Oz
-			%>Werror=unguarded-availability-new
 			%{!fno-common:%{!fcommon:-fcommon}}
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-D__ANDROID_API__=21
@@ -386,7 +386,7 @@ for triplet in "${targets[@]}"; do
 		--enable-linker-build-id \
 		--enable-lto \
 		--enable-plugin \
-		--enable-libsanitizer \
+		--disable-libsanitizer \
 		--enable-shared \
 		--enable-threads='posix' \
 		--enable-libstdcxx-threads \
@@ -419,6 +419,14 @@ for triplet in "${targets[@]}"; do
 		CXXFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
 		all --jobs="${max_jobs}"
 	make install
+	
+	pushd "${toolchain_directory}/${triplet}/lib"
+	
+	for library in "../../lib/gcc/${triplet}/"*'/lib'*.{so,a}; do
+		ln --symbolic "${library}" './'
+	done
+	
+	pushd
 	
 	patchelf --add-rpath '$ORIGIN/../../../../lib' "${toolchain_directory}/libexec/gcc/${triplet}/"*"/cc1"
 	patchelf --add-rpath '$ORIGIN/../../../../lib' "${toolchain_directory}/libexec/gcc/${triplet}/"*"/cc1plus"
