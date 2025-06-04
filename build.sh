@@ -284,10 +284,8 @@ for triplet in "${targets[@]}"; do
 	elif [ "${triplet}" = 'x86_64-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=x86-64 --with-fpmath=sse'
 	fi
-	#sed -i '/BFD_ASSERT/d' "${binutils_directory}/bfd/elfnn-aarch64.c"
-	[ -d "${binutils_directory}/build" ] || mkdir "${binutils_directory}/build"
 	
-	#specs=$(sed 's|%|\\%|g' <<< $specs)
+	[ -d "${binutils_directory}/build" ] || mkdir "${binutils_directory}/build"
 	
 	cd "${binutils_directory}/build"
 	rm --force --recursive ./*
@@ -330,18 +328,32 @@ for triplet in "${targets[@]}"; do
 		--file="${sysroot_file}"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
-	#patch --directory="${sysroot_directory}/include" --strip='1' --input="${workdir}/patches/0001-a.patch"
 	
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
 	
 	rm --force --recursive ./*
+	
+	declare specs="$(
+		cat <<- specs | tr '\n' ' '
+			%{Oz:-Os} %>Oz
+			%>Werror=unguarded-availability-new
+			%{!fno-common:%{!fcommon:-fcommon}}
+			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
+			-Xlinker --enable-new-dtags -Xlinker --eh-frame-hdr
+			%{!D__ANDROID_API__*:-D__ANDROID_API__=21}
+		flags
+	)"
+	
+	if [ "${triplet}" = 'aarch64-linux-android' ]; then
+		specs+=' -ffixed-x18'
+	fi
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
 	cd "${gcc_directory}/build"
 	
 	rm --force --recursive ./*
-	echo $specs > /tmp/a
+	
 	../configure \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
@@ -388,7 +400,7 @@ for triplet in "${targets[@]}"; do
 		--enable-version-specific-runtime-libs \
 		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
-		--with-specs='%{!fno-common:%{!fcommon:-fcommon}} %{c++:%{!fno-rtti:%{!frtti:-frtti}}} -Xlinker --eh-frame-hdr' \
+		--with-specs='${specs}" \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
@@ -402,10 +414,10 @@ for triplet in "${targets[@]}"; do
 		CFLAGS="${optflags}" \
 		CXXFLAGS="${optflags}" \
 		LDFLAGS="${linkflags}"
-	#--with-stage1-ldflags="-specs=/tmp/a" \
+	
 	LD_LIBRARY_PATH="${toolchain_directory}/lib" PATH="${PATH}:${toolchain_directory}/bin" make \
-		CFLAGS_FOR_TARGET="-D__ANDROID_API__=21 ${optflags} ${linkflags}" \
-		CXXFLAGS_FOR_TARGET="-D__ANDROID_API__=21 ${optflags} ${linkflags}" \
+		CFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
+		CXXFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
 		all --jobs="${max_jobs}"
 	make install
 	
