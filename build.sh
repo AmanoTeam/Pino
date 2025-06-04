@@ -341,7 +341,7 @@ for triplet in "${targets[@]}"; do
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-Xlinker --enable-new-dtags -Xlinker --eh-frame-hdr
 			%{!D__ANDROID_API__*:-D__ANDROID_API__=21}
-		flags
+		specs
 	)"
 	
 	if [ "${triplet}" = 'aarch64-linux-android' ]; then
