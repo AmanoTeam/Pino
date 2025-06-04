@@ -400,7 +400,7 @@ for triplet in "${targets[@]}"; do
 		--enable-version-specific-runtime-libs \
 		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
-		--with-specs='${specs}" \
+		--with-specs="${specs}" \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
