@@ -47,10 +47,10 @@ declare -ra plugin_libraries=(
 )
 
 declare -ra targets=(
-	'arm-linux-androideabi'
 	'aarch64-linux-android'
 	'x86_64-linux-android'
 	'i686-linux-android'
+	'arm-linux-androideabi'
 )
 
 export \
@@ -334,10 +334,14 @@ for triplet in "${targets[@]}"; do
 			%>Werror=unguarded-availability-new
 			%{!fno-common:%{!fcommon:-fcommon}}
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
-			-Xlinker --enable-new-dtags -Xlinker --eh-frame-hdr
 			%{!D__ANDROID_API__*:-D__ANDROID_API__=21}
+			-Xlinker --eh-frame-hdr
 		specs
 	)"
+	
+	if [ "${triplet}" = 'aarch64-linux-android' ] ||  "${triplet}" = 'arm-linux-androideabi' ]; then
+		specs+=' -Xlinker -z -Xlinker max-page-size=16384'
+	fi
 	
 	if [ "${triplet}" = 'aarch64-linux-android' ]; then
 		specs+=' -ffixed-x18'
