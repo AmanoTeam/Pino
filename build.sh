@@ -325,7 +325,7 @@ for triplet in "${targets[@]}"; do
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	
-	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
+	mv "${sysroot_directory}" "${toolchain_directory}/${triplet}"
 	
 	rm --force --recursive ./*
 	
