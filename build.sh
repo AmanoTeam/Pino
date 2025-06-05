@@ -32,7 +32,7 @@ declare -r lld_tarball='/tmp/lld.tar.xz'
 declare -r max_jobs='30'
 
 declare -r pieflags='-fPIE'
-declare -r optflags=' -Wl,--undefined-version -w -Os -Xlinker --allow-multiple-definition'
+declare -r optflags='-w -Os -Xlinker --allow-multiple-definition'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra asan_libraries=(
@@ -368,6 +368,7 @@ for triplet in "${targets[@]}"; do
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-D__ANDROID_API__=21
 			-Xlinker --eh-frame-hdr
+			-Wl,--undefined-version
 		specs
 	)"
 	
