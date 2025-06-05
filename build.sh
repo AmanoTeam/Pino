@@ -335,6 +335,10 @@ for triplet in "${targets[@]}"; do
 	
 	ln --symbolic './ld.lld' "./${triplet}-ld.lld"
 	
+	cd "${toolchain_directory}/${triplet}/bin"
+	
+	ln --symbolic "../../bin/${triplet}-ld.lld" './ld.lld'
+	
 	cd "$(mktemp --directory)"
 	
 	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}21.tar.xz"
@@ -363,14 +367,12 @@ for triplet in "${targets[@]}"; do
 	
 	rm --force --recursive ./*
 	
-	# %{Oz:-Os} %>Oz
-	# %>Werror=unguarded-availability-new
-	# -Xlinker --eh-frame-hdr
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
 			%{!fno-common:%{!fcommon:-fcommon}}
+			%{!fno-plt:%{!fplt:-fno-plt}}
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
-			-D__ANDROID_API__=21
+			-D __ANDROID_API__=21
 			-Xlinker --undefined-version
 		specs
 	)"
@@ -388,7 +390,7 @@ for triplet in "${targets[@]}"; do
 	cd "${gcc_directory}/build"
 	
 	rm --force --recursive ./*
-	# --enable-eh-frame-hdr-for-static \
+	
 	../configure \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
@@ -434,13 +436,14 @@ for triplet in "${targets[@]}"; do
 		--enable-host-pie \
 		--enable-host-shared \
 		--enable-version-specific-runtime-libs \
+		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
 		--with-specs="${specs}" \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
 		--disable-werror \
-		--disable-libgomp \
+		--enable-libgomp \
 		--disable-bootstrap \
 		--disable-multilib \
 		--without-headers \
