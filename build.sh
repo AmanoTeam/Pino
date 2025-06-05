@@ -32,7 +32,7 @@ declare -r lld_tarball='/tmp/lld.tar.xz'
 declare -r max_jobs='30'
 
 declare -r pieflags='-fPIE'
-declare -r optflags='-w -Os -Xlinker --allow-multiple-definition'
+declare -r optflags=' -Wl,--undefined-version -w -Os -Xlinker --allow-multiple-definition'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra asan_libraries=(
