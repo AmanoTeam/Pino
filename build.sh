@@ -337,7 +337,7 @@ for triplet in "${targets[@]}"; do
 	
 	cd "$(mktemp --directory)"
 	
-	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}.tar.xz"
+	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}21.tar.xz"
 	declare sysroot_file="${PWD}/${triplet}.tar.xz"
 	declare sysroot_directory="${PWD}/${triplet}"
 	
@@ -355,6 +355,8 @@ for triplet in "${targets[@]}"; do
 		--extract \
 		--file="${sysroot_file}"
 	
+	mv "${PWD}/${triplet}21" "${sysroot_directory}"
+	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
@@ -370,7 +372,7 @@ for triplet in "${targets[@]}"; do
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-D__ANDROID_API__=21
 			-Xlinker --eh-frame-hdr
-			-Wl,--undefined-version
+			-Xlinker --undefined-version
 		specs
 	)"
 	
@@ -454,6 +456,8 @@ for triplet in "${targets[@]}"; do
 		CXXFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
 		all --jobs="${max_jobs}"
 	make install
+	
+	rm --force --recursive "${toolchain_directory}/share"
 	
 	pushd "${toolchain_directory}/${triplet}/lib"
 	
