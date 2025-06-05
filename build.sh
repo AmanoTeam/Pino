@@ -388,12 +388,12 @@ for triplet in "${targets[@]}"; do
 	cd "${gcc_directory}/build"
 	
 	rm --force --recursive ./*
-	
+	# --enable-eh-frame-hdr-for-static \
 	../configure \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
 		--prefix="${toolchain_directory}" \
-		--with-linker-hash-style='gnu' \
+		--with-linker-hash-style='both' \
 		--with-gmp="${toolchain_directory}" \
 		--with-mpc="${toolchain_directory}" \
 		--with-mpfr="${toolchain_directory}" \
@@ -434,7 +434,6 @@ for triplet in "${targets[@]}"; do
 		--enable-host-pie \
 		--enable-host-shared \
 		--enable-version-specific-runtime-libs \
-		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
 		--with-specs="${specs}" \
 		--disable-tls \
@@ -466,7 +465,7 @@ for triplet in "${targets[@]}"; do
 		strip="${triplet}-strip"
 	fi
 	
-	${strip} * || true
+	${strip} *.so* || true
 	
 	for library in "../../lib/gcc/${triplet}/"*'/lib'*.{so,a,1}; do
 		name="$(basename "${library}")"
