@@ -222,7 +222,9 @@ if ! [ -f "${lld_tarball}" ]; then
 		--directory="${toolchain_directory}" \
 		--extract \
 		--strip='1' \
-		--file="${lld_tarball}"
+		--file="${lld_tarball}" \
+		'llvm-ld/bin/lld' \
+		'llvm-ld/bin/ld.lld'
 fi
 
 [ -d "${gmp_directory}/build" ] || mkdir "${gmp_directory}/build"
@@ -380,14 +382,6 @@ for triplet in "${targets[@]}"; do
 		specs+=' -ffixed-x18'
 	fi
 	
-	if (( is_native )); then
-		extra_configure_flags+=' --disable-libsanitizer'
-	else
-		extra_configure_flags+=' --enable-libsanitizer'
-	fi
-	
-	extra_configure_flags+=' --enable-libsanitizer'
-	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
 	cd "${gcc_directory}/build"
@@ -395,7 +389,6 @@ for triplet in "${targets[@]}"; do
 	rm --force --recursive ./*
 	
 	../configure \
-		--build='x86_64-linux-gnu' \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
 		--prefix="${toolchain_directory}" \
@@ -435,6 +428,7 @@ for triplet in "${targets[@]}"; do
 		--enable-libssp \
 		--enable-ld \
 		--enable-gold \
+		--enable-libsanitizer \
 		--enable-cxx-flags="${linkflags}" \
 		--enable-host-pie \
 		--enable-host-shared \
@@ -463,7 +457,13 @@ for triplet in "${targets[@]}"; do
 	
 	pushd "${toolchain_directory}/${triplet}/lib"
 	
-	unlink './libstdc++.so'
+	declare strip="${toolchain_directory}/bin/${triplet}-strip"
+	
+	if ! (( is_native )); then
+		strip="${triplet}-strip"
+	fi
+	
+	${strip} * || true
 	
 	for library in "../../lib/gcc/${triplet}/"*'/lib'*.{so,a,1}; do
 		name="$(basename "${library}")"
