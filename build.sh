@@ -365,13 +365,12 @@ for triplet in "${targets[@]}"; do
 	
 	# %{Oz:-Os} %>Oz
 	# %>Werror=unguarded-availability-new
-	
+	# -Xlinker --eh-frame-hdr
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
 			%{!fno-common:%{!fcommon:-fcommon}}
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-D__ANDROID_API__=21
-			-Xlinker --eh-frame-hdr
 			-Xlinker --undefined-version
 		specs
 	)"
