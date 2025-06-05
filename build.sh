@@ -395,6 +395,7 @@ for triplet in "${targets[@]}"; do
 	rm --force --recursive ./*
 	
 	../configure \
+		--build='x86_64-linux-gnu' \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
 		--prefix="${toolchain_directory}" \
