@@ -323,6 +323,7 @@ rm --force --recursive ./*
 cmake \
 	-S "${zstd_directory}/build/cmake" \
 	-B "${PWD}" \
+	-DCMAKE_C_FLAGS="${optflags}" \
 	-DCMAKE_INSTALL_PREFIX="${toolchain_directory}" \
 	-DBUILD_SHARED_LIBS=ON \
 	-DZSTD_BUILD_PROGRAMS=OFF \
@@ -468,7 +469,7 @@ for triplet in "${targets[@]}"; do
 		--enable-libssp \
 		--enable-ld \
 		--enable-gold \
-		--enable-libsanitizer \
+		--disable-libsanitizer \
 		--enable-cxx-flags="${linkflags}" \
 		--enable-host-pie \
 		--enable-host-shared \
