@@ -412,7 +412,7 @@ for triplet in "${targets[@]}"; do
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-D __ANDROID_API__=21
 			-Xlinker --undefined-version
-			-fplt
+			-fno-plt
 		specs
 	)"
 	
@@ -429,7 +429,7 @@ for triplet in "${targets[@]}"; do
 	cd "${gcc_directory}/build"
 	
 	rm --force --recursive ./*
-	#--with-ld="${toolchain_directory}/bin/ld.lld" \
+	
 	../configure \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
@@ -451,7 +451,7 @@ for triplet in "${targets[@]}"; do
 		--enable-checking='release' \
 		--enable-default-pie \
 		--enable-default-ssp \
-		--disable-gnu-indirect-function \
+		--enable-gnu-indirect-function \
 		--enable-gnu-unique-object \
 		--enable-languages='c,c++' \
 		--enable-libstdcxx-backtrace \
@@ -478,6 +478,7 @@ for triplet in "${targets[@]}"; do
 		--enable-initfini-array \
 		--enable-libgomp \
 		--with-specs="${specs}" \
+		--with-ld="${toolchain_directory}/bin/ld.lld" \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
