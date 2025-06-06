@@ -377,12 +377,16 @@ for triplet in "${targets[@]}"; do
 		specs
 	)"
 	
-	if [ "${triplet}" = 'aarch64-unknown-linux-android' ] ||  "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
-		specs+=' -Xlinker -z -Xlinker max-page-size=16384'
+	if [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
+		specs+=' -Xlinker -z -Xlinker max-page-size=16384 -fno-signed-char'
 	fi
 	
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
 		specs+=' -ffixed-x18'
+	fi
+	
+	if (( is_native )); then
+		extra_configure_flags+=" --with-ld=${toolchain_directory}/bin/ld.lld"
 	fi
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
@@ -406,7 +410,6 @@ for triplet in "${targets[@]}"; do
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-native-system-header-dir='/include' \
 		--with-default-libstdcxx-abi='new' \
-		--with-ld="${toolchain_directory}/bin/ld.lld" \
 		--includedir="${toolchain_directory}/${triplet}/include" \
 		--enable-__cxa_atexit \
 		--enable-cet='auto' \
@@ -438,12 +441,12 @@ for triplet in "${targets[@]}"; do
 		--enable-version-specific-runtime-libs \
 		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
+		--enable-libgomp \
 		--with-specs="${specs}" \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
 		--disable-werror \
-		--enable-libgomp \
 		--disable-bootstrap \
 		--disable-multilib \
 		--without-headers \
