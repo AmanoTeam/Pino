@@ -428,7 +428,7 @@ for triplet in "${targets[@]}"; do
 	cd "${gcc_directory}/build"
 	
 	rm --force --recursive ./*
-	
+	#--with-ld="${toolchain_directory}/bin/ld.lld" \
 	../configure \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
@@ -477,7 +477,6 @@ for triplet in "${targets[@]}"; do
 		--enable-initfini-array \
 		--enable-libgomp \
 		--with-specs="${specs}" \
-		--with-ld="${toolchain_directory}/bin/ld.lld" \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
