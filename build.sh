@@ -429,7 +429,7 @@ for triplet in "${targets[@]}"; do
 	cd "${gcc_directory}/build"
 	
 	rm --force --recursive ./*
-	
+	# --with-ld="${toolchain_directory}/bin/ld.lld" \
 	../configure \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
@@ -478,7 +478,6 @@ for triplet in "${targets[@]}"; do
 		--enable-initfini-array \
 		--enable-libgomp \
 		--with-specs="${specs}" \
-		--with-ld="${toolchain_directory}/bin/ld.lld" \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
@@ -493,7 +492,7 @@ for triplet in "${targets[@]}"; do
 	
 	LD_LIBRARY_PATH="${toolchain_directory}/lib" PATH="${PATH}:${toolchain_directory}/bin" make \
 		CFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
-		CXXFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
+		CXXFLAGS_FOR_TARGET="-fuse-ld=lld ${optflags} ${linkflags}" \
 		all --jobs="${max_jobs}"
 	make install
 	
