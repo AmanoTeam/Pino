@@ -411,6 +411,7 @@ for triplet in "${targets[@]}"; do
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-D __ANDROID_API__=21
 			-Xlinker --undefined-version
+			-fplt
 		specs
 	)"
 	
@@ -467,7 +468,7 @@ for triplet in "${targets[@]}"; do
 		--enable-libssp \
 		--enable-ld \
 		--enable-gold \
-		--disable-libsanitizer \
+		--enable-libsanitizer \
 		--enable-cxx-flags="${linkflags}" \
 		--enable-host-pie \
 		--enable-host-shared \
