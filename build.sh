@@ -323,7 +323,7 @@ rm --force --recursive ./*
 cmake \
 	-S "${zstd_directory}/build/cmake" \
 	-B "${PWD}" \
-	-DCMAKE_C_FLAGS="${optflags}" \
+	-DCMAKE_C_FLAGS="-DZDICT_QSORT=0 ${optflags}" \
 	-DCMAKE_INSTALL_PREFIX="${toolchain_directory}" \
 	-DBUILD_SHARED_LIBS=ON \
 	-DZSTD_BUILD_PROGRAMS=OFF \
@@ -488,7 +488,7 @@ for triplet in "${targets[@]}"; do
 		--without-headers \
 		${extra_configure_flags} \
 		CFLAGS="${optflags}" \
-		CXXFLAGS="-Xlinker --allow-shlib-undefined ${optflags}" \
+		CXXFLAGS="${optflags}" \
 		LDFLAGS="${linkflags}"
 	
 	LD_LIBRARY_PATH="${toolchain_directory}/lib" PATH="${PATH}:${toolchain_directory}/bin" make \
