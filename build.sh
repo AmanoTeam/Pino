@@ -27,6 +27,9 @@ declare -r binutils_directory='/tmp/binutils-with-gold-2.44'
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
 declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 
+declare -r zstd_tarball='/tmp/zstd.tar.xz'
+declare -r zstd_directory='/tmp/zstd-1.5.7'
+
 declare -r lld_tarball='/tmp/lld.tar.xz'
 
 declare -r max_jobs='30'
@@ -171,6 +174,23 @@ if ! [ -f "${binutils_tarball}" ]; then
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Disable-annoying-linker-warnings.patch"
 fi
 
+if ! [ -f "${zstd_tarball}" ]; then
+	curl \
+		--url 'https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz' \
+		--retry '30' \
+		--retry-all-errors \
+		--retry-delay '0' \
+		--retry-max-time '0' \
+		--location \
+		--silent \
+		--output "${binutils_tarball}"
+	
+	tar \
+		--directory="$(dirname "${zstd_directory}")" \
+		--extract \
+		--file="${zstd_tarball}"
+fi
+
 if ! [ -f "${gcc_tarball}" ]; then
 	curl \
 		--url 'https://github.com/gcc-mirror/gcc/archive/refs/heads/releases/gcc-15.tar.gz' \
@@ -295,6 +315,23 @@ rm --force --recursive ./*
 make all --jobs
 make install
 
+[ -d "${zstd_directory}/.build" ] || mkdir "${zstd_directory}/.build"
+
+cd "${zstd_directory}/.build"
+rm --force --recursive ./*
+
+cmake \
+	-S "${zstd_directory}/build/cmake" \
+	-B "${PWD}" \
+	-DCMAKE_INSTALL_PREFIX="${toolchain_directory}" \
+	-DBUILD_SHARED_LIBS=ON \
+	-DZSTD_BUILD_PROGRAMS=OFF \
+	-DZSTD_BUILD_TESTS=OFF \
+	-DZSTD_BUILD_STATIC=OFF
+
+cmake --build "${PWD}"
+cmake --install "${PWD}" --strip
+
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	
@@ -324,6 +361,7 @@ for triplet in "${targets[@]}"; do
 		--disable-gprofng \
 		--with-static-standard-libraries \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
+		--with-zstd="${toolchain_directory}" \
 		CFLAGS="${optflags}" \
 		CXXFLAGS="${optflags}" \
 		LDFLAGS="${linkflags}"
@@ -370,7 +408,7 @@ for triplet in "${targets[@]}"; do
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
 			%{!fno-common:%{!fcommon:-fcommon}}
-			%{!fno-plt:%{!fplt:-fno-plt}}
+			%{!shared:%{!fno-plt:%{!fplt:-fno-plt}}}
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-D __ANDROID_API__=21
 			-Xlinker --undefined-version
@@ -383,10 +421,6 @@ for triplet in "${targets[@]}"; do
 	
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
 		specs+=' -ffixed-x18'
-	fi
-	
-	if ! (( is_native )); then
-		extra_configure_flags+=" --with-ld=${toolchain_directory}/bin/ld.lld"
 	fi
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
@@ -443,6 +477,7 @@ for triplet in "${targets[@]}"; do
 		--enable-initfini-array \
 		--enable-libgomp \
 		--with-specs="${specs}" \
+		--with-ld="${toolchain_directory}/bin/ld.lld" \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
