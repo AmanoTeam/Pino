@@ -488,7 +488,7 @@ for triplet in "${targets[@]}"; do
 		--without-headers \
 		${extra_configure_flags} \
 		CFLAGS="${optflags}" \
-		CXXFLAGS="-Xlinker --unresolved-symbols=ignore-all ${optflags}" \
+		CXXFLAGS="-Xlinker --allow-shlib-undefined ${optflags}" \
 		LDFLAGS="${linkflags}"
 	
 	LD_LIBRARY_PATH="${toolchain_directory}/lib" PATH="${PATH}:${toolchain_directory}/bin" make \
