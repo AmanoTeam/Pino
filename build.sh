@@ -358,7 +358,7 @@ for triplet in "${targets[@]}"; do
 		--prefix="${toolchain_directory}" \
 		--disable-gold \
 		--enable-ld \
-		--disable-lto \
+		--enable-lto \
 		--disable-gprofng \
 		--with-static-standard-libraries \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
@@ -409,10 +409,10 @@ for triplet in "${targets[@]}"; do
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
 			%{!fno-common:%{!fcommon:-fcommon}}
+			%{!fno-plt:%{!fplt:-fno-plt}}
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-D __ANDROID_API__=21
 			-Xlinker --undefined-version
-			-fno-plt
 		specs
 	)"
 	
@@ -439,6 +439,7 @@ for triplet in "${targets[@]}"; do
 		--with-mpc="${toolchain_directory}" \
 		--with-mpfr="${toolchain_directory}" \
 		--with-isl="${toolchain_directory}" \
+		--with-zstd="${toolchain_directory}" \
 		--with-bugurl='https://github.com/AmanoTeam/Pino/issues' \
 		--with-gcc-major-version-only \
 		--with-pkgversion="Pino v0.1-${revision}" \
