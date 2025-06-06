@@ -451,7 +451,7 @@ for triplet in "${targets[@]}"; do
 		--enable-checking='release' \
 		--enable-default-pie \
 		--enable-default-ssp \
-		--enable-gnu-indirect-function \
+		--disable-gnu-indirect-function \
 		--enable-gnu-unique-object \
 		--enable-languages='c,c++' \
 		--enable-libstdcxx-backtrace \
@@ -469,7 +469,7 @@ for triplet in "${targets[@]}"; do
 		--enable-libssp \
 		--enable-ld \
 		--enable-gold \
-		--disable-libsanitizer \
+		--enable-libsanitizer \
 		--enable-cxx-flags="${linkflags}" \
 		--enable-host-pie \
 		--enable-host-shared \
