@@ -385,7 +385,7 @@ for triplet in "${targets[@]}"; do
 		specs+=' -ffixed-x18'
 	fi
 	
-	if (( is_native )); then
+	if ! (( is_native )); then
 		extra_configure_flags+=" --with-ld=${toolchain_directory}/bin/ld.lld"
 	fi
 	
@@ -456,8 +456,8 @@ for triplet in "${targets[@]}"; do
 		LDFLAGS="${linkflags}"
 	
 	LD_LIBRARY_PATH="${toolchain_directory}/lib" PATH="${PATH}:${toolchain_directory}/bin" make \
-		CFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
-		CXXFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
+		CFLAGS_FOR_TARGET="-fuse-ld=lld ${optflags} ${linkflags}" \
+		CXXFLAGS_FOR_TARGET="-fuse-ld=lld ${optflags} ${linkflags}" \
 		all --jobs="${max_jobs}"
 	make install
 	
