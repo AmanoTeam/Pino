@@ -468,7 +468,7 @@ for triplet in "${targets[@]}"; do
 		--enable-libssp \
 		--enable-ld \
 		--enable-gold \
-		--enable-libsanitizer \
+		--disable-libsanitizer \
 		--enable-cxx-flags="${linkflags}" \
 		--enable-host-pie \
 		--enable-host-shared \
@@ -490,8 +490,8 @@ for triplet in "${targets[@]}"; do
 		LDFLAGS="${linkflags}"
 	
 	LD_LIBRARY_PATH="${toolchain_directory}/lib" PATH="${PATH}:${toolchain_directory}/bin" make \
-		CFLAGS_FOR_TARGET="-fuse-ld=lld ${optflags} ${linkflags}" \
-		CXXFLAGS_FOR_TARGET="-fuse-ld=lld ${optflags} ${linkflags}" \
+		CFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
+		CXXFLAGS_FOR_TARGET="${optflags} ${linkflags}" \
 		all --jobs="${max_jobs}"
 	make install
 	
