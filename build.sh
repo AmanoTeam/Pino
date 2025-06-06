@@ -404,11 +404,10 @@ for triplet in "${targets[@]}"; do
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
 	
 	rm --force --recursive ./*
-	
+	# %{!shared:%{!fno-plt:%{!fplt:-fno-plt}}}
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
 			%{!fno-common:%{!fcommon:-fcommon}}
-			%{!shared:%{!fno-plt:%{!fplt:-fno-plt}}}
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-D __ANDROID_API__=21
 			-Xlinker --undefined-version
