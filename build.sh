@@ -27,7 +27,7 @@ declare -r binutils_directory='/tmp/binutils-with-gold-2.44'
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
 declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 
-declare -r zstd_tarball='/tmp/zstd.tar.xz'
+declare -r zstd_tarball='/tmp/zstd.tar.gz'
 declare -r zstd_directory='/tmp/zstd-1.5.7'
 
 declare -r lld_tarball='/tmp/lld.tar.xz'
@@ -183,7 +183,7 @@ if ! [ -f "${zstd_tarball}" ]; then
 		--retry-max-time '0' \
 		--location \
 		--silent \
-		--output "${binutils_tarball}"
+		--output "${zstd_tarball}"
 	
 	tar \
 		--directory="$(dirname "${zstd_directory}")" \
