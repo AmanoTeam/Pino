@@ -488,7 +488,7 @@ for triplet in "${targets[@]}"; do
 		--without-headers \
 		${extra_configure_flags} \
 		CFLAGS="${optflags}" \
-		CXXFLAGS="${optflags}" \
+		CXXFLAGS="-Xlinker --unresolved-symbols=ignore-in-shared-libs ${optflags}" \
 		LDFLAGS="${linkflags}"
 	
 	LD_LIBRARY_PATH="${toolchain_directory}/lib" PATH="${PATH}:${toolchain_directory}/bin" make \
@@ -496,6 +496,8 @@ for triplet in "${targets[@]}"; do
 		CXXFLAGS_FOR_TARGET="-fuse-ld=lld ${optflags} ${linkflags}" \
 		all --jobs="${max_jobs}"
 	make install
+	
+	ln --symbolic "${toolchain_directory}/libexec/gcc/${triplet}/"*'/liblto_plugin.so' "${toolchain_directory}/lib/bfd-plugins"
 	
 	rm --force --recursive "${toolchain_directory}/share"
 	
