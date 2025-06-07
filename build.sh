@@ -52,10 +52,10 @@ declare -ra plugin_libraries=(
 )
 
 declare -ra targets=(
-	'x86_64-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
 	'i686-unknown-linux-android'
-	'arm-unknown-linux-androideabi'
-	'aarch64-unknown-linux-android'
+	# 'arm-unknown-linux-androideabi'
+	# 'aarch64-unknown-linux-android'
 )
 
 export \
@@ -212,6 +212,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 	done
 	
 	sed -i 's/throw ()//g' /tmp/pino-toolchain/lib/gcc/*/15/include/mm_malloc.h
+	sed -i 's/SANITIZER_ANDROID/0/g' ${gcc_directory}/libsanitizer/asan/asan_init_version.h
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-a.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declarations.patch"
@@ -345,7 +346,6 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=' --enable-fix-cortex-a53-835769 --enable-fix-cortex-a53-843419'
 	elif [ "${triplet}" = 'i686-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=i686 --with-fpmath=sse'
-		#specs+="\n*link_emulation:\nelf_i386\n\n*dynamic_linker:\n/system/bin/linker\n"
 	elif [ "${triplet}" = 'x86_64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=x86-64 --with-fpmath=sse'
 	fi
