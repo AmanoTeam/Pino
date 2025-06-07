@@ -53,9 +53,9 @@ declare -ra plugin_libraries=(
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'arm-unknown-linux-androideabi'
+	'x86_64-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'arm-unknown-linux-androideabi'
 )
 
 export \
@@ -429,7 +429,7 @@ for triplet in "${targets[@]}"; do
 	cd "${gcc_directory}/build"
 	
 	rm --force --recursive ./*
-	# --with-ld="${toolchain_directory}/bin/ld.lld" \
+	
 	../configure \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
@@ -497,7 +497,9 @@ for triplet in "${targets[@]}"; do
 		all --jobs="${max_jobs}"
 	make install
 	
-	ln --symbolic "${toolchain_directory}/libexec/gcc/${triplet}/"*'/liblto_plugin.so' "${toolchain_directory}/lib/bfd-plugins"
+	cd "${toolchain_directory}/lib/bfd-plugins"
+	
+	ln --symbolic "../../libexec/gcc/${triplet}/"*'/liblto_plugin.so' './'
 	
 	rm --force --recursive "${toolchain_directory}/share"
 	
@@ -534,6 +536,10 @@ for triplet in "${targets[@]}"; do
 		patchelf --set-rpath "\$ORIGIN/../../../../../${triplet}/lib64:\$ORIGIN/../../../../../${triplet}/lib:\$ORIGIN/../../../../../lib64:\$ORIGIN/../../../../../lib" "${toolchain_directory}/lib/gcc/${triplet}/"*"/plugin/${library}.so"
 	done
 done
+
+rm \
+	"${toolchain_directory}/bin/"*lld* \
+	"${toolchain_directory}/"*"/bin/ld.lld"
 
 mkdir --parent "${share_directory}"
 
