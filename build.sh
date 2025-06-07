@@ -506,7 +506,9 @@ for triplet in "${targets[@]}"; do
 	
 	cd "${toolchain_directory}/lib/bfd-plugins"
 	
-	ln --symbolic "../../libexec/gcc/${triplet}/"*'/liblto_plugin.so' './'
+	if ! [ -f './liblto_plugin.so' ]; then
+		ln --symbolic "../../libexec/gcc/${triplet}/"*'/liblto_plugin.so' './'
+	fi
 	
 	rm --force --recursive "${toolchain_directory}/share"
 	
