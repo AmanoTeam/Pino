@@ -546,10 +546,6 @@ for triplet in "${targets[@]}"; do
 	done
 done
 
-rm \
-	"${toolchain_directory}/bin/"*lld* \
-	"${toolchain_directory}/"*"/bin/ld.lld"
-
 mkdir --parent "${share_directory}"
 
 # cp --recursive "${workdir}/tools/dev/"* "${share_directory}"
