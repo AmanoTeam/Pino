@@ -424,6 +424,10 @@ for triplet in "${targets[@]}"; do
 		specs+=' -ffixed-x18'
 	fi
 	
+	if ! (( is_native )); then
+		extra_configure_flags+=' --enable-libsanitizer'
+	fi
+	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
 	cd "${gcc_directory}/build"
@@ -470,7 +474,6 @@ for triplet in "${targets[@]}"; do
 		--enable-libssp \
 		--enable-ld \
 		--enable-gold \
-		--enable-libsanitizer \
 		--enable-cxx-flags="${linkflags}" \
 		--enable-host-pie \
 		--enable-host-shared \
@@ -479,6 +482,7 @@ for triplet in "${targets[@]}"; do
 		--enable-initfini-array \
 		--enable-libgomp \
 		--with-specs="${specs}" \
+		--disable-libsanitizer \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
