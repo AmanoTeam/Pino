@@ -28,7 +28,7 @@ declare -r gcc_tarball='/tmp/gcc.tar.xz'
 declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 
 declare -r zstd_tarball='/tmp/zstd.tar.gz'
-declare -r zstd_directory='/tmp/zstd-1.5.7'
+declare -r zstd_directory='/tmp/zstd-dev'
 
 declare -r lld_tarball='/tmp/lld.tar.xz'
 
@@ -176,7 +176,7 @@ fi
 
 if ! [ -f "${zstd_tarball}" ]; then
 	curl \
-		--url 'https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz' \
+		--url 'https://github.com/facebook/zstd/archive/refs/heads/dev.tar.gz' \
 		--retry '30' \
 		--retry-all-errors \
 		--retry-delay '0' \
@@ -319,8 +319,6 @@ make install
 
 cd "${zstd_directory}/.build"
 rm --force --recursive ./*
-
-sed --in-place 's/ZDICT_QSORT_GNU/ZDICT_QSORT_MIN/g' "${zstd_directory}/lib/dictBuilder/cover.c"
 
 cmake \
 	-S "${zstd_directory}/build/cmake" \
