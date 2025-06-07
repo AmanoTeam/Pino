@@ -320,7 +320,7 @@ make install
 cd "${zstd_directory}/.build"
 rm --force --recursive ./*
 
-sed --in-place 's/ZDICT_QSORT_GNU/ZDICT_QSORT_MIN/g' "${zstd_directory}lib/dictBuilder/cover.c"
+sed --in-place 's/ZDICT_QSORT_GNU/ZDICT_QSORT_MIN/g' "${zstd_directory}/lib/dictBuilder/cover.c"
 
 cmake \
 	-S "${zstd_directory}/build/cmake" \
