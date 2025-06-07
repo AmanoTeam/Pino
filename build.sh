@@ -211,7 +211,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 		patch --directory="${gcc_directory}" --strip='1' --input="${name}"
 	done
 	
-	sed -i 's/throw ()/noexcept/g' /tmp/pino-toolchain/lib/gcc/*/15/include/mm_malloc.h
+	sed -i 's/throw ()//g' /tmp/pino-toolchain/lib/gcc/*/15/include/mm_malloc.h
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-a.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declarations.patch"
