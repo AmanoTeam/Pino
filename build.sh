@@ -320,10 +320,12 @@ make install
 cd "${zstd_directory}/.build"
 rm --force --recursive ./*
 
+sed --in-place 's/ZDICT_QSORT_GNU/ZDICT_QSORT_MIN/g' "${zstd_directory}lib/dictBuilder/cover.c"
+
 cmake \
 	-S "${zstd_directory}/build/cmake" \
 	-B "${PWD}" \
-	-DCMAKE_C_FLAGS="-Dqsort_r=qsort -DZDICT_QSORT=ZDICT_QSORT_MIN ${optflags}" \
+	-DCMAKE_C_FLAGS="-DZDICT_QSORT=ZDICT_QSORT_MIN ${optflags}" \
 	-DCMAKE_CXX_FLAGS="-DZDICT_QSORT=ZDICT_QSORT_MIN ${optflags}" \
 	-DCMAKE_INSTALL_PREFIX="${toolchain_directory}" \
 	-DBUILD_SHARED_LIBS=ON \
