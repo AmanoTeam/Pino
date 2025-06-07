@@ -52,10 +52,10 @@ declare -ra plugin_libraries=(
 )
 
 declare -ra targets=(
-	'aarch64-unknown-linux-android'
 	'x86_64-unknown-linux-android'
 	'i686-unknown-linux-android'
 	'arm-unknown-linux-androideabi'
+	'aarch64-unknown-linux-android'
 )
 
 export \
@@ -211,6 +211,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 		patch --directory="${gcc_directory}" --strip='1' --input="${name}"
 	done
 	
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-a.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declarations.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-libgcc-build-on-arm.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Change-the-default-language-version-for-C-compilatio.patch"
