@@ -324,7 +324,6 @@ cmake \
 	-S "${zstd_directory}/build/cmake" \
 	-B "${PWD}" \
 	-DCMAKE_C_FLAGS="-DZDICT_QSORT=ZDICT_QSORT_MIN ${optflags}" \
-	-DCMAKE_CXX_FLAGS="-DZDICT_QSORT=ZDICT_QSORT_MIN ${optflags}" \
 	-DCMAKE_INSTALL_PREFIX="${toolchain_directory}" \
 	-DBUILD_SHARED_LIBS=ON \
 	-DZSTD_BUILD_PROGRAMS=OFF \
