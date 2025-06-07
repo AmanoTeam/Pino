@@ -409,7 +409,6 @@ for triplet in "${targets[@]}"; do
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
 			%{!fno-common:%{!fcommon:-fcommon}}
-			%{!fno-plt:%{!fplt:-fno-plt}}
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-D __ANDROID_API__=21
 			-Xlinker --undefined-version
@@ -426,6 +425,10 @@ for triplet in "${targets[@]}"; do
 	
 	if ! (( is_native )); then
 		extra_configure_flags+=' --enable-libsanitizer'
+	fi
+	
+	if ! (( is_native )); then
+		specs+=' %{!fno-plt:%{!fplt:-fno-plt}}'
 	fi
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
