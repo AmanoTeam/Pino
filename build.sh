@@ -52,10 +52,10 @@ declare -ra plugin_libraries=(
 )
 
 declare -ra targets=(
-	# 'x86_64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
 	'i686-unknown-linux-android'
-	# 'arm-unknown-linux-androideabi'
-	# 'aarch64-unknown-linux-android'
+	'arm-unknown-linux-androideabi'
+	'aarch64-unknown-linux-android'
 )
 
 export \
@@ -211,11 +211,10 @@ if ! [ -f "${gcc_tarball}" ]; then
 		patch --directory="${gcc_directory}" --strip='1' --input="${name}"
 	done
 	
-	sed -i 's/throw ()//g' /tmp/pino-toolchain/lib/gcc/*/15/include/mm_malloc.h
-	sed -i 's/SANITIZER_ANDROID/0/g' ${gcc_directory}/libsanitizer/asan/asan_init_version.h
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Avoid-relying-on-dynamic-shadow-when-building-libsan.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declarations-of-fgetpos-and-fsetpos.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declaration-of-posix_memalign-on-x86.patch"
 	
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-a.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declarations.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-libgcc-build-on-arm.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Change-the-default-language-version-for-C-compilatio.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Turn-Wimplicit-int-back-into-an-warning.patch"
