@@ -387,7 +387,7 @@ for triplet in "${targets[@]}"; do
 		CXXFLAGS="${optflags}" \
 		LDFLAGS="${linkflags}"
 	
-	make all --jobs=1 #"${max_jobs}"
+	V=1 make all --jobs=1 #"${max_jobs}"
 	make install
 	
 	cd "${toolchain_directory}/bin"
