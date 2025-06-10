@@ -58,6 +58,17 @@ declare -ra targets=(
 	'aarch64-unknown-linux-android'
 )
 
+function get_triplet() {
+	
+	local triplet="$("${binutils_directory}/config.guess")"
+	
+	triplet="${triplet/-pc-/-}"
+	triplet="${triplet/-unknown-/-}"
+	
+	echo "${triplet}"
+	
+}
+
 export \
 	ac_cv_func_aligned_alloc=no \
 	ac_cv_func__aligned_malloc=no \
@@ -65,6 +76,7 @@ export \
 	ac_cv_c_bigendian=no
 
 declare build_type="${1}"
+declare build_host="$(get_triplet)"
 
 if [ -z "${build_type}" ]; then
 	build_type='native'
@@ -84,6 +96,7 @@ fi
 
 declare -r \
 	build_type \
+	build_host \
 	is_native
 
 if ! [ -f "${gmp_tarball}" ]; then
@@ -255,6 +268,7 @@ fi
 cd "${gmp_directory}/build"
 
 ../configure \
+	--build="${build_host}" \
 	--host="${CROSS_COMPILE_TRIPLET}" \
 	--prefix="${toolchain_directory}" \
 	--enable-shared \
@@ -271,6 +285,7 @@ make install
 cd "${mpfr_directory}/build"
 
 ../configure \
+	--build="${build_host}" \
 	--host="${CROSS_COMPILE_TRIPLET}" \
 	--prefix="${toolchain_directory}" \
 	--with-gmp="${toolchain_directory}" \
@@ -288,6 +303,7 @@ make install
 cd "${mpc_directory}/build"
 
 ../configure \
+	--build="${build_host}" \
 	--host="${CROSS_COMPILE_TRIPLET}" \
 	--prefix="${toolchain_directory}" \
 	--with-gmp="${toolchain_directory}" \
@@ -306,6 +322,7 @@ cd "${isl_directory}/build"
 rm --force --recursive ./*
 
 ../configure \
+	--build="${build_host}" \
 	--host="${CROSS_COMPILE_TRIPLET}" \
 	--prefix="${toolchain_directory}" \
 	--with-gmp-prefix="${toolchain_directory}" \
@@ -355,6 +372,7 @@ for triplet in "${targets[@]}"; do
 	rm --force --recursive ./*
 	
 	../configure \
+		--build="${build_host}" \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
 		--prefix="${toolchain_directory}" \
@@ -407,7 +425,7 @@ for triplet in "${targets[@]}"; do
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
 	
 	rm --force --recursive ./*
-	# %{!shared:%{!fno-plt:%{!fplt:-fno-plt}}}
+	
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
 			%{!fno-common:%{!fcommon:-fcommon}}
@@ -440,6 +458,7 @@ for triplet in "${targets[@]}"; do
 	rm --force --recursive ./*
 	
 	../configure \
+		--build="${build_host}" \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
 		--prefix="${toolchain_directory}" \
