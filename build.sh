@@ -482,7 +482,6 @@ for triplet in "${targets[@]}"; do
 		--enable-cxx-flags="${linkflags}" \
 		--enable-host-pie \
 		--enable-host-shared \
-		--enable-version-specific-runtime-libs \
 		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
 		--enable-libgomp \
