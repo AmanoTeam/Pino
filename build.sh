@@ -383,7 +383,7 @@ for triplet in "${targets[@]}"; do
 		--with-static-standard-libraries \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-zstd="${toolchain_directory}" \
-		CFLAGS="${optflags}" \
+		CFLAGS="${optflags} -I${toolchain_directory}/include" \
 		CXXFLAGS="${optflags}" \
 		LDFLAGS="${linkflags}"
 	
