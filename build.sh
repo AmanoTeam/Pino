@@ -513,8 +513,7 @@ for triplet in "${targets[@]}"; do
 		--with-pkgversion="Pino v0.1-${revision}" \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-native-system-header-dir='/include' \
-		--disable-libstdcxx-dual-abi \
-		--with-default-libstdcxx-abi='gcc4-compatible' \
+		--with-default-libstdcxx-abi='new' \
 		--includedir="${toolchain_directory}/${triplet}/include" \
 		--enable-__cxa_atexit \
 		--enable-cet='auto' \
