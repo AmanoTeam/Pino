@@ -521,7 +521,7 @@ for triplet in "${targets[@]}"; do
 		--enable-default-pie \
 		--enable-default-ssp \
 		--enable-gnu-indirect-function \
-		--enable-gnu-unique-object \
+		--disable-gnu-unique-object \
 		--enable-languages='c,c++' \
 		--enable-libstdcxx-backtrace \
 		--enable-libstdcxx-filesystem-ts \
