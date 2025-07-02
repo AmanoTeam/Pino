@@ -138,6 +138,8 @@ if ! [ -f "${gmp_tarball}" ]; then
 		--directory="$(dirname "${gmp_directory}")" \
 		--extract \
 		--file="${gmp_tarball}"
+	
+	patch --directory="${gmp_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Remove-hardcoded-RPATH-and-versioned-SONAME-from-libgmp.patch"
 fi
 
 if ! [ -f "${mpfr_tarball}" ]; then
@@ -155,6 +157,8 @@ if ! [ -f "${mpfr_tarball}" ]; then
 		--directory="$(dirname "${mpfr_directory}")" \
 		--extract \
 		--file="${mpfr_tarball}"
+	
+	patch --directory="${mpfr_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Remove-hardcoded-RPATH-and-versioned-SONAME-from-libmpfr.patch"
 fi
 
 if ! [ -f "${mpc_tarball}" ]; then
@@ -172,6 +176,8 @@ if ! [ -f "${mpc_tarball}" ]; then
 		--directory="$(dirname "${mpc_directory}")" \
 		--extract \
 		--file="${mpc_tarball}"
+	
+	patch --directory="${mpc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Remove-hardcoded-RPATH-and-versioned-SONAME-from-libmpc.patch"
 fi
 
 if ! [ -f "${isl_tarball}" ]; then
@@ -189,6 +195,8 @@ if ! [ -f "${isl_tarball}" ]; then
 		--directory="$(dirname "${isl_directory}")" \
 		--extract \
 		--file="${isl_tarball}"
+	
+	patch --directory="${isl_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Remove-hardcoded-RPATH-and-versioned-SONAME-from-libisl.patch"
 fi
 
 if ! [ -f "${binutils_tarball}" ]; then
@@ -253,8 +261,8 @@ if ! [ -f "${gcc_tarball}" ]; then
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declarations-of-fgetpos-and-fsetpos.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declaration-of-posix_memalign-on-x86.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Disable-SONAME-versioning-for-all-target-libraries.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Change-GCC-s-C-standard-library-name-to-libstdcxx.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Rename-GCC-s-libgcc-library-to-libgnuc.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Change-GCC-s-C-standard-library-name-to-libestdc.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Rename-GCC-s-libgcc-library-to-libegcc.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Ignore-pragma-weak-when-the-declaration-is-private-o.patch"
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-libgcc-build-on-arm.patch"
@@ -264,6 +272,18 @@ if ! [ -f "${gcc_tarball}" ]; then
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Revert-GCC-change-about-turning-Wimplicit-function-d.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-GCC-host-tools.patch"
 fi
+
+# Follow Debian's approach for removing hardcoded RPATH from binaries
+# https://wiki.debian.org/RpathIssue
+sed \
+	--in-place \
+	--regexp-extended \
+	's/(hardcode_into_libs)=.*$/\1=no/' \
+	"${isl_directory}/configure" \
+	"${mpc_directory}/configure" \
+	"${mpfr_directory}/configure" \
+	"${gmp_directory}/configure" \
+	"${gcc_directory}/libsanitizer/configure"
 
 if ! [ -f "${lld_tarball}" ]; then
 	[ -d "${toolchain_directory}" ] || mkdir "${toolchain_directory}"
@@ -396,9 +416,7 @@ fi
 	-o "${gcc_wrapper}"
 
 # We prefer symbolic links over hard links.
-if ! (( is_native )); then
-	cp "${workdir}/submodules/obggcc/tools/ln.sh" '/tmp/ln'
-fi
+cp "${workdir}/submodules/obggcc/tools/ln.sh" '/tmp/ln'
 
 export PATH="/tmp:${PATH}"
 
@@ -505,10 +523,6 @@ for triplet in "${targets[@]}"; do
 		specs+=' %{!fno-plt:%{!fplt:-fno-plt}}'
 	fi
 	
-	if (( is_native )); then
-		specs+=' %{lstdc++:-l stdcxx} %>lstdc++'
-	fi
-	
 	rm "${toolchain_directory}/${triplet}/"{lib,lib64}'/lib'{compiler,stdc++,c++}* || true
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
@@ -599,9 +613,9 @@ for triplet in "${targets[@]}"; do
 	
 	cd 'lib64' || cd 'lib'
 	
-	ln --symbolic './libgnuc.so' './libgcc_s.so.1'
-	ln --symbolic './libstdcxx.so' './libstdc++.so'
-	ln --symbolic './libstdcxx.a' './libstdc++.a'
+	ln --symbolic './libegcc.so' './libgcc_s.so.1'
+	ln --symbolic './libestdc++.so' './libstdc++.so'
+	ln --symbolic './libestdc++.a' './libstdc++.a'
 	
 	for version in "${versions[@]}"; do
 		declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${version}.tar.xz"

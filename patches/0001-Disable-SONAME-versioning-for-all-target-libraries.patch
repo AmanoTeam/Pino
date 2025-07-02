@@ -114,7 +114,7 @@ index 68cb3b31e..afa27c53c 100644
  SHLIB_SOLINK = @shlib_base_name@.so
  SHLIB_SOVERSION = 1
 -SHLIB_SONAME = @shlib_base_name@.so.$(SHLIB_SOVERSION)
-+SHLIB_SONAME = libgcc_shared$(SHLIB_EXT)
++SHLIB_SONAME = libgcc$(SHLIB_EXT)
  SHLIB_MAP = @shlib_map_file@
  SHLIB_OBJS = @shlib_objs@
  SHLIB_DIR = @multilib_dir@

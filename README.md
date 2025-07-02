@@ -10,11 +10,11 @@ This is the [Termux User Repository](https://github.com/termux-user-repository/t
 
 ### Gradle projects
 
-Using Pino in Gradle projects is a bit tricky. Both Gradle and CMake/ndk-build are heavily tied to the NDK's internal structure, which makes it difficult to completely replace Clang with GCC without risking breaking something in the build process.
+Using Pino in Gradle projects is a bit tricky. Both CMake and ndk-build are heavily tied to the NDK's internal structure, which makes it difficult to completely replace Clang with GCC without risking breaking something in the build process.
 
 For this to work, you will need to have both Pino (GCC) and Google's NDK (Clang) installed.
 
-First, ensure that Google's NDK is already installed. If you are using ndk-build or CMake with Gradle and have built your project at least once on your machine, it is very likely that the NDK is already installed. If you're unsure, go to the root directory of your project and run `./gradlew clean`:
+First, ensure that the upstream NDK is already installed. If you are using ndk-build or CMake with Gradle and have built your project at least once on your machine, it is very likely that the NDK is already installed. If you're unsure, go to the root directory of your project and run `./gradlew clean`:
 
 ```
 $ ./gradlew clean
@@ -62,6 +62,10 @@ After patching the NDK, you are almost ready to go and compile the project. Just
 
 Changing the build workflow further (i.e., Gradle, CMake, ndk-build) is usually not required unless your project relies on features that are not available on GCC (e.g., using Clang-specific compiler/linker flags or features), which might cause build errors.
 
+#### Limitations
+
+- Static linking of binaries not implemented
+  - Static linking is not yet implemented for the Clang wrapper. Any NDK library you link with will use the shared library 
 
 
 ## Releases
