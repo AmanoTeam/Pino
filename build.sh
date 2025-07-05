@@ -438,8 +438,10 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=' --with-arch=i686 --with-fpmath=sse'
 	elif [ "${triplet}" = 'x86_64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=x86-64 --with-fpmath=sse'
+	else
+		extra_configure_flags+=' --with-arch=rv64gc --with-abi=lp64d'
 	fi
-	
+	--with-arch=rv64imafdc --with-abi=lp64d
 	[ -d "${binutils_directory}/build" ] || mkdir "${binutils_directory}/build"
 	
 	cd "${binutils_directory}/build"
