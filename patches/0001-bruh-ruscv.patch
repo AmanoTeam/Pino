@@ -1,14 +1,14 @@
-From d305bfe76f332a4f4720a366b2ed70e3f6eae902 Mon Sep 17 00:00:00 2001
+From ccafa438647065d7fec447b1c8b1885b50a658f5 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Sat, 5 Jul 2025 16:46:07 -0300
 Subject: [PATCH] bruh-ruscv
 
 ---
- gcc/config/riscv/linux.h | 29 ++++++++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+ gcc/config/riscv/linux.h | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
 diff --git a/gcc/config/riscv/linux.h b/gcc/config/riscv/linux.h
-index 9060c940a..f6309a81e 100644
+index 9060c940a..bf12dca1b 100644
 --- a/gcc/config/riscv/linux.h
 +++ b/gcc/config/riscv/linux.h
 @@ -20,6 +20,7 @@ along with GCC; see the file COPYING3.  If not see
@@ -28,7 +28,7 @@ index 9060c940a..f6309a81e 100644
  -melf" XLEN_SPEC DEFAULT_ENDIAN_SPEC "riscv" LD_EMUL_SUFFIX " \
  %{mno-relax:--no-relax} \
  -X \
-@@ -61,6 +62,31 @@ along with GCC; see the file COPYING3.  If not see
+@@ -61,6 +62,30 @@ along with GCC; see the file COPYING3.  If not see
  	-dynamic-linker " GNU_USER_DYNAMIC_LINKER "}} \
      %{static:-static} %{static-pie:-static -pie --no-dynamic-linker -z text}}"
  
@@ -37,10 +37,8 @@ index 9060c940a..f6309a81e 100644
 +
 +#undef  CC1_SPEC
 +#define CC1_SPEC \
-+  LINUX_OR_ANDROID_CC (GNU_USER_TARGET_CC1_SPEC " " ASAN_CC1_SPEC " " \
-+		       FDPIC_CC1_SPEC, \
-+		       GNU_USER_TARGET_CC1_SPEC " " ASAN_CC1_SPEC " " \
-+		       ANDROID_CC1_SPEC)
++  LINUX_OR_ANDROID_CC (GNU_USER_TARGET_CC1_SPEC, \
++		       GNU_USER_TARGET_CC1_SPEC " " ANDROID_CC1_SPEC)
 +
 +#define CC1PLUS_SPEC \
 +  LINUX_OR_ANDROID_CC ("", ANDROID_CC1PLUS_SPEC)
@@ -54,13 +52,14 @@ index 9060c940a..f6309a81e 100644
 +#define STARTFILE_SPEC \
 +  LINUX_OR_ANDROID_LD (GNU_USER_TARGET_STARTFILE_SPEC, ANDROID_STARTFILE_SPEC)
 +
++#undef  ENDFILE_SPEC
 +#define ENDFILE_SPEC \
 +  LINUX_OR_ANDROID_LD (GNU_USER_TARGET_ENDFILE_SPEC, ANDROID_ENDFILE_SPEC)
 +
  #define STARTFILE_PREFIX_SPEC 			\
     "/lib" XLEN_SPEC "/" ABI_SPEC "/ "		\
     "/usr/lib" XLEN_SPEC "/" ABI_SPEC "/ "	\
-@@ -68,3 +94,4 @@ along with GCC; see the file COPYING3.  If not see
+@@ -68,3 +93,4 @@ along with GCC; see the file COPYING3.  If not see
     "/usr/lib/ "
  
  #define RISCV_USE_CUSTOMISED_MULTI_LIB select_by_abi
