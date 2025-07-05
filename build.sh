@@ -495,14 +495,12 @@ for triplet in "${targets[@]}"; do
 	
 	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
 	
-	patch --directory="${toolchain_directory}/${triplet}" --strip='1' --input="${workdir}/patches/0001-Match-the-NDK-sigcontext-struct-with-glibc-s.patch"
-	
 	rm --force --recursive "${toolchain_directory}/${triplet}/include/c++/v1"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
-	
+	patch --directory="${toolchain_directory}/${triplet}" --strip='1' --input="${workdir}/patches/0001-Match-the-NDK-sigcontext-struct-with-glibc-s.patch"
 	rm --force --recursive "${toolchain_directory}/${triplet}/include/c++/v1"
 	
 	rm --force --recursive ./*
