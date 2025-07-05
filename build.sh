@@ -426,6 +426,10 @@ for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	declare base_version='21'
 	
+	if [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
+		base_version='35'
+	fi
+	
 	if [ "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
 		extra_configure_flags+=' --with-arch=armv7-a --with-float=soft --with-fpu=vfp'
 	elif [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
