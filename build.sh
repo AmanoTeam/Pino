@@ -266,6 +266,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Rename-GCC-s-libgcc-library-to-libegcc.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Ignore-pragma-weak-when-the-declaration-is-private-o.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Add-the-Android-standard-definitions-to-the-riscv-li.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-bruh-ruscv.patch"
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-libgcc-build-on-arm.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Change-the-default-language-version-for-C-compilatio.patch"
@@ -438,7 +439,7 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=' --with-arch=i686 --with-fpmath=sse'
 	elif [ "${triplet}" = 'x86_64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=x86-64 --with-fpmath=sse'
-	else
+	elif [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=rv64gc --with-abi=lp64d'
 	fi
 	
