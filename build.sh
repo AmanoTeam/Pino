@@ -39,10 +39,11 @@ declare -r optflags='-w -O2 -Xlinker --allow-multiple-definition'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'x86_64-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'arm-unknown-linux-androideabi'
-	'aarch64-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'arm-unknown-linux-androideabi'
+	# 'aarch64-unknown-linux-android'
 )
 
 declare -r versions=(
@@ -264,6 +265,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Change-GCC-s-C-standard-library-name-to-libestdc.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Rename-GCC-s-libgcc-library-to-libegcc.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Ignore-pragma-weak-when-the-declaration-is-private-o.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Add-the-Android-standard-definitions-to-the-riscv-li.patch"
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-libgcc-build-on-arm.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Change-the-default-language-version-for-C-compilatio.patch"
@@ -422,6 +424,7 @@ export PATH="/tmp:${PATH}"
 
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
+	declare base_version='21'
 	
 	if [ "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
 		extra_configure_flags+=' --with-arch=armv7-a --with-float=soft --with-fpu=vfp'
@@ -466,7 +469,7 @@ for triplet in "${targets[@]}"; do
 	
 	cd "$(mktemp --directory)"
 	
-	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}21.tar.xz"
+	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${base_version}.tar.xz"
 	declare sysroot_file="${PWD}/${triplet}.tar.xz"
 	declare sysroot_directory="${PWD}/${triplet}"
 	
@@ -484,7 +487,7 @@ for triplet in "${targets[@]}"; do
 		--extract \
 		--file="${sysroot_file}"
 	
-	mv "${PWD}/${triplet}21" "${sysroot_directory}"
+	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
 	
 	rm --force --recursive "${toolchain_directory}/${triplet}/include/c++/v1"
 	
@@ -621,6 +624,10 @@ for triplet in "${targets[@]}"; do
 		declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${version}.tar.xz"
 		declare sysroot_directory="${toolchain_directory}/${triplet}${version}"
 		
+		if [ "${triplet}" = 'riscv64-unknown-linux-android' ] && [ "${version}" != '35' ]; then
+			continue
+		fi
+		
 		curl \
 			--url "${sysroot_url}" \
 			--retry '30' \
@@ -688,7 +695,14 @@ cp "${gcc_wrapper}" "${toolchain_directory}/bin/clang++"
 
 cp "${workdir}/tools/patch_ndk.sh" "${toolchain_directory}/bin/ndk-patch"
 
+# Delete libtool files and other unnecessary files GCC installs
 rm --force --recursive "${toolchain_directory}/share"
+
+find \
+	"${toolchain_directory}" \
+	-name '*.la' -delete -o \
+	-name '*.py' -delete -o \
+	-name '*.json' -delete
 
 declare cc='gcc'
 declare readelf='readelf'
