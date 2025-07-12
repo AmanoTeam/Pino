@@ -45,10 +45,10 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'arm-unknown-linux-androideabi'
+	'riscv64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'arm-unknown-linux-androideabi'
 )
 
 declare -ra versions=(
@@ -126,14 +126,23 @@ declare -ra bits=(
 	'64'
 )
 
-declare PKG_CONFIG_PATH="${toolchain_directory}/lib/pkgconfig"
-declare PKG_CONFIG_LIBDIR="${PKG_CONFIG_PATH}"
-declare PKG_CONFIG_SYSROOT_DIR="${toolchain_directory}"
+declare -r PKG_CONFIG_PATH="${toolchain_directory}/lib/pkgconfig"
+declare -r PKG_CONFIG_LIBDIR="${PKG_CONFIG_PATH}"
+declare -r PKG_CONFIG_SYSROOT_DIR="${toolchain_directory}"
+
+declare -r pkg_cv_ZSTD_CFLAGS="-I${toolchain_directory}/include"
+declare -r pkg_cv_ZSTD_LIBS="-L${toolchain_directory}/lib -lzstd"
+declare -r ZSTD_CFLAGS="-I${toolchain_directory}/include"
+declare -r ZSTD_LIBS="-L${toolchain_directory}/lib -lzstd"
 
 export \
 	PKG_CONFIG_PATH \
 	PKG_CONFIG_LIBDIR \
-	PKG_CONFIG_SYSROOT_DIR
+	PKG_CONFIG_SYSROOT_DIR \
+	pkg_cv_ZSTD_CFLAGS \
+	pkg_cv_ZSTD_LIBS \
+	ZSTD_CFLAGS \
+	ZSTD_LIB
 
 declare build_type="${1}"
 
@@ -517,12 +526,6 @@ for triplet in "${targets[@]}"; do
 	
 	cd "${binutils_directory}/build"
 	rm --force --recursive ./*
-	
-	export \
-		pkg_cv_ZSTD_CFLAGS="-I${toolchain_directory}/include" \
-		pkg_cv_ZSTD_LIBS="-L${toolchain_directory}/lib -lzstd" \
-		ZSTD_CFLAGS="-I${toolchain_directory}/include" \
-		ZSTD_LIBS="-L${toolchain_directory}/lib -lzstd"
 	
 	../configure \
 		--host="${CROSS_COMPILE_TRIPLET}" \
