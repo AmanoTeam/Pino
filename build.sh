@@ -44,11 +44,11 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
+	'aarch64-unknown-linux-android'
 	'riscv64-unknown-linux-android'
 	'x86_64-unknown-linux-android'
 	'i686-unknown-linux-android'
 	'arm-unknown-linux-androideabi'
-	'aarch64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -492,9 +492,14 @@ fi
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	declare base_version='21'
+	declare linker='bfd'
 	
 	if [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		base_version='35'
+	fi
+	
+	if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
+		linker='gold'
 	fi
 	
 	if [ "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
@@ -677,7 +682,7 @@ for triplet in "${targets[@]}"; do
 	
 	env ${args} make \
 		CFLAGS_FOR_TARGET="-D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
-		CXXFLAGS_FOR_TARGET="-fuse-ld=bfd -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
 		all --jobs="${max_jobs}"
 	make install
