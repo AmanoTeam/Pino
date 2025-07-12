@@ -32,8 +32,6 @@ declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 declare -r zstd_tarball='/tmp/zstd.tar.gz'
 declare -r zstd_directory='/tmp/zstd-dev'
 
-declare -r lld_tarball='/tmp/lld.tar.xz'
-
 declare -r nz_tarball='/tmp/nz.tar.xz'
 declare -r nz_directory='/tmp/nouzen'
 
@@ -46,10 +44,10 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	# 'riscv64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'arm-unknown-linux-androideabi'
+	'riscv64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'arm-unknown-linux-androideabi'
 	'aarch64-unknown-linux-android'
 )
 
@@ -91,7 +89,6 @@ declare -ra symlink_tools=(
 	'ld'
 	'ld.bfd'
 	'ld.gold'
-	'ld.lld'
 	'lto-dump'
 	'nm'
 	'objcopy'
@@ -346,34 +343,6 @@ sed \
 	"${gcc_directory}/configure" \
 	"${binutils_directory}/configure"
 
-if ! [ -f "${lld_tarball}" ]; then
-	[ -d "${toolchain_directory}" ] || mkdir "${toolchain_directory}"
-	
-	declare target="${build_type}"
-	
-	if [ "${target}" = 'native' ]; then
-		target='x86_64-unknown-linux-gnu'
-	fi
-	
-	curl \
-		--url "https://github.com/AmanoTeam/LLVM-LLD-Builds/releases/latest/download/${target}.tar.xz" \
-		--retry '30' \
-		--retry-delay '0' \
-		--retry-all-errors \
-		--retry-max-time '0' \
-		--location \
-		--silent \
-		--output "${lld_tarball}"
-	
-	tar \
-		--directory="${toolchain_directory}" \
-		--extract \
-		--strip='1' \
-		--file="${lld_tarball}" \
-		'llvm-ld/bin/lld' \
-		'llvm-ld/bin/ld.lld'
-fi
-
 if ! [ -f "${nz_tarball}" ]; then
 	declare target="${build_type}"
 	
@@ -562,20 +531,12 @@ for triplet in "${targets[@]}"; do
 		--without-static-standard-libraries \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-zstd="${toolchain_directory}" \
-		CFLAGS="${optflags} -I${toolchain_directory}/include -L${toolchain_directory}/lib" \
-		CXXFLAGS="${optflags} -I${toolchain_directory}/include -L${toolchain_directory}/lib" \
+		CFLAGS="${optflags}" \
+		CXXFLAGS="${optflags}" \
 		LDFLAGS="${linkflags}"
 	
 	make all --jobs="${max_jobs}"
 	make install
-	
-	cd "${toolchain_directory}/bin"
-	
-	ln --symbolic './ld.lld' "./${triplet}-ld.lld"
-	
-	cd "${toolchain_directory}/${triplet}/bin"
-	
-	ln --symbolic "../../bin/${triplet}-ld.lld" './ld.lld'
 	
 	cd "$(mktemp --directory)"
 	
@@ -627,12 +588,6 @@ for triplet in "${targets[@]}"; do
 	
 	if (( is_native )) && [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		patch --directory="${toolchain_directory}/${triplet}" --strip='1' --input="${workdir}/patches/0001-Match-the-NDK-sigcontext-struct-with-glibc-s.patch"
-	fi
-	
-	if (( 0 )); then
-		extra_configure_flags+=' --disable-libsanitizer'
-	else
-		extra_configure_flags+=' --enable-libsanitizer'
 	fi
 	
 	if ! (( is_native )); then
@@ -698,6 +653,7 @@ for triplet in "${targets[@]}"; do
 		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
 		--enable-libgomp \
+		--enable-libsanitizer \
 		--with-specs="${specs}" \
 		--disable-tls \
 		--disable-fixincludes \
