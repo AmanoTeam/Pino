@@ -45,10 +45,10 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	'riscv64-unknown-linux-android'
-	'x86_64-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'arm-unknown-linux-androideabi'
+	# 'riscv64-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'arm-unknown-linux-androideabi'
 )
 
 declare -ra versions=(
@@ -126,15 +126,14 @@ declare -ra bits=(
 	'64'
 )
 
-declare -r PKG_CONFIG_PATH="${toolchain_directory}/lib/pkgconfig"
-
-export PKG_CONFIG_PATH
+declare PKG_CONFIG_PATH="${toolchain_directory}/lib/pkgconfig"
+declare PKG_CONFIG_LIBDIR="${PKG_CONFIG_PATH}"
+declare PKG_CONFIG_SYSROOT_DIR="${toolchain_directory}"
 
 export \
-	ac_cv_func_aligned_alloc=no \
-	ac_cv_func__aligned_malloc=no \
-	ac_cv_func_memalign=no \
-	ac_cv_c_bigendian=no
+	PKG_CONFIG_PATH \
+	PKG_CONFIG_LIBDIR \
+	PKG_CONFIG_SYSROOT_DIR
 
 declare build_type="${1}"
 
