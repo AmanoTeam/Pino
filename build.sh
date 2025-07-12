@@ -518,6 +518,12 @@ for triplet in "${targets[@]}"; do
 	cd "${binutils_directory}/build"
 	rm --force --recursive ./*
 	
+	export \
+		pkg_cv_ZSTD_CFLAGS="-I${toolchain_directory}/include" \
+		pkg_cv_ZSTD_LIBS="-L${toolchain_directory}/lib -lzstd" \
+		ZSTD_CFLAGS="-I${toolchain_directory}/include" \
+		ZSTD_LIBS="-L${toolchain_directory}/lib -lzstd"
+	
 	../configure \
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
