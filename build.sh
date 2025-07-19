@@ -44,6 +44,8 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
+	'mipsel-unknown-linux-android'
+	'mips64el-unknown-linux-android'
 	'aarch64-unknown-linux-android'
 	'riscv64-unknown-linux-android'
 	'x86_64-unknown-linux-android'
@@ -52,6 +54,12 @@ declare -ra targets=(
 )
 
 declare -ra versions=(
+	'14'
+	'15'
+	'16'
+	'17'
+	'18'
+	'19'
 	'21'
 	'22'
 	'23'
@@ -497,11 +505,15 @@ fi
 
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
-	declare base_version='21'
+	declare base_version='14'
 	declare linker='bfd'
 	
 	if [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		base_version='35'
+	fi
+	
+	if [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'x86_64-unknown-linux-android' ]; then
+		base_version='21'
 	fi
 	
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
