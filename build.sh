@@ -591,8 +591,16 @@ for triplet in "${targets[@]}"; do
 		specs
 	)"
 	
-	if [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
-		specs+=' -Xlinker -z -Xlinker max-page-size=16384 -fno-signed-char'
+	if [ "${triplet}" = 'arm-unknown-linux-androideabi' ] || [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
+		specs+=' -fno-signed-char'
+	fi
+	
+	if [ "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
+		specs+=' -Xlinker -z -Xlinker max-page-size=4096'
+	fi
+	
+	if [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'x86_64-unknown-linux-android' ]; then
+		specs+=' -Xlinker -z -Xlinker max-page-size=16384'
 	fi
 	
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
