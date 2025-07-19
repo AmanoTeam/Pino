@@ -593,6 +593,7 @@ for triplet in "${targets[@]}"; do
 	
 	if (( base_version < 21 )); then
 		patch --directory="${toolchain_directory}/${triplet}/include" --strip='1' --input="${workdir}/patches/0001-mmap64.patch"
+		patch --directory="${toolchain_directory}/${triplet}/include" --strip='1' --input="${workdir}/patches/0001-langinfo.patch"
 	fi
 	
 	declare specs="$(

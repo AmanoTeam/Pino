@@ -1,0 +1,34 @@
+From 620cb5615f2b307abb3f6993b1a1ab2c912b99c6 Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Sun, 20 Jul 2025 01:12:56 +0200
+Subject: [PATCH] langinfo
+
+---
+ langinfo.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/langinfo.h b/langinfo.h
+index b0ecbf1..f8e91c2 100644
+--- a/langinfo.h
++++ b/langinfo.h
+@@ -36,6 +36,8 @@
+ 
+ __BEGIN_DECLS
+ 
++#if __ANDROID_API__ >= 26
++
+ #define CODESET 1
+ #define D_T_FMT 2
+ #define D_FMT 3
+@@ -92,8 +94,6 @@ __BEGIN_DECLS
+ #define NOEXPR 54
+ #define CRNCYSTR 55
+ 
+-
+-#if __ANDROID_API__ >= 26
+ char* nl_langinfo(nl_item __item) __INTRODUCED_IN(26);
+ char* nl_langinfo_l(nl_item __item, locale_t __l) __INTRODUCED_IN(26);
+ #endif /* __ANDROID_API__ >= 26 */
+-- 
+2.36.6
+
