@@ -1,0 +1,36 @@
+From 7ecbb497d9981f81080359c8fde852a0d1435691 Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Sun, 20 Jul 2025 00:18:50 +0200
+Subject: [PATCH] mmap64
+
+---
+ sys/mman.h | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/sys/mman.h b/sys/mman.h
+index 5cc0775..17a76c1 100644
+--- a/sys/mman.h
++++ b/sys/mman.h
+@@ -54,14 +54,11 @@ __BEGIN_DECLS
+  * mmap64 to every translation unit that includes this header. Instead, just
+  * preserve the old behavior for GCC and emit a useful diagnostic.
+  */
+-void* mmap(void* __addr, size_t __size, int __prot, int __flags, int __fd, off_t __offset)
+-#if !defined(__clang__) && __ANDROID_API__ < __ANDROID_API_L__
+-    __attribute__((error("mmap is not available with _FILE_OFFSET_BITS=64 when using GCC until "
+-                         "android-21. Either raise your minSdkVersion, disable "
+-                         "_FILE_OFFSET_BITS=64, or switch to Clang.")));
+-#else
+-    __RENAME(mmap64);
+-#endif  /* defined(__clang__) */
++void* mmap(void* __addr, size_t __size, int __prot, int __flags, int __fd, off_t __offset) __RENAME(mmap64);
++
++extern __inline__ __always_inline __attribute__((gnu_inline)) void* mmap64(void* __addr, size_t __size, int __prot, int __flags, int __fd, off64_t __offset) {
++	return mmap(__addr, __size, __prot, __flags, __fd, (off_t) (__offset & 0xFFFFFFFF));
++}
+ #else
+ void* mmap(void* __addr, size_t __size, int __prot, int __flags, int __fd, off_t __offset);
+ #endif  /* defined(__USE_FILE_OFFSET64) */
+-- 
+2.36.6
+

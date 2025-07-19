@@ -591,6 +591,10 @@ for triplet in "${targets[@]}"; do
 	
 	rm --force --recursive ./*
 	
+	if (( base_version < 21 )); then
+		patch --directory="${toolchain_directory}/${triplet}/include" --strip='1' --input="${workdir}/patches/0001-mmap64.patch"
+	fi
+	
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
 			%{!fno-common:%{!fcommon:-fcommon}}
