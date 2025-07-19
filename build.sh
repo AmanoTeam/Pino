@@ -515,7 +515,7 @@ for triplet in "${targets[@]}"; do
 	elif [ "${triplet}" = 'i686-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=i686 --with-fpmath=sse'
 	elif [ "${triplet}" = 'x86_64-unknown-linux-android' ]; then
-		extra_configure_flags+=' --with-arch=x86-64 --with-fpmath=sse'
+		extra_configure_flags+=' --with-arch=x86-64-v2 --with-fpmath=sse'
 	elif [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=rv64gc --with-abi=lp64d'
 	fi
