@@ -1,0 +1,417 @@
+From d86f323febb300af6ddd122c18e01d3e343bd9e5 Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Sat, 19 Jul 2025 18:07:07 -0300
+Subject: [PATCH] GCC 15
+
+---
+ Makefile.in                                |  6 ++-
+ gcc/Makefile.in                            |  4 +-
+ gcc/config.gcc                             |  6 ++-
+ gcc/config/aarch64/aarch64-linux-android.h | 60 ++++++++++++++++++++++
+ gcc/config/aarch64/aarch64-linux.h         |  3 ++
+ gcc/config/arm/elf.h                       |  5 +-
+ gcc/config/arm/linux-eabi.h                |  5 ++
+ gcc/config/i386/gnu-user.h                 |  6 ++-
+ gcc/config/i386/gnu-user64.h               |  5 ++
+ gcc/config/i386/i386.cc                    |  4 +-
+ gcc/config/i386/linux-common.h             |  8 ++-
+ gcc/config/linux-android.h                 | 15 ++++--
+ gcc/input.cc                               |  2 +
+ gcc/mem-stats.h                            |  2 +
+ libgcc/gthr-posix.h                        |  4 +-
+ libgcc/unwind-dw2-fde-dip.c                |  2 +-
+ libiberty/physmem.c                        |  2 +-
+ libstdc++-v3/config/os/bionic/ctype_base.h | 14 +++++
+ 18 files changed, 132 insertions(+), 21 deletions(-)
+ create mode 100644 gcc/config/aarch64/aarch64-linux-android.h
+
+diff --git a/Makefile.in b/Makefile.in
+index b1ed67d3d..d73ffeb1c 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -84,7 +84,7 @@ INSTALL = @INSTALL@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+ INSTALL_SCRIPT = @INSTALL_SCRIPT@
+ INSTALL_DATA = @INSTALL_DATA@
+-LN = @LN@
++LN = @LN_S@
+ LN_S = @LN_S@
+ MAINT = @MAINT@
+ MAINTAINER_MODE_FALSE = @MAINTAINER_MODE_FALSE@
+@@ -179,7 +179,9 @@ BUILD_EXPORTS = \
+ # built for the build system to override those in BASE_FLAGS_TO_PASS.
+ EXTRA_BUILD_FLAGS = \
+ 	CFLAGS="$(CFLAGS_FOR_BUILD)" \
+-	LDFLAGS="$(LDFLAGS_FOR_BUILD)"
++	LDFLAGS="$(LDFLAGS_FOR_BUILD)" \
++	CXXFLAGS="$(CXXFLAGS_FOR_BUILD)" \
++	CPPFLAGS="$(CPPFLAGS_FOR_BUILD)"
+ 
+ # This is the list of directories to built for the host system.
+ SUBDIRS = @configdirs@
+diff --git a/gcc/Makefile.in b/gcc/Makefile.in
+index 55b4cd7db..da74d4469 100644
+--- a/gcc/Makefile.in
++++ b/gcc/Makefile.in
+@@ -344,7 +344,7 @@ PWD_COMMAND = $${PWDCMD-pwd}
+ INSTALL = @INSTALL@
+ # Some systems may be missing symbolic links, regular links, or both.
+ # Allow configure to check this and use "ln -s", "ln", or "cp" as appropriate.
+-LN=@LN@
++LN=@LN_S@
+ LN_S=@LN_S@
+ # These permit overriding just for certain files.
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+@@ -588,7 +588,7 @@ BUILD_SYSTEM_HEADER_DIR = `echo @BUILD_SYSTEM_HEADER_DIR@ | sed -e :a -e 's,[^/]
+ STMP_FIXINC = @STMP_FIXINC@
+ 
+ # Test to see whether <limits.h> exists in the system header files.
+-LIMITS_H_TEST = [ -f $(BUILD_SYSTEM_HEADER_DIR)/limits.h ]
++LIMITS_H_TEST = [ -e /dev/null ]
+ 
+ # Directory for prefix to system directories, for
+ # each of $(system_prefix)/usr/include, $(system_prefix)/usr/lib, etc.
+diff --git a/gcc/config.gcc b/gcc/config.gcc
+index 5725704e0..5e45d171d 100644
+--- a/gcc/config.gcc
++++ b/gcc/config.gcc
+@@ -1237,14 +1237,18 @@ aarch64*-*-netbsd*)
+ 	extra_options="${extra_options} netbsd.opt netbsd-elf.opt"
+ 	;;
+ aarch64*-*-linux*)
+-	tm_file="${tm_file} elfos.h gnu-user.h linux.h glibc-stdint.h"
++	tm_file="${tm_file} elfos.h gnu-user.h linux.h linux-android.h glibc-stdint.h"
+ 	tm_file="${tm_file} aarch64/aarch64-elf.h aarch64/aarch64-errata.h aarch64/aarch64-linux.h"
++	extra_options="${extra_options} linux-android.opt"
+ 	tmake_file="${tmake_file} aarch64/t-aarch64 aarch64/t-aarch64-linux"
+ 	tm_defines="${tm_defines}  TARGET_DEFAULT_ASYNC_UNWIND_TABLES=1"
+ 	case $target in
+ 	aarch64_be-*)
+ 		tm_defines="${tm_defines} TARGET_BIG_ENDIAN_DEFAULT=1"
+ 		;;
++	aarch64*-*-linux-android*)
++		tm_file="${tm_file} aarch64/aarch64-linux-android.h"
++		;;
+ 	esac
+ 	aarch64_multilibs="${with_multilib_list}"
+ 	if test "$aarch64_multilibs" = "default"; then
+diff --git a/gcc/config/aarch64/aarch64-linux-android.h b/gcc/config/aarch64/aarch64-linux-android.h
+new file mode 100644
+index 000000000..f3c6f8d8c
+--- /dev/null
++++ b/gcc/config/aarch64/aarch64-linux-android.h
+@@ -0,0 +1,60 @@
++/* Machine description for AArch64 architecture.
++   Copyright (C) 2014 Free Software Foundation, Inc.
++
++   This file is part of GCC.
++
++   GCC is free software; you can redistribute it and/or modify it
++   under the terms of the GNU General Public License as published by
++   the Free Software Foundation; either version 3, or (at your option)
++   any later version.
++
++   GCC is distributed in the hope that it will be useful, but
++   WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   General Public License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with GCC; see the file COPYING3.  If not see
++   <http://www.gnu.org/licenses/>.  */
++
++#ifndef GCC_AARCH64_LINUX_ANDROID_H
++#define GCC_AARCH64_LINUX_ANDROID_H
++
++
++#undef TARGET_OS_CPP_BUILTINS
++#define TARGET_OS_CPP_BUILTINS()		\
++  do						\
++    {						\
++	GNU_USER_TARGET_OS_CPP_BUILTINS();	\
++	ANDROID_TARGET_OS_CPP_BUILTINS();	\
++    }						\
++  while (0)
++
++#undef  LINK_SPEC
++#define LINK_SPEC							\
++  LINUX_OR_ANDROID_LD (LINUX_TARGET_LINK_SPEC,				\
++		       LINUX_TARGET_LINK_SPEC " " ANDROID_LINK_SPEC)
++
++#undef  CC1_SPEC
++#define CC1_SPEC							\
++  LINUX_OR_ANDROID_CC (GNU_USER_TARGET_CC1_SPEC,			\
++		       GNU_USER_TARGET_CC1_SPEC " " ANDROID_CC1_SPEC)
++
++#undef CC1PLUS_SPEC
++#define CC1PLUS_SPEC \
++  LINUX_OR_ANDROID_CC ("", ANDROID_CC1PLUS_SPEC)
++
++#undef  LIB_SPEC
++#define LIB_SPEC							\
++  LINUX_OR_ANDROID_LD (GNU_USER_TARGET_LIB_SPEC,			\
++		    GNU_USER_TARGET_NO_PTHREADS_LIB_SPEC " " ANDROID_LIB_SPEC)
++
++#undef	STARTFILE_SPEC
++#define STARTFILE_SPEC \
++  LINUX_OR_ANDROID_LD (GNU_USER_TARGET_STARTFILE_SPEC, ANDROID_STARTFILE_SPEC)
++
++#undef	ENDFILE_SPEC
++#define ENDFILE_SPEC \
++  LINUX_OR_ANDROID_LD (GNU_USER_TARGET_ENDFILE_SPEC, ANDROID_ENDFILE_SPEC)
++
++#endif  /* GCC_AARCH64_LINUX_ANDROID_H */
+diff --git a/gcc/config/aarch64/aarch64-linux.h b/gcc/config/aarch64/aarch64-linux.h
+index 116bb4e69..b5a7556b4 100644
+--- a/gcc/config/aarch64/aarch64-linux.h
++++ b/gcc/config/aarch64/aarch64-linux.h
+@@ -26,6 +26,9 @@
+ #undef MUSL_DYNAMIC_LINKER
+ #define MUSL_DYNAMIC_LINKER "/lib/ld-musl-aarch64%{mbig-endian:_be}%{mabi=ilp32:_ilp32}.so.1"
+ 
++#undef BIONIC_DYNAMIC_LINKER
++#define BIONIC_DYNAMIC_LINKER "/system/bin/linker64"
++
+ #undef  ASAN_CC1_SPEC
+ #define ASAN_CC1_SPEC "%{%:sanitize(address):-funwind-tables}"
+ 
+diff --git a/gcc/config/arm/elf.h b/gcc/config/arm/elf.h
+index a271fdbe9..ab1094851 100644
+--- a/gcc/config/arm/elf.h
++++ b/gcc/config/arm/elf.h
+@@ -56,8 +56,7 @@
+ #undef SUBSUBTARGET_EXTRA_SPECS
+ #define SUBSUBTARGET_EXTRA_SPECS
+ 
+-#ifndef ASM_SPEC
+-#define ASM_SPEC "\
++#define DEFAULT_ASM_SPEC "\
+ %{mbig-endian:-EB} \
+ %{mlittle-endian:-EL} \
+ %(asm_cpu_spec) \
+@@ -66,6 +65,8 @@
+ %{mthumb-interwork:-mthumb-interwork} \
+ %{mfloat-abi=*} %{!mfpu=auto: %{mfpu=*}} \
+ %(subtarget_extra_asm_spec)"
++#ifndef ASM_SPEC
++#define ASM_SPEC DEFAULT_ASM_SPEC
+ #endif
+ 
+ /* The ARM uses @ are a comment character so we need to redefine
+diff --git a/gcc/config/arm/linux-eabi.h b/gcc/config/arm/linux-eabi.h
+index 8ef5643b5..5a0960ebd 100644
+--- a/gcc/config/arm/linux-eabi.h
++++ b/gcc/config/arm/linux-eabi.h
+@@ -113,6 +113,11 @@
+ #define CC1PLUS_SPEC \
+   LINUX_OR_ANDROID_CC ("", ANDROID_CC1PLUS_SPEC)
+ 
++#undef ASM_SPEC
++#define ASM_SPEC \
++  LINUX_OR_ANDROID_CC (DEFAULT_ASM_SPEC, \
++                       DEFAULT_ASM_SPEC  " " ANDROID_ASM_SPEC)
++
+ #undef  LIB_SPEC
+ #define LIB_SPEC							\
+   LINUX_OR_ANDROID_LD (GNU_USER_TARGET_LIB_SPEC,			\
+diff --git a/gcc/config/i386/gnu-user.h b/gcc/config/i386/gnu-user.h
+index 7abfda530..d85833f6e 100644
+--- a/gcc/config/i386/gnu-user.h
++++ b/gcc/config/i386/gnu-user.h
+@@ -59,9 +59,13 @@ along with GCC; see the file COPYING3.  If not see
+    When the -shared link option is used a final link is not being
+    done.  */
+ 
++#undef ANDROID_TARGET_CC1_SPEC
++#define ANDROID_TARGET_CC1_SPEC \
++  " -mssse3 -fno-short-enums " \
++
+ #undef  ASM_SPEC
+ #define ASM_SPEC \
+-  "--32 %{msse2avx:%{!mavx:-msse2avx}}"
++  "--32 %{msse2avx:%{!mavx:-msse2avx}}" LINUX_OR_ANDROID_CC ("", ANDROID_ASM_SPEC)
+ 
+ #undef  SUBTARGET_EXTRA_SPECS
+ #define SUBTARGET_EXTRA_SPECS \
+diff --git a/gcc/config/i386/gnu-user64.h b/gcc/config/i386/gnu-user64.h
+index abe714711..634081c2e 100644
+--- a/gcc/config/i386/gnu-user64.h
++++ b/gcc/config/i386/gnu-user64.h
+@@ -46,6 +46,11 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+ #define SPEC_X32 "mx32"
+ #endif
+ 
++#undef ANDROID_TARGET_CC1_SPEC
++#define ANDROID_TARGET_CC1_SPEC \
++  "%{m32:-mssse3 -fno-short-enums}" \
++  "%{!m32:-msse4.2 -mpopcnt}"
++
+ #undef ASM_SPEC
+ #define ASM_SPEC "%{" SPEC_32 ":--32} \
+  %{" SPEC_64 ":--64} \
+diff --git a/gcc/config/i386/i386.cc b/gcc/config/i386/i386.cc
+index 08d0519cc..94e50964e 100644
+--- a/gcc/config/i386/i386.cc
++++ b/gcc/config/i386/i386.cc
+@@ -24633,9 +24633,7 @@ ix86_stack_protect_runtime_enabled_p (void)
+ static tree ATTRIBUTE_UNUSED
+ ix86_stack_protect_fail (void)
+ {
+-  return TARGET_64BIT
+-	 ? default_external_stack_protect_fail ()
+-	 : default_hidden_stack_protect_fail ();
++  return default_external_stack_protect_fail ();
+ }
+ 
+ /* Select a format to encode pointers in exception handling data.  CODE
+diff --git a/gcc/config/i386/linux-common.h b/gcc/config/i386/linux-common.h
+index 2737d583f..eb17bf452 100644
+--- a/gcc/config/i386/linux-common.h
++++ b/gcc/config/i386/linux-common.h
+@@ -30,7 +30,13 @@ along with GCC; see the file COPYING3.  If not see
+ #undef CC1_SPEC
+ #define CC1_SPEC \
+   LINUX_OR_ANDROID_CC (GNU_USER_TARGET_CC1_SPEC, \
+-		       GNU_USER_TARGET_CC1_SPEC " " ANDROID_CC1_SPEC)
++                       GNU_USER_TARGET_CC1_SPEC \
++                       ANDROID_TARGET_CC1_SPEC \
++                       " " \
++                       ANDROID_CC1_SPEC)
++
++#define CC1PLUS_SPEC \
++  LINUX_OR_ANDROID_CC ("", ANDROID_CC1PLUS_SPEC)
+ 
+ #undef	LINK_SPEC
+ #define LINK_SPEC \
+diff --git a/gcc/config/linux-android.h b/gcc/config/linux-android.h
+index ecdc1da23..3f8430082 100644
+--- a/gcc/config/linux-android.h
++++ b/gcc/config/linux-android.h
+@@ -38,15 +38,20 @@
+   "%{" NOANDROID "|tno-android-ld:" LINUX_SPEC ";:" ANDROID_SPEC "}"
+ 
+ #define ANDROID_LINK_SPEC \
+-  "%{shared: -Bsymbolic}"
++  "%{shared: -Bsymbolic} -z noexecstack -z relro -z now"
+ 
+-#define ANDROID_CC1_SPEC						\
++#define ANDROID_CC1_SPEC \
+   "%{!mglibc:%{!muclibc:%{!mbionic: -mbionic}}} "			\
+-  "%{!fno-pic:%{!fno-PIC:%{!fpic:%{!fPIC: -fPIC}}}}"
++  "%{!fno-pic:%{!fno-PIC:%{!fpic:%{!fPIC: -fPIC}}}} "			\
++  "%{!fno-common:%{!fcommon:-fcommon}} "			\
++  "%{!fno-plt:%{!fplt:-fno-plt}}"
+ 
+ #define ANDROID_CC1PLUS_SPEC						\
+-  "%{!fexceptions:%{!fno-exceptions: -fno-exceptions}} "		\
+-  "%{!frtti:%{!fno-rtti: -fno-rtti}}"
++  "%{!fexceptions:%{!fno-exceptions: -fexceptions}} "		\
++  "%{!frtti:%{!fno-rtti: -frtti}}"
++
++#define ANDROID_ASM_SPEC \
++  "--noexecstack"
+ 
+ #define ANDROID_LIB_SPEC \
+   "%{!static: -ldl}"
+diff --git a/gcc/input.cc b/gcc/input.cc
+index fabfbfb6e..f4ba54d1c 100644
+--- a/gcc/input.cc
++++ b/gcc/input.cc
+@@ -25,6 +25,8 @@ along with GCC; see the file COPYING3.  If not see
+ #include "selftest.h"
+ #include "cpplib.h"
+ 
++#include <new>
++
+ #ifndef HAVE_ICONV
+ #define HAVE_ICONV 0
+ #endif
+diff --git a/gcc/mem-stats.h b/gcc/mem-stats.h
+index eb70322f8..88017c1cb 100644
+--- a/gcc/mem-stats.h
++++ b/gcc/mem-stats.h
+@@ -21,6 +21,8 @@ along with GCC; see the file COPYING3.  If not see
+ #ifndef GCC_MEM_STATS_H
+ #define GCC_MEM_STATS_H
+ 
++#include <new>
++
+ /* Forward declaration.  */
+ template<typename Key, typename Value,
+ 	 typename Traits = simple_hashmap_traits<default_hash_traits<Key>,
+diff --git a/libgcc/gthr-posix.h b/libgcc/gthr-posix.h
+index eeb84f32d..d80914c85 100644
+--- a/libgcc/gthr-posix.h
++++ b/libgcc/gthr-posix.h
+@@ -129,7 +129,7 @@ __gthrw(pthread_join)
+ __gthrw(pthread_equal)
+ __gthrw(pthread_self)
+ __gthrw(pthread_detach)
+-#ifndef __BIONIC__
++#if ! (defined (__BIONIC__)  || defined (__ANDROID__))
+ __gthrw(pthread_cancel)
+ #endif
+ __gthrw(sched_yield)
+@@ -275,7 +275,7 @@ __gthrw2(__gthrw_(__pthread_key_create),
+ 	 __pthread_key_create,
+ 	 pthread_key_create)
+ # define GTHR_ACTIVE_PROXY	__gthrw_(__pthread_key_create)
+-#elif defined (__BIONIC__)
++#elif defined (__BIONIC__) || defined (__ANDROID__)
+ # define GTHR_ACTIVE_PROXY	__gthrw_(pthread_create)
+ #else
+ # define GTHR_ACTIVE_PROXY	__gthrw_(pthread_cancel)
+diff --git a/libgcc/unwind-dw2-fde-dip.c b/libgcc/unwind-dw2-fde-dip.c
+index 5c19838e0..3d7cb55a9 100644
+--- a/libgcc/unwind-dw2-fde-dip.c
++++ b/libgcc/unwind-dw2-fde-dip.c
+@@ -53,7 +53,7 @@
+ #endif
+ 
+ #if !defined(inhibit_libc) && defined(HAVE_LD_EH_FRAME_HDR) \
+-    && defined(__BIONIC__)
++    && (defined(__BIONIC__) || defined (__ANDROID__))
+ # define USE_PT_GNU_EH_FRAME
+ #endif
+ 
+diff --git a/libiberty/physmem.c b/libiberty/physmem.c
+index 62253e120..130375461 100644
+--- a/libiberty/physmem.c
++++ b/libiberty/physmem.c
+@@ -48,7 +48,7 @@
+ # include <sys/param.h>
+ #endif
+ 
+-#if HAVE_SYS_SYSCTL_H
++#if false
+ # include <sys/sysctl.h>
+ #endif
+ 
+diff --git a/libstdc++-v3/config/os/bionic/ctype_base.h b/libstdc++-v3/config/os/bionic/ctype_base.h
+index e91a4ac9e..d47dadc79 100644
+--- a/libstdc++-v3/config/os/bionic/ctype_base.h
++++ b/libstdc++-v3/config/os/bionic/ctype_base.h
+@@ -28,6 +28,20 @@
+ 
+ // Information as gleaned from /usr/include/ctype.h
+ 
++#if !defined(_U)
++#if !defined(_CTYPE_U)
++#error Bionic header ctype.h does not define either _U nor _CTYPE_U
++#endif
++#define _U _CTYPE_U
++#define _L _CTYPE_L
++#define _N _CTYPE_N
++#define _S _CTYPE_S
++#define _P _CTYPE_P
++#define _C _CTYPE_C
++#define _X _CTYPE_X
++#define _B _CTYPE_B
++#endif
++
+ namespace std _GLIBCXX_VISIBILITY(default)
+ {
+ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+-- 
+2.49.0
+

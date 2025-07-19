@@ -306,10 +306,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 		--extract \
 		--file="${gcc_tarball}"
 	
-	for name in "${workdir}/submodules/tur/tur/gcc-15/"*'.patch'; do
-		patch --directory="${gcc_directory}" --strip='1' --input="${name}"
-	done
-	
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-GCC-15.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Avoid-relying-on-dynamic-shadow-when-building-libsan.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declarations-of-fgetpos-and-fsetpos.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declaration-of-posix_memalign-on-x86.patch"
