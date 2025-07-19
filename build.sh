@@ -535,6 +535,7 @@ for triplet in "${targets[@]}"; do
 		--enable-separate-code \
 		--enable-rosegment \
 		--enable-relro \
+		--enable-new-dtags \
 		--enable-compressed-debug-sections='all' \
 		--enable-default-compressed-debug-sections-algorithm='zstd' \
 		--disable-gprofng \
@@ -586,7 +587,7 @@ for triplet in "${targets[@]}"; do
 			%{!fno-common:%{!fcommon:-fcommon}}
 			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-Xlinker --undefined-version
-			-Xlinker --enable-new-dtags
+			-Xlinker -z -Xlinker now
 		specs
 	)"
 	
