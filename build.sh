@@ -152,6 +152,9 @@ export \
 	ZSTD_CFLAGS \
 	ZSTD_LIBS
 
+export \
+	ac_cv_header_sys_statvfs_h='no'
+
 declare build_type="${1}"
 
 if [ -z "${build_type}" ]; then
