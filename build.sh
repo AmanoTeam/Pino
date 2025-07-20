@@ -715,7 +715,7 @@ for triplet in "${targets[@]}"; do
 	
 	env ${args} make \
 		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
-		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags} -Xlinker --allow-multiple-definition" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
 		all --jobs="${max_jobs}"
 	make install
