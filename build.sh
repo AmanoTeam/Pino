@@ -508,6 +508,9 @@ for triplet in "${targets[@]}"; do
 	declare base_version='14'
 	declare linker='bfd'
 	
+	declare ndk_major='27'
+	declare ndk_minor='0'
+	
 	if [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		base_version='35'
 	fi
@@ -519,6 +522,13 @@ for triplet in "${targets[@]}"; do
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
 		linker='gold'
 	fi
+	
+	if (( base_version < 21 )); then
+		ndk_major='16'
+		ndk_minor='1'
+	fi
+	
+	declare ndk="${ndk_major}.${ndk_minor}"
 	
 	if [ "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
 		extra_configure_flags+=' --with-arch=armv7-a --with-float=soft --with-fpu=neon --with-mode=thumb'
@@ -714,7 +724,7 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	env ${args} make \
-		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags} -Xlinker --allow-multiple-definition" \
 		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags} -Xlinker --allow-multiple-definition" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
 		all --jobs="${max_jobs}"
