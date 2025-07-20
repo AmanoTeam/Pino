@@ -692,7 +692,7 @@ for triplet in "${targets[@]}"; do
 		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
 		--enable-libgomp \
-		--enable-libsanitizer \
+		--disable-libsanitizer \
 		--with-specs="${specs}" \
 		--disable-tls \
 		--disable-fixincludes \
