@@ -617,7 +617,8 @@ for triplet in "${targets[@]}"; do
 	
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
-			-Xlinker -z -Xlinker now
+			-D __NDK__=${ndk_major}
+			-D __NDK_MINOR__=${ndk_major}
 		specs
 	)"
 	
@@ -724,8 +725,8 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	env ${args} make \
-		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags} -Xlinker --allow-multiple-definition" \
-		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags} -Xlinker --allow-multiple-definition" \
+		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
 		all --jobs="${max_jobs}"
 	make install

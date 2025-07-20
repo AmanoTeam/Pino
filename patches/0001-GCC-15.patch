@@ -249,21 +249,6 @@ index abe714711..634081c2e 100644
  #undef ASM_SPEC
  #define ASM_SPEC "%{" SPEC_32 ":--32} \
   %{" SPEC_64 ":--64} \
-diff --git a/gcc/config/i386/i386.cc b/gcc/config/i386/i386.cc
-index 08d0519cc..94e50964e 100644
---- a/gcc/config/i386/i386.cc
-+++ b/gcc/config/i386/i386.cc
-@@ -24633,9 +24633,7 @@ ix86_stack_protect_runtime_enabled_p (void)
- static tree ATTRIBUTE_UNUSED
- ix86_stack_protect_fail (void)
- {
--  return TARGET_64BIT
--	 ? default_external_stack_protect_fail ()
--	 : default_hidden_stack_protect_fail ();
-+  return default_external_stack_protect_fail ();
- }
- 
- /* Select a format to encode pointers in exception handling data.  CODE
 diff --git a/gcc/config/i386/linux-common.h b/gcc/config/i386/linux-common.h
 index 2737d583f..eb17bf452 100644
 --- a/gcc/config/i386/linux-common.h
