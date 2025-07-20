@@ -44,13 +44,13 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'mipsel-unknown-linux-android'
-	'mips64el-unknown-linux-android'
-	'aarch64-unknown-linux-android'
-	'riscv64-unknown-linux-android'
-	'x86_64-unknown-linux-android'
 	'i686-unknown-linux-android'
 	'arm-unknown-linux-androideabi'
+	'aarch64-unknown-linux-android'
+	'mipsel-unknown-linux-android'
+	'mips64el-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -691,8 +691,8 @@ for triplet in "${targets[@]}"; do
 		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
 		--enable-libgomp \
-		--disable-libsanitizer \
 		--with-specs="${specs}" \
+		--disable-libsanitizer \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
@@ -714,7 +714,7 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	env ${args} make \
-		CFLAGS_FOR_TARGET="-D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
 		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
 		all --jobs="${max_jobs}"
