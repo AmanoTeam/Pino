@@ -46,11 +46,11 @@ declare -r linkflags='-Xlinker -s'
 declare -ra targets=(
 	'mipsel-unknown-linux-android'
 	'mips64el-unknown-linux-android'
-	# 'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'arm-unknown-linux-androideabi'
+	'aarch64-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'arm-unknown-linux-androideabi'
 )
 
 declare -ra versions=(
