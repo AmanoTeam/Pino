@@ -1,16 +1,97 @@
-From ece8e144062af25400155f87b3a1811b69c08c42 Mon Sep 17 00:00:00 2001
+From 8aa965d6e633849835aa68689f7788c74f07909b Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Sun, 20 Jul 2025 18:10:23 -0300
 Subject: [PATCH] HAVE_FREXPL
 
 ---
- libstdc++-v3/configure | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libstdc++-v3/configure | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
 diff --git a/libstdc++-v3/configure b/libstdc++-v3/configure
-index 819a1d828..be3e827f6 100755
+index 819a1d828..1e8841fc3 100755
 --- a/libstdc++-v3/configure
 +++ b/libstdc++-v3/configure
+@@ -25269,7 +25269,7 @@ do :
+   ac_fn_c_check_func "$LINENO" "frexpl" "ac_cv_func_frexpl"
+ if test "x$ac_cv_func_frexpl" = xyes; then :
+   cat >>confdefs.h <<_ACEOF
+-#define HAVE_FREXPL 1
++#define HAVE_FREXPL 0
+ _ACEOF
+ 
+ fi
+@@ -28005,7 +28005,7 @@ fi
+ $as_echo "$glibcxx_cv_func_frexpl_use" >&6; }
+   if test "x$glibcxx_cv_func_frexpl_use" = xyes; then
+     cat >>confdefs.h <<_ACEOF
+-#define HAVE_FREXPL 1
++#define HAVE_FREXPL 0
+ _ACEOF
+ 
+   fi
+@@ -31114,7 +31114,7 @@ do :
+   ac_fn_c_check_func "$LINENO" "frexpl" "ac_cv_func_frexpl"
+ if test "x$ac_cv_func_frexpl" = xyes; then :
+   cat >>confdefs.h <<_ACEOF
+-#define HAVE_FREXPL 1
++#define HAVE_FREXPL 0
+ _ACEOF
+ 
+ fi
+@@ -34293,7 +34293,7 @@ do :
+   ac_fn_c_check_func "$LINENO" "frexpl" "ac_cv_func_frexpl"
+ if test "x$ac_cv_func_frexpl" = xyes; then :
+   cat >>confdefs.h <<_ACEOF
+-#define HAVE_FREXPL 1
++#define HAVE_FREXPL 0
+ _ACEOF
+ 
+ fi
+@@ -37320,7 +37320,7 @@ do :
+   ac_fn_c_check_func "$LINENO" "frexpl" "ac_cv_func_frexpl"
+ if test "x$ac_cv_func_frexpl" = xyes; then :
+   cat >>confdefs.h <<_ACEOF
+-#define HAVE_FREXPL 1
++#define HAVE_FREXPL 0
+ _ACEOF
+ 
+ fi
+@@ -41264,7 +41264,7 @@ do :
+   ac_fn_c_check_func "$LINENO" "frexpl" "ac_cv_func_frexpl"
+ if test "x$ac_cv_func_frexpl" = xyes; then :
+   cat >>confdefs.h <<_ACEOF
+-#define HAVE_FREXPL 1
++#define HAVE_FREXPL 0
+ _ACEOF
+ 
+ fi
+@@ -44706,7 +44706,7 @@ do :
+   ac_fn_c_check_func "$LINENO" "frexpl" "ac_cv_func_frexpl"
+ if test "x$ac_cv_func_frexpl" = xyes; then :
+   cat >>confdefs.h <<_ACEOF
+-#define HAVE_FREXPL 1
++#define HAVE_FREXPL 0
+ _ACEOF
+ 
+ fi
+@@ -48377,7 +48377,7 @@ do :
+   ac_fn_c_check_func "$LINENO" "frexpl" "ac_cv_func_frexpl"
+ if test "x$ac_cv_func_frexpl" = xyes; then :
+   cat >>confdefs.h <<_ACEOF
+-#define HAVE_FREXPL 1
++#define HAVE_FREXPL 0
+ _ACEOF
+ 
+ fi
+@@ -49836,7 +49836,7 @@ fi
+ $as_echo "$glibcxx_cv_func_frexpl_use" >&6; }
+   if test "x$glibcxx_cv_func_frexpl_use" = xyes; then
+     cat >>confdefs.h <<_ACEOF
+-#define HAVE_FREXPL 1
++#define HAVE_FREXPL 0
+ _ACEOF
+ 
+   fi
 @@ -50642,7 +50642,7 @@ esac
  
      $as_echo "#define HAVE_FMODL 1" >>confdefs.h
