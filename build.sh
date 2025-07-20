@@ -44,8 +44,8 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'mips64el-unknown-linux-android'
 	'mipsel-unknown-linux-android'
+	'mips64el-unknown-linux-android'
 	'aarch64-unknown-linux-android'
 	'riscv64-unknown-linux-android'
 	'x86_64-unknown-linux-android'
@@ -530,6 +530,8 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=' --with-arch=x86-64-v2 --with-fpmath=sse'
 	elif [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=rv64gc --with-abi=lp64d'
+	elif [ "${triplet}" = 'mipsel-unknown-linux-android' ]; then
+		extra_configure_flags+=' --with-arch=mips32 --with-abi=32 --with-float=hard'
 	elif [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=mips64r6 --with-abi=64 --with-float=hard'
 	fi
@@ -569,6 +571,8 @@ for triplet in "${targets[@]}"; do
 	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${base_version}.tar.xz"
 	declare sysroot_file="${PWD}/${triplet}.tar.xz"
 	declare sysroot_directory="${PWD}/${triplet}"
+	
+	echo "Fetching system root from '${sysroot_url}'"
 	
 	curl \
 		--url "${sysroot_url}" \
@@ -745,9 +749,7 @@ for triplet in "${targets[@]}"; do
 		declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${version}.tar.xz"
 		declare sysroot_directory="${toolchain_directory}/${triplet}${version}"
 		
-		if [ "${triplet}" = 'riscv64-unknown-linux-android' ] && [ "${version}" != '35' ]; then
-			continue
-		fi
+		echo "Fetching system root from '${sysroot_url}'"
 		
 		curl \
 			--url "${sysroot_url}" \
@@ -762,7 +764,7 @@ for triplet in "${targets[@]}"; do
 		tar \
 			--directory="${toolchain_directory}" \
 			--extract \
-			--file="${sysroot_file}"
+			--file="${sysroot_file}" 2>/dev/null || continue
 		
 		cd "${sysroot_directory}"
 		
