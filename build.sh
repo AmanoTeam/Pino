@@ -44,8 +44,8 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'mipsel-unknown-linux-android'
 	'mips64el-unknown-linux-android'
+	'mipsel-unknown-linux-android'
 	'aarch64-unknown-linux-android'
 	'riscv64-unknown-linux-android'
 	'x86_64-unknown-linux-android'
@@ -512,7 +512,7 @@ for triplet in "${targets[@]}"; do
 		base_version='35'
 	fi
 	
-	if [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'x86_64-unknown-linux-android' ]; then
+	if [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'x86_64-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		base_version='21'
 	fi
 	
@@ -601,8 +601,6 @@ for triplet in "${targets[@]}"; do
 	
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
-			%{!fno-common:%{!fcommon:-fcommon}}
-			%{,c++:%{!fno-rtti:%{!frtti:-frtti}}}
 			-Xlinker --undefined-version
 			-Xlinker -z -Xlinker now
 		specs
@@ -612,7 +610,7 @@ for triplet in "${targets[@]}"; do
 		specs+=' -fno-signed-char'
 	fi
 	
-	if [ "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
+	if [ "${triplet}" = 'arm-unknown-linux-androideabi' ] || [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		specs+=' -Xlinker -z -Xlinker max-page-size=4096'
 	fi
 	
@@ -626,10 +624,6 @@ for triplet in "${targets[@]}"; do
 	
 	if (( is_native )) && [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		patch --directory="${toolchain_directory}/${triplet}" --strip='1' --input="${workdir}/patches/0001-Match-the-NDK-sigcontext-struct-with-glibc-s.patch"
-	fi
-	
-	if ! (( is_native )); then
-		specs+=' %{!fno-plt:%{!fplt:-fno-plt}}'
 	fi
 	
 	if ! (( is_native )); then
