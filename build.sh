@@ -802,7 +802,13 @@ for triplet in "${targets[@]}"; do
 		cp "${gcc_wrapper}" "${toolchain_directory}/bin/${triplet}${version}-clang"
 		cp "${gcc_wrapper}" "${toolchain_directory}/bin/${triplet}${version}-clang++"
 		
-		if (( nz )) && [ "${triplet}" != 'riscv64-unknown-linux-android' ]; then
+		declare termux='1'
+		
+		[ "${triplet}" = 'riscv64-unknown-linux-android' ] && termux='0'
+		[ "${triplet}" = 'mipsel-unknown-linux-android' ] && termux='0'
+		[ "${triplet}" = 'mips64el-unknown-linux-android' ] && termux='0'
+		
+		if (( nz && termux )); then
 			if (( version > 21 && version < 24 )); then
 				ln --symbolic "../../${triplet}21/lib/nouzen" './'
 			elif (( version > 24 )); then
