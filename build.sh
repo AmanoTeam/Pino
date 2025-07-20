@@ -154,6 +154,7 @@ export \
 
 export \
 	ac_cv_header_sys_statvfs_h='no'
+	ac_cv_func_frexpl='no'
 
 declare build_type="${1}"
 
@@ -318,6 +319,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Rename-GCC-s-libgcc-library-to-libegcc.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Ignore-pragma-weak-when-the-declaration-is-private-o.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Add-support-to-riscv64.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-HAVE_FREXPL.patch"
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-libgcc-build-on-arm.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Change-the-default-language-version-for-C-compilatio.patch"
@@ -615,7 +617,7 @@ for triplet in "${targets[@]}"; do
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
 			-D __NDK__=${ndk_major}
-			-D __NDK_MINOR__=${ndk_major}
+			-D __NDK_MINOR__=${ndk_minor}
 		specs
 	)"
 	
