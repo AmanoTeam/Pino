@@ -44,13 +44,13 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'i686-unknown-linux-android'
-	'arm-unknown-linux-androideabi'
-	'aarch64-unknown-linux-android'
 	'mipsel-unknown-linux-android'
-	'mips64el-unknown-linux-android'
-	'riscv64-unknown-linux-android'
-	'x86_64-unknown-linux-android'
+	# 'mips64el-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'arm-unknown-linux-androideabi'
+	# 'aarch64-unknown-linux-android'
+	# 'riscv64-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -506,7 +506,9 @@ fi
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	declare base_version='14'
+	
 	declare linker='bfd'
+	declare hash_style='both'
 	
 	declare ndk_major='27'
 	declare ndk_minor='0'
@@ -521,6 +523,10 @@ for triplet in "${targets[@]}"; do
 	
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
 		linker='gold'
+	fi
+	
+	if [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
+		hash_style='sysv'
 	fi
 	
 	if (( base_version < 21 )); then
@@ -600,20 +606,11 @@ for triplet in "${targets[@]}"; do
 	
 	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
 	
-	rm --force --recursive "${toolchain_directory}/${triplet}/include/c++/v1"
-	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
 	
-	rm --force --recursive "${toolchain_directory}/${triplet}/include/c++/v1"
-	
 	rm --force --recursive ./*
-	
-	if (( base_version < 21 )) || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
-		patch --directory="${toolchain_directory}/${triplet}/include" --strip='1' --input="${workdir}/patches/0001-mmap64.patch"
-		patch --directory="${toolchain_directory}/${triplet}/include" --strip='1' --input="${workdir}/patches/0001-langinfo.patch"
-	fi
 	
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
@@ -659,7 +656,7 @@ for triplet in "${targets[@]}"; do
 		--host="${CROSS_COMPILE_TRIPLET}" \
 		--target="${triplet}" \
 		--prefix="${toolchain_directory}" \
-		--with-linker-hash-style='both' \
+		--with-linker-hash-style="${hash_style}" \
 		--with-gmp="${toolchain_directory}" \
 		--with-mpc="${toolchain_directory}" \
 		--with-mpfr="${toolchain_directory}" \
@@ -785,8 +782,6 @@ for triplet in "${targets[@]}"; do
 		
 		cd "${sysroot_directory}/lib"
 		
-		rm lib{compiler,stdc++,c++}* || true
-		
 		mkdir 'gcc'
 		
 		for library in "../../${triplet}/"{lib,lib64}'/lib'*.{so,a,1}; do
@@ -816,7 +811,11 @@ for triplet in "${targets[@]}"; do
 		[ "${triplet}" = 'mipsel-unknown-linux-android' ] && termux='0'
 		[ "${triplet}" = 'mips64el-unknown-linux-android' ] && termux='0'
 		
-		if (( nz && termux )); then
+		status='0'
+		
+		(( nz && termux && version >= 21 )) && status='1'
+		
+		if (( status )); then
 			if (( version > 21 && version < 24 )); then
 				ln --symbolic "../../${triplet}21/lib/nouzen" './'
 			elif (( version > 24 )); then
@@ -857,12 +856,9 @@ for triplet in "${targets[@]}"; do
 			fi
 		fi
 		
-		if (( nz )); then
+		if (( status )); then
 			mkdir '../bin'
 			ln --symbolic --relative './nouzen/bin/'* '../bin'
-		fi
-		
-		if (( nz )); then
 			ln --symbolic --relative "${toolchain_directory}/${triplet}${version}/bin/nz" "${toolchain_directory}/bin/${triplet}${version}-nz"
 			ln --symbolic --relative "${toolchain_directory}/${triplet}${version}/bin/apt" "${toolchain_directory}/bin/${triplet}${version}-apt"
 			ln --symbolic --relative "${toolchain_directory}/${triplet}${version}/bin/apt-get" "${toolchain_directory}/bin/${triplet}${version}-apt-get"
