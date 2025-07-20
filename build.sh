@@ -596,14 +596,13 @@ for triplet in "${targets[@]}"; do
 	
 	rm --force --recursive ./*
 	
-	if (( base_version < 21 )); then
+	if (( base_version < 21 )) || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		patch --directory="${toolchain_directory}/${triplet}/include" --strip='1' --input="${workdir}/patches/0001-mmap64.patch"
 		patch --directory="${toolchain_directory}/${triplet}/include" --strip='1' --input="${workdir}/patches/0001-langinfo.patch"
 	fi
 	
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
-			-Xlinker --undefined-version
 			-Xlinker -z -Xlinker now
 		specs
 	)"

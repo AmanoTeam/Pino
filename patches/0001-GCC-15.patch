@@ -1,4 +1,4 @@
-From d86f323febb300af6ddd122c18e01d3e343bd9e5 Mon Sep 17 00:00:00 2001
+From 5b77967e235fb417159a43cc240ba1009895c54e Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Sat, 19 Jul 2025 18:07:07 -0300
 Subject: [PATCH] GCC 15
@@ -284,7 +284,7 @@ index 2737d583f..eb17bf452 100644
  #undef	LINK_SPEC
  #define LINK_SPEC \
 diff --git a/gcc/config/linux-android.h b/gcc/config/linux-android.h
-index ecdc1da23..3f8430082 100644
+index ecdc1da23..0862200c1 100644
 --- a/gcc/config/linux-android.h
 +++ b/gcc/config/linux-android.h
 @@ -38,15 +38,20 @@
@@ -292,7 +292,7 @@ index ecdc1da23..3f8430082 100644
  
  #define ANDROID_LINK_SPEC \
 -  "%{shared: -Bsymbolic}"
-+  "%{shared: -Bsymbolic} -z noexecstack -z relro -z now"
++  "%{shared: -Bsymbolic} -z noexecstack -z relro -z now --undefined-version"
  
 -#define ANDROID_CC1_SPEC						\
 +#define ANDROID_CC1_SPEC \
