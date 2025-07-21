@@ -155,7 +155,7 @@ export \
 
 export \
 	ac_cv_header_sys_statvfs_h='no'
-	ac_cv_func_frexpl='no'
+	libat_cv_have_ifunc='no'
 
 declare build_type="${1}"
 
@@ -563,9 +563,9 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	if (( is_native )); then
-		extra_binutils_flags+= ' --disable-rosegment'
+		extra_binutils_flags+=' --disable-rosegment'
 	else
-		extra_binutils_flags+= ' --enable-rosegment'
+		extra_binutils_flags+=' --enable-rosegment'
 	fi
 	
 	[ -d "${binutils_directory}/build" ] || mkdir "${binutils_directory}/build"
