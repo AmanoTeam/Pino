@@ -1,0 +1,496 @@
+From 144cb1d7b917306e1143d5614177f0712388d12c Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Sun, 20 Jul 2025 20:53:50 -0300
+Subject: [PATCH] cmath-inlines
+
+---
+ math.h | 303 +++++++++++++++++++++++++++++++++++++++------------------
+ 1 file changed, 206 insertions(+), 97 deletions(-)
+
+diff --git a/math.h b/math.h
+index a1bb531..a41d9fd 100644
+--- a/math.h
++++ b/math.h
+@@ -77,248 +77,358 @@ typedef __float_t float_t;
+ 
+ double acos(double __x);
+ float acosf(float __x);
+-long double acosl(long double __x) __RENAME_LDBL(acos, 3, 21);
++__extern_inline__ long double acosl(long double __x) {
++     return __builtin_acosl(__x);
++}
+ 
+ double asin(double __x);
+ float asinf(float __x);
+-long double asinl(long double __x) __RENAME_LDBL(asin, 3, 21);
++__extern_inline__ long double asinl(long double __x) {
++     return __builtin_asinl(__x);
++}
+ 
+ double atan(double __x);
+ float atanf(float __x);
+-long double atanl(long double __x) __RENAME_LDBL(atan, 3, 21);
++__extern_inline__ long double atanl(long double __x) {
++     return __builtin_atanl(__x);
++}
+ 
+ double atan2(double __y, double __x);
+ float atan2f(float __y, float __x);
+-long double atan2l(long double __y, long double __x) __RENAME_LDBL(atan2, 3, 21);
++__extern_inline__ long double atan2l(long double __y, long double __x) {
++     return __builtin_atan2l(__y, __x);
++}
+ 
+ double cos(double __x);
+ float cosf(float __x);
+-long double cosl(long double __x) __RENAME_LDBL(cos, 3, 21);
++__extern_inline__ long double cosl(long double __x) {
++     return __builtin_cosl(__x);
++}
+ 
+ double sin(double __x);
+ float sinf(float __x);
+-long double sinl(long double __x) __RENAME_LDBL(sin, 3, 21);
++__extern_inline__ long double sinl(long double __x) {
++     return __builtin_sinl(__x);
++}
+ 
+ double tan(double __x);
+ float tanf(float __x);
+-long double tanl(long double __x) __RENAME_LDBL(tan, 3, 21);
++__extern_inline__ long double tanl(long double __x) {
++     return __builtin_tanl(__x);
++}
+ 
+ double acosh(double __x);
+ float acoshf(float __x);
+-long double acoshl(long double __x) __RENAME_LDBL(acosh, 3, 21);
++__extern_inline__ long double acoshl(long double __x) {
++     return __builtin_acoshl(__x);
++}
+ 
+ double asinh(double __x);
+ float asinhf(float __x);
+-long double asinhl(long double __x) __RENAME_LDBL(asinh, 3, 21);
++__extern_inline__ long double asinhl(long double __x) {
++     return __builtin_asinhl(__x);
++}
+ 
+ double atanh(double __x);
+ float atanhf(float __x);
+-long double atanhl(long double __x) __RENAME_LDBL(atanh, 3, 21);
++__extern_inline__ long double atanhl(long double __x) {
++     return __builtin_atanhl(__x);
++}
+ 
+ double cosh(double __x);
+ float coshf(float __x);
+-long double coshl(long double __x) __RENAME_LDBL(cosh, 3, 21);
++__extern_inline__ long double coshl(long double __x) {
++     return __builtin_coshl(__x);
++}
+ 
+ double sinh(double __x);
+ float sinhf(float __x);
+-long double sinhl(long double __x) __RENAME_LDBL(sinh, 3, 21);
++__extern_inline__ long double sinhl(long double __x) {
++     return __builtin_sinhl(__x);
++}
+ 
+ double tanh(double __x);
+ float tanhf(float __x);
+-long double tanhl(long double __x) __RENAME_LDBL(tanh, 3, 21);
++__extern_inline__ long double tanhl(long double __x) {
++     return __builtin_tanhl(__x);
++}
+ 
+ double exp(double __x);
+ float expf(float __x);
+-long double expl(long double __x) __RENAME_LDBL(exp, 3, 21);
++__extern_inline__ long double expl(long double __x) {
++     return __builtin_expl(__x);
++}
+ 
+ double exp2(double __x);
+ float exp2f(float __x);
+-long double exp2l(long double __x) __RENAME_LDBL(exp2, 3, 21);
++__extern_inline__ long double exp2l(long double __x) {
++     return __builtin_exp2l(__x);
++}
+ 
+ double expm1(double __x);
+ float expm1f(float __x);
+-long double expm1l(long double __x) __RENAME_LDBL(expm1, 3, 21);
++__extern_inline__ long double expm1l(long double __x) {
++     return __builtin_expm1l(__x);
++}
+ 
+ double frexp(double __x, int* __exponent);
+ float frexpf(float __x, int* __exponent);
+-long double frexpl(long double __x, int* __exponent) __RENAME_LDBL(frexp, 3, 21);
++__extern_inline__ long double frexpl(long double __x, int* __exponent) {
++     return __builtin_frexpl(__x, __exponent);
++}
+ 
+ int ilogb(double __x) __attribute_const__;
+ int ilogbf(float __x) __attribute_const__;
+-int ilogbl(long double __x) __RENAME_LDBL(ilogb, 3, 3) __attribute_const__;
++__extern_inline__ int ilogbl(long double __x) __attribute_const__ {
++     return __builtin_ilogbl(__x);
++}
+ 
+ double ldexp(double __x, int __exponent);
+ float ldexpf(float __x, int __exponent);
+-long double ldexpl(long double __x, int __exponent) __RENAME_LDBL(ldexp, 3, 3);
++__extern_inline__ long double ldexpl(long double __x, int __exponent) {
++     return __builtin_ldexpl(__x, __exponent);
++}
+ 
+ double log(double __x);
+ float logf(float __x);
+-long double logl(long double __x) __RENAME_LDBL(log, 3, 21);
++__extern_inline__ long double logl(long double __x) {
++     return __builtin_logl(__x);
++}
+ 
+ double log10(double __x);
+ float log10f(float __x);
+-long double log10l(long double __x) __RENAME_LDBL(log10, 3, 21);
++__extern_inline__ long double log10l(long double __x) {
++     return __builtin_log10l(__x);
++}
+ 
+ double log1p(double __x);
+ float log1pf(float __x);
+-long double log1pl(long double __x) __RENAME_LDBL(log1p, 3, 21);
+-
+-
+-#if __ANDROID_API__ >= 18
+-double log2(double __x) __INTRODUCED_IN(18);
+-float log2f(float __x) __INTRODUCED_IN(18);
+-long double log2l(long double __x) __RENAME_LDBL(log2, 18, 18);
+-#endif /* __ANDROID_API__ >= 18 */
+-
++__extern_inline__ long double log1pl(long double __x) {
++     return __builtin_log1pl(__x);
++}
++
++__extern_inline__ double log2(double __x) {
++     return __builtin_log2(__x);
++}
++__extern_inline__ float log2f(float __x) {
++     return __builtin_log2f(__x);
++}
++__extern_inline__ long double log2l(long double __x) {
++     return __builtin_log2l(__x);
++}
+ 
+ double logb(double __x);
+ float logbf(float __x);
+-long double logbl(long double __x) __RENAME_LDBL(logb, 3, 18);
++__extern_inline__ long double logbl(long double __x) {
++     return __builtin_logbl(__x);
++}
+ 
+ double modf(double __x, double* __integral_part);
+ float modff(float __x, float* __integral_part);
+-long double modfl(long double __x, long double* __integral_part) __RENAME_LDBL(modf, 3, 21);
++__extern_inline__ long double modfl(long double __x, long double* __integral_part) {
++     return __builtin_modfl(__x, __integral_part);
++}
+ 
+ double scalbn(double __x, int __exponent);
+ float scalbnf(float __x, int __exponent);
+-long double scalbnl(long double __x, int __exponent) __RENAME_LDBL(scalbn, 3, 3);
+-
+-/* TODO: once the NDK only supports >= 18, use __RENAME_LDBL here too. */
+-double scalbln(double __x, long __exponent) __INTRODUCED_IN_X86(18) __VERSIONER_NO_GUARD;
+-float scalblnf(float __x, long __exponent) __INTRODUCED_IN_X86(18) __VERSIONER_NO_GUARD;
+-long double scalblnl(long double __x, long __exponent) __INTRODUCED_IN_X86(18) __VERSIONER_NO_GUARD;
++__extern_inline__ long double scalbnl(long double __x, int __exponent) {
++     return __builtin_scalbnl(__x, __exponent);
++}
++__extern_inline__ double scalbln(double __x, long __exponent) {
++     return __builtin_scalbln(__x, __exponent);
++}
++__extern_inline__ float scalblnf(float __x, long __exponent) {
++     return __builtin_scalblnf(__x, __exponent);
++}
++__extern_inline__ long double scalblnl(long double __x, long __exponent) {
++     return __builtin_scalblnl(__x, __exponent);
++}
+ 
+ double cbrt(double __x);
+ float cbrtf(float __x);
+-long double cbrtl(long double __x) __RENAME_LDBL(cbrt, 3, 21);
++__extern_inline__ long double cbrtl(long double __x) {
++     return __builtin_cbrtl(__x);
++}
+ 
+ double fabs(double __x) __attribute_const__;
+ float fabsf(float __x) __attribute_const__;
+-long double fabsl(long double __x) __RENAME_LDBL(fabs, 3, 3) __attribute_const__;
++__extern_inline__ long double fabsl(long double __x) __attribute_const__ {
++     return __builtin_fabsl(__x);
++}
+ 
+ double hypot(double __x, double __y);
+ float hypotf(float __x, float __y);
+-long double hypotl(long double __x, long double __y) __RENAME_LDBL(hypot, 3, 21);
++__extern_inline__ long double hypotl(long double __x, long double __y) {
++     return __builtin_hypotl(__x, __y);
++}
+ 
+ double pow(double __x, double __y);
+ float powf(float __x, float __y);
+-long double powl(long double __x, long double __y) __RENAME_LDBL(pow, 3, 21);
++__extern_inline__ long double powl(long double __x, long double __y) {
++     return __builtin_powl(__x, __y);
++}
+ 
+ double sqrt(double __x);
+ float sqrtf(float __x);
+-long double sqrtl(long double __x) __RENAME_LDBL(sqrt, 3, 21);
++__extern_inline__ long double sqrtl(long double __x) {
++     return __builtin_sqrtl(__x);
++}
+ 
+ double erf(double __x);
+ float erff(float __x);
+-long double erfl(long double __x) __RENAME_LDBL(erf, 3, 21);
+-
++__extern_inline__ long double erfl(long double __x) {
++     return __builtin_erfl(__x);
++}
+ double erfc(double __x);
+ float erfcf(float __x);
+-long double erfcl(long double __x) __RENAME_LDBL(erfc, 3, 21);
++__extern_inline__ long double erfcl(long double __x) {
++     return __builtin_erfcl(__x);
++}
+ 
+ double lgamma(double __x);
+ float lgammaf(float __x);
+-long double lgammal(long double __x) __RENAME_LDBL(lgamma, 3, 21);
+-
++__extern_inline__ long double lgammal(long double __x) {
++     return __builtin_lgammal(__x);
++}
+ double tgamma(double __x);
+-
+-#if (defined(__LP64__)) || (defined(__arm__) && __ANDROID_API__ >= 13) || (defined(__mips__) && !defined(__LP64__) && __ANDROID_API__ >= 13) || (defined(__i386__))
+-float tgammaf(float __x) __INTRODUCED_IN_ARM(13) __INTRODUCED_IN_MIPS(13) __INTRODUCED_IN_X86(9);
+-#endif /* (defined(__LP64__)) || (defined(__arm__) && __ANDROID_API__ >= 13) || (defined(__mips__) && !defined(__LP64__) && __ANDROID_API__ >= 13) || (defined(__i386__)) */
+-
+-long double tgammal(long double __x) __RENAME_LDBL(tgamma, 3, 21);
++__extern_inline__ float tgammaf(float __x) {
++     return __builtin_tgammaf(__x);
++}
++__extern_inline__ long double tgammal(long double __x) {
++    return __builtin_tgammal(__x);
++}
+ 
+ double ceil(double __x);
+ float ceilf(float __x);
+-long double ceill(long double __x) __RENAME_LDBL(ceil, 3, 3);
++__extern_inline__ long double ceill(long double __x) {
++    return __builtin_ceill(__x);
++}
+ 
+ double floor(double __x);
+ float floorf(float __x);
+-long double floorl(long double __x) __RENAME_LDBL(floor, 3, 3);
++__extern_inline__ long double floorl(long double __x) {
++    return __builtin_floorl(__x);
++}
+ 
+ double nearbyint(double __x);
+ float nearbyintf(float __x);
+-long double nearbyintl(long double __x) __RENAME_LDBL(nearbyint, 3, 21);
++__extern_inline__ long double nearbyintl(long double __x) {
++    return __builtin_nearbyintl(__x);
++}
+ 
+ double rint(double __x);
+ float rintf(float __x);
+-long double rintl(long double __x) __RENAME_LDBL(rint, 3, 21);
++__extern_inline__ long double rintl(long double __x) {
++    return __builtin_rintl(__x);
++}
+ 
+ long lrint(double __x);
+ long lrintf(float __x);
+-long lrintl(long double __x) __RENAME_LDBL(lrint, 3, 21);
++__extern_inline__ long long lrintl(long double __x) {
++    return __builtin_lrintl(__x);
++}
+ 
+ long long llrint(double __x);
+ long long llrintf(float __x);
+-long long llrintl(long double __x) __RENAME_LDBL(llrint, 3, 21);
++__extern_inline__ long long llrintl(long double __x) {
++    return __builtin_llrintl(__x);
++}
+ 
+ double round(double __x);
+ float roundf(float __x);
+-long double roundl(long double __x) __RENAME_LDBL(roundl, 3, 3);
++__extern_inline__ long double roundl(long double __x) {
++    return __builtin_roundl(__x);
++}
+ 
+ long lround(double __x);
+ long lroundf(float __x);
+-long lroundl(long double __x) __RENAME_LDBL(lround, 3, 3);
++__extern_inline__ long lroundl(long double __x) {
++    return __builtin_lroundl(__x);
++}
+ 
+ long long llround(double __x);
+ long long llroundf(float __x);
+-long long llroundl(long double __x) __RENAME_LDBL(llround, 3, 3);
++__extern_inline__ long long llroundl(long double __x) {
++    return __builtin_llroundl(__x);
++}
+ 
+ double trunc(double __x);
+ float truncf(float __x);
+-long double truncl(long double __x) __RENAME_LDBL(trunc, 3, 3);
++__extern_inline__ long double truncl(long double __x) {
++    return __builtin_truncl(__x);
++}
+ 
+ double fmod(double __x, double __y);
+ float fmodf(float __x, float __y);
+-long double fmodl(long double __x, long double __y) __RENAME_LDBL(fmod, 3, 21);
++__extern_inline__ long double fmodl(long double __x, long double __y) {
++    return __builtin_fmodl(__x, __y);
++}
+ 
+ double remainder(double __x, double __y);
+ float remainderf(float __x, float __y);
+-long double remainderl(long double __x, long double __y) __RENAME_LDBL(remainder, 3, 21);
++__extern_inline__ long double remainderl(long double __x, long double __y) {
++    return __builtin_remainderl(__x, __y);
++}
+ 
+ double remquo(double __x, double __y, int* __quotient_bits);
+ float remquof(float __x, float __y, int* __quotient_bits);
+-long double remquol(long double __x, long double __y, int* __quotient_bits) __RENAME_LDBL(remquo, 3, 21);
++__extern_inline__ long double remquol(long double __x, long double __y, int* __quotient_bits) {
++    return __builtin_remquol(__x, __y, __quotient_bits);
++}
+ 
+ double copysign(double __value, double __sign) __attribute_const__;
+ float copysignf(float __value, float __sign) __attribute_const__;
+-long double copysignl(long double __value, long double __sign) __RENAME_LDBL(copysign, 3, 3) __attribute_const__;
+-
+-
+-#if (defined(__LP64__)) || (defined(__arm__) && __ANDROID_API__ >= 13) || (defined(__mips__) && !defined(__LP64__) && __ANDROID_API__ >= 13) || (defined(__i386__))
+-double nan(const char* __kind) __attribute_const__ __INTRODUCED_IN_ARM(13) __INTRODUCED_IN_MIPS(13) __INTRODUCED_IN_X86(9);
+-float nanf(const char* __kind) __attribute_const__ __INTRODUCED_IN_ARM(13) __INTRODUCED_IN_MIPS(13) __INTRODUCED_IN_X86(9);
+-#endif /* (defined(__LP64__)) || (defined(__arm__) && __ANDROID_API__ >= 13) || (defined(__mips__) && !defined(__LP64__) && __ANDROID_API__ >= 13) || (defined(__i386__)) */
+-
+-
+-#if __ANDROID_API__ >= 13
+-long double nanl(const char* __kind) __RENAME_LDBL(nan, 13, 13) __attribute_const__;
+-#endif /* __ANDROID_API__ >= 13 */
+-
++__extern_inline__ long double copysignl(long double __value, long double __sign) __attribute_const__ {
++    return __builtin_copysignl(__value, __sign);
++}
++
++__extern_inline__ double nan(const char* __kind) __attribute_const__ {
++    return __builtin_nan(__kind);
++}
++__extern_inline__ float nanf(const char* __kind) __attribute_const__ {
++    return __builtin_nanf(__kind);
++}
++__extern_inline__ long double nanl(const char* __kind) __attribute_const__ {
++    return __builtin_nanl(__kind);
++}
+ 
+ double nextafter(double __x, double __y);
+ float nextafterf(float __x, float __y);
+-long double nextafterl(long double __x, long double __y) __RENAME_LDBL(nextafter, 3, 21) __VERSIONER_NO_GUARD;
++__extern_inline__ long double nextafterl(long double __x, long double __y) {
++    return __builtin_nextafterl(__x, __y);
++}
+ 
+-double nexttoward(double __x, long double __y) __INTRODUCED_IN(18) __VERSIONER_NO_GUARD;
++__extern_inline__ double nexttoward(double __x, long double __y) {
++    return __builtin_nexttoward(__x, __y);
++}
+ float nexttowardf(float __x, long double __y);
+-long double nexttowardl(long double __x, long double __y) __RENAME_LDBL(nexttoward, 18, 18) __VERSIONER_NO_GUARD;
++__extern_inline__ long double nexttowardl(long double __x, long double __y) {
++    return __builtin_nexttowardl(__x, __y);
++}
+ 
+ double fdim(double __x, double __y);
+ float fdimf(float __x, float __y);
+-long double fdiml(long double __x, long double __y) __RENAME_LDBL(fdim, 3, 3);
++__extern_inline__ long double fdiml(long double __x, long double __y) {
++    return __builtin_fdiml(__x, __y);
++}
+ 
+ double fmax(double __x, double __y) __attribute_const__;
+ float fmaxf(float __x, float __y) __attribute_const__;
+-long double fmaxl(long double __x, long double __y) __RENAME_LDBL(fmax, 3, 3) __attribute_const__;
++__extern_inline__ long double fmaxl(long double __x, long double __y) __attribute_const__ {
++    return __builtin_fmaxl(__x, __y);
++}
+ 
+ double fmin(double __x, double __y) __attribute_const__;
+ float fminf(float __x, float __y) __attribute_const__;
+-long double fminl(long double __x, long double __y) __RENAME_LDBL(fmin, 3, 3) __attribute_const__;
++__extern_inline__ long double fminl(long double __x, long double __y) __attribute_const__ {
++    return __builtin_fminl(__x, __y);
++}
+ 
+ double fma(double __x, double __y, double __z);
+ float fmaf(float __x, float __y, float __z);
+-long double fmal(long double __x, long double __y, long double __z) __RENAME_LDBL(fma, 3, 21) __VERSIONER_NO_GUARD;
++__extern_inline__ long double fmal(long double __x, long double __y, long double __z) {
++    return __builtin_fmal(__x, __y, __z);
++}
+ 
+ #define isgreater(x, y) __builtin_isgreater((x), (y))
+ #define isgreaterequal(x, y) __builtin_isgreaterequal((x), (y))
+@@ -339,9 +449,9 @@ long double fmal(long double __x, long double __y, long double __z) __RENAME_LDB
+  * included by a lot of other standard headers) and ::isnan.
+  */
+ 
+-#if __ANDROID_API__ >= 21
+-int (isinf)(double __x) __attribute_const__ __INTRODUCED_IN(21);
+-#endif /* __ANDROID_API__ >= 21 */
++__extern_inline__ int isinf(double __x) __attribute_const__ {
++    return __builtin_isinf(__x);
++}
+ 
+ int (isnan)(double __x) __attribute_const__;
+ 
+@@ -390,14 +500,13 @@ double gamma_r(double __x, int* __sign);
+ double lgamma_r(double __x, int* __sign);
+ double significand(double __x);
+ 
+-#if __ANDROID_API__ >= 23
+-long double lgammal_r(long double __x, int* __sign) __INTRODUCED_IN(23);
+-#endif /* __ANDROID_API__ >= 23 */
+-
++__extern_inline__ long double lgammal_r(long double __x, int* __sign) {
++    return __builtin_lgammal_r(__x, __sign);
++}
+ 
+-#if __ANDROID_API__ >= 21
+-long double significandl(long double __x) __INTRODUCED_IN(21);
+-#endif /* __ANDROID_API__ >= 21 */
++__extern_inline__ long double significandl(long double __x) {
++    return __builtin_significandl(__x);
++}
+ 
+ float dremf(float __x, float __y);
+ int finitef(float __x) __attribute_const__;
+-- 
+2.49.0
+

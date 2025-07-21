@@ -319,7 +319,6 @@ if ! [ -f "${gcc_tarball}" ]; then
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Rename-GCC-s-libgcc-library-to-libegcc.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Ignore-pragma-weak-when-the-declaration-is-private-o.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Add-support-to-riscv64.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-HAVE_FREXPL.patch"
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-libgcc-build-on-arm.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Change-the-default-language-version-for-C-compilatio.patch"
@@ -609,6 +608,8 @@ for triplet in "${targets[@]}"; do
 	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
+	
+	patch --directory="${sysroot_directory}/include" --strip='1' --input="${workdir}/patches/0001-cmath-inlines.patch"
 	
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
 	
