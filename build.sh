@@ -604,6 +604,10 @@ for triplet in "${targets[@]}"; do
 	declare sysroot_file="${PWD}/${target}.tar.xz"
 	declare sysroot_directory="${PWD}/${target}"
 	
+	if [ "${target}" != "${triplet}" ]; then
+		sysroot_directory="${PWD}/${triplet}"
+	fi
+	
 	echo "Fetching system root from '${sysroot_url}'"
 	
 	curl \
@@ -619,14 +623,8 @@ for triplet in "${targets[@]}"; do
 	tar \
 		--extract \
 		--file="${sysroot_file}"
-	ls
-	if [ "${target}" != "${triplet}" ]; then
-		declare new_sysroot_directory="${PWD}/${triplet}"
-		mv "${PWD}/${target}${base_version}" "${new_sysroot_directory}"
-		sysroot_directory="${new_sysroot_directory}"
-	else
-		mv "${PWD}/${target}${base_version}" "${sysroot_directory}"
-	fi
+	
+	mv "${PWD}/${target}${base_version}" "${sysroot_directory}"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	
