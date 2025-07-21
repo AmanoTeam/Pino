@@ -628,8 +628,6 @@ for triplet in "${targets[@]}"; do
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	
-	patch --directory="${sysroot_directory}/include" --strip='1' --input="${workdir}/patches/0001-cmath-inlines.patch"
-	
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
 	
 	rm --force --recursive ./*
@@ -665,8 +663,6 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=" --with-cross-host=${CROSS_COMPILE_TRIPLET}"
 		extra_configure_flags+=" --with-toolexeclibdir=${toolchain_directory}/${triplet}/lib/"
 	fi
-	
-	rm "${toolchain_directory}/${triplet}/"{lib,lib64}'/lib'{compiler,stdc++,c++}* || true
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
