@@ -44,14 +44,14 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'armv5-unknown-linux-androideabi'
-	'armv7-unknown-linux-androideabi'
-	'mipsel-unknown-linux-android'
-	'mips64el-unknown-linux-android'
 	'i686-unknown-linux-android'
-	'aarch64-unknown-linux-android'
-	'riscv64-unknown-linux-android'
-	'x86_64-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
+	# 'armv7-unknown-linux-androideabi'
+	# 'mipsel-unknown-linux-android'
+	# 'mips64el-unknown-linux-android'
+	# 'aarch64-unknown-linux-android'
+	# 'riscv64-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -769,6 +769,12 @@ for triplet in "${targets[@]}"; do
 	
 	[ -f './libiberty.a' ] && unlink './libiberty.a'
 	
+	if [[ "$(basename "${PWD}")" = 'lib64' ]]; then
+		mv * '../lib' || true
+		rmdir "${PWD}"
+		cd '../lib'
+	fi
+	
 	if ! (( is_native )); then
 		ln --symbolic './libestdc++.so' './libstdc++.so'
 		ln --symbolic './libestdc++.a' './libstdc++.a'
@@ -812,7 +818,7 @@ for triplet in "${targets[@]}"; do
 		
 		mkdir 'gcc'
 		
-		for library in "../../${triplet}/"{lib,lib64}'/lib'*.{so,a,1}; do
+		for library in "../../${triplet}/lib/lib"*.{so,a,1}; do
 			declare name="$(basename "${library}")"
 			
 			if [[ "${name}" == *'*'* ]]; then
@@ -821,6 +827,15 @@ for triplet in "${targets[@]}"; do
 			
 			if [ -f "${name}" ]; then
 				continue
+			fi
+			
+			if [[ "${name}" == *'.a' ]]; then
+				libname="$(basename "${name}" '.a')"
+				declare destination="./${libname}_nonshared.a"
+				
+				if ! [ -f "${destination}" ]; then
+					ln --symbolic "${library}" "${destination}"
+				fi
 			fi
 			
 			ln --symbolic "${library}" './'
