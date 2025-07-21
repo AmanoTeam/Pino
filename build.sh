@@ -44,13 +44,14 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
+	'armv5-unknown-linux-androideabi'
+	'armv7-unknown-linux-androideabi'
 	'mipsel-unknown-linux-android'
-	# 'mips64el-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'arm-unknown-linux-androideabi'
-	# 'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
+	'mips64el-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'aarch64-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -507,12 +508,17 @@ fi
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	declare base_version='14'
+	declare target="${triplet}"
 	
 	declare linker='bfd'
 	declare hash_style='both'
 	
 	declare ndk_major='27'
 	declare ndk_minor='0'
+	
+	if [[ "${target}" = 'arm'*'-unknown-linux-androideabi' ]]; then
+		target='arm-unknown-linux-androideabi'
+	fi
 	
 	if [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		base_version='35'
@@ -537,8 +543,10 @@ for triplet in "${targets[@]}"; do
 	
 	declare ndk="${ndk_major}.${ndk_minor}"
 	
-	if [ "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
+	if [ "${triplet}" = 'armv7-unknown-linux-androideabi' ]; then
 		extra_configure_flags+=' --with-arch=armv7-a --with-float=soft --with-fpu=neon --with-mode=thumb'
+	elif [ "${triplet}" = 'armv5-unknown-linux-androideabi' ]; then
+		extra_configure_flags+=' --with-arch=armv5te --with-float=soft --with-fpu=vfp --with-mode=thumb'
 	elif [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --enable-fix-cortex-a53-835769 --enable-fix-cortex-a53-843419'
 	elif [ "${triplet}" = 'i686-unknown-linux-android' ]; then
@@ -585,7 +593,7 @@ for triplet in "${targets[@]}"; do
 	
 	cd "$(mktemp --directory)"
 	
-	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${base_version}.tar.xz"
+	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${target}${base_version}.tar.xz"
 	declare sysroot_file="${PWD}/${triplet}.tar.xz"
 	declare sysroot_directory="${PWD}/${triplet}"
 	
@@ -622,11 +630,11 @@ for triplet in "${targets[@]}"; do
 		specs
 	)"
 	
-	if [ "${triplet}" = 'arm-unknown-linux-androideabi' ] || [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
+	if [[ "${triplet}" = 'arm'*'-unknown-linux-androideabi' ]] || [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		specs+=' -fno-signed-char'
 	fi
 	
-	if [ "${triplet}" = 'arm-unknown-linux-androideabi' ] || [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
+	if [[ "${triplet}" = 'arm'*'-unknown-linux-androideabi' ]] || [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		specs+=' -Xlinker -z -Xlinker max-page-size=4096'
 	fi
 	
@@ -813,6 +821,7 @@ for triplet in "${targets[@]}"; do
 		[ "${triplet}" = 'riscv64-unknown-linux-android' ] && termux='0'
 		[ "${triplet}" = 'mipsel-unknown-linux-android' ] && termux='0'
 		[ "${triplet}" = 'mips64el-unknown-linux-android' ] && termux='0'
+		[ "${triplet}" = 'armv5-unknown-linux-androideabi' ] && termux='0'
 		
 		status='0'
 		
@@ -840,7 +849,7 @@ for triplet in "${targets[@]}"; do
 				
 				if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
 					architecture='aarch64'
-				elif [ "${triplet}" = 'arm-unknown-linux-androideabi' ]; then
+				elif [ "${triplet}" = 'armv7-unknown-linux-androideabi' ]; then
 					architecture='arm'
 				elif [ "${triplet}" = 'i686-unknown-linux-android' ]; then
 					architecture='i686'
