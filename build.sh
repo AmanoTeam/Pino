@@ -562,7 +562,7 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=' --with-arch=mips64r6 --with-abi=64 --with-float=hard'
 	fi
 	
-	if (( is_native _)); then
+	if (( is_native )); then
 		extra_binutils_flags+= ' --disable-rosegment'
 	else
 		extra_binutils_flags+= ' --enable-rosegment'
