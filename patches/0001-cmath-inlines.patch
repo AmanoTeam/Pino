@@ -1,4 +1,4 @@
-From 144cb1d7b917306e1143d5614177f0712388d12c Mon Sep 17 00:00:00 2001
+From c18faa610afac6361b5cd159630b4d1d720c3e93 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Sun, 20 Jul 2025 20:53:50 -0300
 Subject: [PATCH] cmath-inlines
@@ -8,7 +8,7 @@ Subject: [PATCH] cmath-inlines
  1 file changed, 206 insertions(+), 97 deletions(-)
 
 diff --git a/math.h b/math.h
-index a1bb531..a41d9fd 100644
+index a1bb531..ca9d79b 100644
 --- a/math.h
 +++ b/math.h
 @@ -77,248 +77,358 @@ typedef __float_t float_t;
@@ -135,7 +135,7 @@ index a1bb531..a41d9fd 100644
  int ilogb(double __x) __attribute_const__;
  int ilogbf(float __x) __attribute_const__;
 -int ilogbl(long double __x) __RENAME_LDBL(ilogb, 3, 3) __attribute_const__;
-+__extern_inline__ int ilogbl(long double __x) __attribute_const__ {
++__extern_inline__ int ilogbl(long double __x) {
 +     return __builtin_ilogbl(__x);
 +}
  
@@ -230,7 +230,7 @@ index a1bb531..a41d9fd 100644
  double fabs(double __x) __attribute_const__;
  float fabsf(float __x) __attribute_const__;
 -long double fabsl(long double __x) __RENAME_LDBL(fabs, 3, 3) __attribute_const__;
-+__extern_inline__ long double fabsl(long double __x) __attribute_const__ {
++__extern_inline__ long double fabsl(long double __x) {
 +     return __builtin_fabsl(__x);
 +}
  
@@ -396,17 +396,17 @@ index a1bb531..a41d9fd 100644
 -long double nanl(const char* __kind) __RENAME_LDBL(nan, 13, 13) __attribute_const__;
 -#endif /* __ANDROID_API__ >= 13 */
 -
-+__extern_inline__ long double copysignl(long double __value, long double __sign) __attribute_const__ {
++__extern_inline__ long double copysignl(long double __value, long double __sign) {
 +    return __builtin_copysignl(__value, __sign);
 +}
 +
-+__extern_inline__ double nan(const char* __kind) __attribute_const__ {
++__extern_inline__ double nan(const char* __kind) {
 +    return __builtin_nan(__kind);
 +}
-+__extern_inline__ float nanf(const char* __kind) __attribute_const__ {
++__extern_inline__ float nanf(const char* __kind) {
 +    return __builtin_nanf(__kind);
 +}
-+__extern_inline__ long double nanl(const char* __kind) __attribute_const__ {
++__extern_inline__ long double nanl(const char* __kind) {
 +    return __builtin_nanl(__kind);
 +}
  
@@ -437,14 +437,14 @@ index a1bb531..a41d9fd 100644
  double fmax(double __x, double __y) __attribute_const__;
  float fmaxf(float __x, float __y) __attribute_const__;
 -long double fmaxl(long double __x, long double __y) __RENAME_LDBL(fmax, 3, 3) __attribute_const__;
-+__extern_inline__ long double fmaxl(long double __x, long double __y) __attribute_const__ {
++__extern_inline__ long double fmaxl(long double __x, long double __y) {
 +    return __builtin_fmaxl(__x, __y);
 +}
  
  double fmin(double __x, double __y) __attribute_const__;
  float fminf(float __x, float __y) __attribute_const__;
 -long double fminl(long double __x, long double __y) __RENAME_LDBL(fmin, 3, 3) __attribute_const__;
-+__extern_inline__ long double fminl(long double __x, long double __y) __attribute_const__ {
++__extern_inline__ long double fminl(long double __x, long double __y) {
 +    return __builtin_fminl(__x, __y);
 +}
  
@@ -464,7 +464,7 @@ index a1bb531..a41d9fd 100644
 -#if __ANDROID_API__ >= 21
 -int (isinf)(double __x) __attribute_const__ __INTRODUCED_IN(21);
 -#endif /* __ANDROID_API__ >= 21 */
-+__extern_inline__ int isinf(double __x) __attribute_const__ {
++__extern_inline__ int isinf(double __x) {
 +    return __builtin_isinf(__x);
 +}
  
