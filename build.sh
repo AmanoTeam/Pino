@@ -762,11 +762,11 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	cd "${toolchain_directory}/${triplet}/lib64" 2>/dev/null || cd "${toolchain_directory}/${triplet}/lib"
-	ls
+	
 	[ -f './libiberty.a' ] && unlink './libiberty.a'
 	
 	if [[ "$(basename "${PWD}")" = 'lib64' ]]; then
-		mv * '../lib' || true
+		mv ./* '../lib' || true
 		rmdir "${PWD}"
 		cd '../lib'
 	fi
