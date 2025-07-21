@@ -602,7 +602,7 @@ for triplet in "${targets[@]}"; do
 	
 	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${target}${base_version}.tar.xz"
 	declare sysroot_file="${PWD}/${target}.tar.xz"
-	declare sysroot_directory="${PWD}/${target}${base_version}"
+	declare sysroot_directory="${PWD}/${target}"
 	
 	echo "Fetching system root from '${sysroot_url}'"
 	
@@ -622,8 +622,10 @@ for triplet in "${targets[@]}"; do
 	ls
 	if [ "${target}" != "${triplet}" ]; then
 		declare new_sysroot_directory="${PWD}/${triplet}"
-		mv "${sysroot_directory}" "${new_sysroot_directory}"
+		mv "${PWD}/${target}${base_version}" "${new_sysroot_directory}"
 		sysroot_directory="${new_sysroot_directory}"
+	else
+		mv "${PWD}/${target}${base_version}" "${sysroot_directory}"
 	fi
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
