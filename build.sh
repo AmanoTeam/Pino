@@ -507,6 +507,7 @@ fi
 
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
+	declare extra_binutils_flags=''
 	declare base_version='14'
 	declare target="${triplet}"
 	
@@ -561,6 +562,12 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=' --with-arch=mips64r6 --with-abi=64 --with-float=hard'
 	fi
 	
+	if (( is_native _)); then
+		extra_binutils_flags+= ' --disable-rosegment'
+	else
+		extra_binutils_flags+= ' --enable-rosegment'
+	fi
+	
 	[ -d "${binutils_directory}/build" ] || mkdir "${binutils_directory}/build"
 	
 	cd "${binutils_directory}/build"
@@ -574,7 +581,6 @@ for triplet in "${targets[@]}"; do
 		--enable-ld \
 		--enable-lto \
 		--enable-separate-code \
-		--enable-rosegment \
 		--enable-relro \
 		--enable-new-dtags \
 		--enable-compressed-debug-sections='all' \
@@ -584,6 +590,7 @@ for triplet in "${targets[@]}"; do
 		--without-static-standard-libraries \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-zstd="${toolchain_directory}" \
+		${extra_binutils_flags} \
 		CFLAGS="${optflags}" \
 		CXXFLAGS="${optflags}" \
 		LDFLAGS="${linkflags}"
@@ -613,7 +620,7 @@ for triplet in "${targets[@]}"; do
 		--extract \
 		--file="${sysroot_file}"
 	
-	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
+	mv "${PWD}/${target}${base_version}" "${sysroot_directory}/${triplet}${base_version}"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	
@@ -766,7 +773,7 @@ for triplet in "${targets[@]}"; do
 		
 	for version in "${versions[@]}"; do
 		declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${version}.tar.xz"
-		declare sysroot_directory="${toolchain_directory}/${triplet}${version}"
+		declare sysroot_directory="${toolchain_directory}/${target}${version}"
 		
 		echo "Fetching system root from '${sysroot_url}'"
 		
@@ -784,6 +791,12 @@ for triplet in "${targets[@]}"; do
 			--directory="${toolchain_directory}" \
 			--extract \
 			--file="${sysroot_file}" 2>/dev/null || continue
+		
+		if [ "${target}" != "${triplet}" ]; then
+			declare new_sysroot_directory="${toolchain_directory}/${triplet}${version}"
+			mv "${sysroot_directory}" "${new_sysroot_directory}"
+			sysroot_directory="${new_sysroot_directory}"
+		fi
 		
 		cd "${sysroot_directory}"
 		
