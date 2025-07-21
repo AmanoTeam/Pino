@@ -45,13 +45,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'i686-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'armv7-unknown-linux-androideabi'
-	# 'mipsel-unknown-linux-android'
-	# 'mips64el-unknown-linux-android'
-	# 'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'armv7-unknown-linux-androideabi'
+	'mipsel-unknown-linux-android'
+	'mips64el-unknown-linux-android'
+	'aarch64-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -551,9 +551,9 @@ for triplet in "${targets[@]}"; do
 	elif [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --enable-fix-cortex-a53-835769 --enable-fix-cortex-a53-843419'
 	elif [ "${triplet}" = 'i686-unknown-linux-android' ]; then
-		extra_configure_flags+=' --with-arch=i686 --with-fpmath=sse'
+		extra_configure_flags+=' --with-arch=i686 --with-tune=intel --with-fpmath=sse'
 	elif [ "${triplet}" = 'x86_64-unknown-linux-android' ]; then
-		extra_configure_flags+=' --with-arch=x86-64-v2 --with-fpmath=sse'
+		extra_configure_flags+=' --with-arch=x86-64 --with-tune=intel --with-fpmath=sse'
 	elif [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=rv64gc --with-abi=lp64d'
 	elif [ "${triplet}" = 'mipsel-unknown-linux-android' ]; then
@@ -814,7 +814,7 @@ for triplet in "${targets[@]}"; do
 		
 		mkdir 'gcc'
 		
-		for library in "../../${triplet}/lib/lib"*.{so,a,1}; do
+		for library in "../../${triplet}/lib/lib"*.{so,a,1,spec}; do
 			declare name="$(basename "${library}")"
 			
 			if [[ "${name}" == *'*'* ]]; then
