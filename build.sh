@@ -602,7 +602,7 @@ for triplet in "${targets[@]}"; do
 	
 	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${target}${base_version}.tar.xz"
 	declare sysroot_file="${PWD}/${target}.tar.xz"
-	declare sysroot_directory="${PWD}/${target}"
+	declare sysroot_directory="${PWD}/${target}${base_version}"
 	
 	echo "Fetching system root from '${sysroot_url}'"
 	
@@ -619,7 +619,7 @@ for triplet in "${targets[@]}"; do
 	tar \
 		--extract \
 		--file="${sysroot_file}"
-	
+	ls
 	if [ "${target}" != "${triplet}" ]; then
 		declare new_sysroot_directory="${PWD}/${triplet}"
 		mv "${sysroot_directory}" "${new_sysroot_directory}"
