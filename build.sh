@@ -545,9 +545,9 @@ for triplet in "${targets[@]}"; do
 	declare ndk="${ndk_major}.${ndk_minor}"
 	
 	if [ "${triplet}" = 'armv7-unknown-linux-androideabi' ]; then
-		extra_configure_flags+=' --with-arch=armv7-a --with-float=soft --with-fpu=neon --with-mode=thumb'
+		extra_configure_flags+=' --with-arch=armv7-a --with-float=soft --with-fpu=vfpv3-d16 --with-mode=thumb'
 	elif [ "${triplet}" = 'armv5-unknown-linux-androideabi' ]; then
-		extra_configure_flags+=' --with-arch=armv5te --with-float=soft --with-fpu=vfp --with-mode=thumb'
+		extra_configure_flags+=' --with-arch=armv5te --with-float=soft --with-fpu=vfpv2 --with-mode=thumb'
 	elif [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --enable-fix-cortex-a53-835769 --enable-fix-cortex-a53-843419'
 	elif [ "${triplet}" = 'i686-unknown-linux-android' ]; then
