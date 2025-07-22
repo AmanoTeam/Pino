@@ -814,7 +814,7 @@ for triplet in "${targets[@]}"; do
 		
 		cd "${sysroot_directory}/lib"
 		
-		mkdir 'gcc'
+		mkdir 'gcc' 'static'
 		
 		for library in "../../${triplet}/lib/lib"*.{so,a,1,spec}; do
 			declare name="$(basename "${library}")"
@@ -824,6 +824,7 @@ for triplet in "${targets[@]}"; do
 			fi
 			
 			if [ -f "${name}" ]; then
+				ln --symbolic --relative "${library}" './static'
 				continue
 			fi
 			
@@ -836,6 +837,8 @@ for triplet in "${targets[@]}"; do
 				if [ -f "${shared}" ] && ! [ -f "${static}" ]; then
 					ln --symbolic "${library}" "${static}"
 				fi
+				
+				ln --symbolic --relative "${library}" './static'
 			fi
 			
 			ln --symbolic "${library}" './'
