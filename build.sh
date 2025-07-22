@@ -44,14 +44,14 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'mips64el-unknown-linux-android'
-	'aarch64-unknown-linux-android'
-	'riscv64-unknown-linux-android'
-	'x86_64-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
+	# 'mips64el-unknown-linux-android'
+	# 'aarch64-unknown-linux-android'
+	# 'riscv64-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
 	'armv7-unknown-linux-androideabi'
-	'mipsel-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -501,9 +501,9 @@ cp "${workdir}/submodules/obggcc/tools/ln.sh" '/tmp/ln'
 export PATH="/tmp:${PATH}"
 
 # The gold linker build incorrectly detects ffsll() as unsupported.
-if [[ "${CROSS_COMPILE_TRIPLET}" == *'-android'* ]]; then
-	export ac_cv_func_ffsll=yes
-fi
+# if [[ "${CROSS_COMPILE_TRIPLET}" == *'-android'* ]]; then
+# export ac_cv_func_ffsll=yes
+# fi
 
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
@@ -778,7 +778,7 @@ for triplet in "${targets[@]}"; do
 	fi
 		
 	for version in "${versions[@]}"; do
-		declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${version}.tar.xz"
+		declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${target}${version}.tar.xz"
 		declare sysroot_directory="${toolchain_directory}/${target}${version}"
 		
 		echo "Fetching system root from '${sysroot_url}'"
@@ -827,10 +827,12 @@ for triplet in "${targets[@]}"; do
 			
 			if [[ "${name}" == *'.a' ]]; then
 				libname="$(basename "${name}" '.a')"
-				declare destination="./${libname}_nonshared.a"
 				
-				if ! [ -f "${destination}" ]; then
-					ln --symbolic "${library}" "${destination}"
+				declare static="./${libname}_nonshared.a"
+				declare shared="./${libname}.so"
+				
+				if [ -f "${shared}" ] && ! [ -f "${static}" ]; then
+					ln --symbolic "${library}" "${static}"
 				fi
 			fi
 			
