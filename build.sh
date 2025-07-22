@@ -634,8 +634,6 @@ for triplet in "${targets[@]}"; do
 	
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
-			%{fstatic-gnu-tm:%:include(libitm_static.spec)%(link_itm_static)}
-			%{fstatic-openacc|fstatic-openmp:%:include(libgomp_static.spec)%(link_gomp_static)}
 			-D __NDK__=${ndk_major}
 			-D __NDK_MINOR__=${ndk_minor}
 		specs
@@ -730,6 +728,7 @@ for triplet in "${targets[@]}"; do
 		--disable-symvers \
 		--without-headers \
 		--without-static-standard-libraries \
+		--with-pic \
 		${extra_configure_flags} \
 		CFLAGS="${optflags}" \
 		CXXFLAGS="${optflags}" \
@@ -742,8 +741,8 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	env ${args} make \
-		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
-		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CFLAGS_FOR_TARGET="-fPIC -fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CXXFLAGS_FOR_TARGET="-fPIC -fuse-ld=${linker} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
 		all --jobs="${max_jobs}"
 	make install
