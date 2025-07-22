@@ -634,11 +634,13 @@ for triplet in "${targets[@]}"; do
 	
 	declare specs="$(
 		cat <<- specs | tr '\n' ' '
+			%{fstatic-gnu-tm:%:include(libitm_static.spec)%(link_itm_static)}
+			%{fstatic-openacc|fstatic-openmp:%:include(libgomp_static.spec)%(link_gomp_static)}
 			-D __NDK__=${ndk_major}
 			-D __NDK_MINOR__=${ndk_minor}
 		specs
 	)"
-	
+	   
 	if [[ "${triplet}" = 'arm'*'-unknown-linux-androideabi' ]] || [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		specs+=' -fno-signed-char'
 	fi
@@ -746,6 +748,8 @@ for triplet in "${targets[@]}"; do
 		all --jobs="${max_jobs}"
 	make install
 	
+	cp "${workdir}/tools/specs/lib"*'_static.spec' "${toolchain_directory}/${triplet}/lib"
+	
 	cp "${workdir}/submodules/obggcc/tools/pkg-config.sh" "${toolchain_directory}/bin/${triplet}-pkg-config"
 	sed --in-place 's/OBGGCC/PINO/g' "${toolchain_directory}/bin/${triplet}-pkg-config"
 	
@@ -828,7 +832,7 @@ for triplet in "${targets[@]}"; do
 			if [[ "${name}" == *'.a' ]]; then
 				libname="$(basename "${name}" '.a')"
 				
-				declare static="./${libname}_nonshared.a"
+				declare static="./${libname}_static.a"
 				declare shared="./${libname}.so"
 				
 				if [ -f "${shared}" ] && ! [ -f "${static}" ]; then
