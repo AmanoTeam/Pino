@@ -1,5 +1,5 @@
 set(CMAKE_SYSTEM_NAME "Android")
-set(CMAKE_SYSTEM_PROCESSOR "i686")
+set(CMAKE_SYSTEM_PROCESSOR "mipsel")
 
 set(TOOLCHAIN_PREFIX "${CMAKE_SYSTEM_PROCESSOR}-unknown-linux-android")
 
