@@ -420,7 +420,7 @@ cd "${mpfr_directory}/build"
 	--with-gmp="${toolchain_directory}" \
 	--enable-shared \
 	--disable-static \
-	CFLAGS="${optflags}" \
+	CFLAGS="${optflags} -DMPFR_LCONV_DPTS=0" \
 	CXXFLAGS="${optflags}" \
 	LDFLAGS="${linkflags}"
 
