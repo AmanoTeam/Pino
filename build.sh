@@ -818,6 +818,8 @@ for triplet in "${targets[@]}"; do
 		
 		mkdir 'gcc' 'static'
 		
+		ln --symbolic --relative './lib'*'.'{so,a} './static'
+		
 		for library in "../../${triplet}/lib/lib"*.{so,a,1,spec}; do
 			declare name="$(basename "${library}")"
 			
@@ -826,7 +828,6 @@ for triplet in "${targets[@]}"; do
 			fi
 			
 			if [ -f "${name}" ]; then
-				ln --symbolic --relative "${library}" './static'
 				continue
 			fi
 			
