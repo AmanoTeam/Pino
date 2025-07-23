@@ -44,14 +44,14 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	# 'mips64el-unknown-linux-android'
-	# 'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
+	'mips64el-unknown-linux-android'
+	'aarch64-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
 	'armv7-unknown-linux-androideabi'
-	# 'mipsel-unknown-linux-android'
+	'mipsel-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -717,6 +717,7 @@ for triplet in "${targets[@]}"; do
 		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
 		--enable-libgomp \
+		--enable-frame-pointer \
 		--with-pic \
 		--with-specs="${specs}" \
 		--disable-libsanitizer \
