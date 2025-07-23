@@ -17,7 +17,7 @@ jobs:
       id: check-cache
       uses: actions/cache@main
       with:
-        key: gcc-15.1.0-nz3
+        key: gcc-15.1.0-nz4
         lookup-only: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -63,7 +63,7 @@ jobs:
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       uses: actions/cache@main
       with:
-        key: gcc-15.1.0-nz3
+        key: gcc-15.1.0-nz4
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
           /tmp/x86_64-linux-gnu.tar.xz.sha256
@@ -128,7 +128,7 @@ jobs:
     - name: Restore from cache
       uses: actions/cache@main
       with:
-        key: gcc-15.1.0-nz3
+        key: gcc-15.1.0-nz4
         fail-on-cache-miss: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -140,7 +140,7 @@ jobs:
     - name: Cross-compile Pino to ${{ matrix.target }}
       run: |
         source './tools/setup_toolchain.sh'
-        ls $PINO_HOME/bin
+        
         if [[ '${{ matrix.target }}' == *'-linux-musl'* ]]; then
             declare -r RAIDEN_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/Raiden/releases/latest')")"
             declare -r RAIDEN_TARBALL='/tmp/toolchain.tar.xz'
