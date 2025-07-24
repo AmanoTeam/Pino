@@ -637,9 +637,10 @@ for triplet in "${targets[@]}"; do
 		cat <<- specs | tr '\n' ' '
 			-D __NDK__=${ndk_major}
 			-D __NDK_MINOR__=${ndk_minor}
+			-Xlinker -lpino
 		specs
 	)"
-	   
+	
 	if [[ "${triplet}" = 'arm'*'-unknown-linux-androideabi' ]] || [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		specs+=' -fno-signed-char'
 	fi
@@ -664,6 +665,8 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=" --with-cross-host=${CROSS_COMPILE_TRIPLET}"
 		extra_configure_flags+=" --with-toolexeclibdir=${toolchain_directory}/${triplet}/lib/"
 	fi
+	
+	touch "${toolchain_directory}/${triplet}/lib/libpino.a"
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
@@ -769,6 +772,17 @@ for triplet in "${targets[@]}"; do
 	cd "${toolchain_directory}/${triplet}/lib64" 2>/dev/null || cd "${toolchain_directory}/${triplet}/lib"
 	
 	[ -f './libiberty.a' ] && unlink './libiberty.a'
+	
+	declare cc="${triplet}-gcc"
+	declare ar="${triplet}-ar"
+	
+	if (( is_native )); then
+		cc="${toolchain_directory}/bin/${triplet}-gcc"
+		ar="${toolchain_directory}/bin/${triplet}-ar"
+	fi
+	
+	${cc} -c "${PWD}/tools/pino.c" -o pino.o
+	${ar} rcs libpino.a pino.o
 	
 	if [[ "$(basename "${PWD}")" = 'lib64' ]]; then
 		mv ./* '../lib' || true
