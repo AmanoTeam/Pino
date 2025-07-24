@@ -788,7 +788,7 @@ for triplet in "${targets[@]}"; do
 	
 	[ -f libpino.a ] && unlink libpino.a
 	${cc} -c "${workdir}/tools/"*'.c'
-	${ar} rcs 'libpino.a' *'.o'
+	${ar} rcs 'libpino.a' {ftruncate,mmap64,truncate,fstream}'.o'
 	
 	if [[ "$(basename "${PWD}")" = 'lib64' ]]; then
 		mv ./* '../lib' || true
