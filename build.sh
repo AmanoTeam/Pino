@@ -781,6 +781,7 @@ for triplet in "${targets[@]}"; do
 		ar="${toolchain_directory}/bin/${triplet}-ar"
 	fi
 	
+	[ -f libpino.a ] && unlink libpino.a
 	${cc} -c "${workdir}/tools/pino.c" -o pino.o
 	${ar} rcs libpino.a pino.o
 	
