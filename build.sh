@@ -781,7 +781,7 @@ for triplet in "${targets[@]}"; do
 		ar="${toolchain_directory}/bin/${triplet}-ar"
 	fi
 	
-	${cc} -c "${PWD}/tools/pino.c" -o pino.o
+	${cc} -c "${workdir}/tools/pino.c" -o pino.o
 	${ar} rcs libpino.a pino.o
 	
 	if [[ "$(basename "${PWD}")" = 'lib64' ]]; then
