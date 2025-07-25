@@ -44,14 +44,14 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	# 'mips64el-unknown-linux-android'
-	# 'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
+	'mips64el-unknown-linux-android'
+	'aarch64-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
 	'i686-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'armv7-unknown-linux-androideabi'
-	# 'mipsel-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'armv7-unknown-linux-androideabi'
+	'mipsel-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -61,6 +61,7 @@ declare -ra versions=(
 	'17'
 	'18'
 	'19'
+	'20'
 	'21'
 	'22'
 	'23'
@@ -788,7 +789,7 @@ for triplet in "${targets[@]}"; do
 	
 	[ -f libpino.a ] && unlink libpino.a
 	${cc} -c "${workdir}/tools/"*'.c'
-	${ar} rcs 'libpino.a' {ftruncate,mmap64,truncate,fstream}'.o'
+	${ar} rcs 'libpino.a' 'mmap64.o'
 	
 	if [[ "$(basename "${PWD}")" = 'lib64' ]]; then
 		mv ./* '../lib' || true
