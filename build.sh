@@ -45,13 +45,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'mips64el-unknown-linux-android'
+	'mipsel-unknown-linux-android'
 	'aarch64-unknown-linux-android'
 	'riscv64-unknown-linux-android'
 	'x86_64-unknown-linux-android'
 	'i686-unknown-linux-android'
 	'armv5-unknown-linux-androideabi'
 	'armv7-unknown-linux-androideabi'
-	'mipsel-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -560,9 +560,9 @@ for triplet in "${targets[@]}"; do
 	elif [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=rv64gc --with-abi=lp64d'
 	elif [ "${triplet}" = 'mipsel-unknown-linux-android' ]; then
-		extra_configure_flags+=' --with-arch=mips32 --with-abi=32 --with-float=hard'
+		extra_configure_flags+=' --with-arch=mips32r2 --with-abi=32 --with-float=hard --with-llsc --without-synci'
 	elif [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
-		extra_configure_flags+=' --with-arch=mips64r6 --with-abi=64 --with-float=hard'
+		extra_configure_flags+=' --with-arch=mips64r6 --with-abi=64 --with-float=hard --with-llsc --with-synci --with-nan=2008'
 	fi
 	
 	if (( is_native )); then
