@@ -560,7 +560,7 @@ for triplet in "${targets[@]}"; do
 	elif [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=rv64gc --with-abi=lp64d'
 	elif [ "${triplet}" = 'mipsel-unknown-linux-android' ]; then
-		extra_configure_flags+=' --with-arch=mips32r2 --with-abi=32 --with-float=hard --with-llsc --without-synci'
+		extra_configure_flags+=' --with-arch=mips32r2 --with-abi=32 --with-float=hard --with-llsc --without-synci --with-nan=legacy'
 	elif [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=mips64r6 --with-abi=64 --with-float=hard --with-llsc --with-synci --with-nan=2008'
 	fi
@@ -757,14 +757,12 @@ for triplet in "${targets[@]}"; do
 		all --jobs="${max_jobs}"
 	make install
 	
-	cp "${workdir}/tools/specs/lib"*'_static.spec' "${toolchain_directory}/${triplet}/lib"
-	
 	cp "${workdir}/submodules/obggcc/tools/pkg-config.sh" "${toolchain_directory}/bin/${triplet}-pkg-config"
 	sed --in-place 's/OBGGCC/PINO/g' "${toolchain_directory}/bin/${triplet}-pkg-config"
 	
 	rm "${toolchain_directory}/bin/${triplet}-${triplet}-"* 2>/dev/null || true
 	
-	if ! (( is_native )); then
+	if ! (( is_native )) && [ "${triplet}" != 'mips64el-unknown-linux-android' ]; then
 		rm "${toolchain_directory}/${triplet}/lib/"*.o
 	fi
 	
