@@ -44,14 +44,14 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	# 'mips64el-unknown-linux-android'
-	# 'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
+	'mips64el-unknown-linux-android'
+	'aarch64-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
 	'i686-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'armv7-unknown-linux-androideabi'
-	# 'mipsel-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'armv7-unknown-linux-androideabi'
+	'mipsel-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -639,9 +639,12 @@ for triplet in "${targets[@]}"; do
 		cat <<- specs | tr '\n' ' '
 			-D __NDK__=${ndk_major}
 			-D __NDK_MINOR__=${ndk_minor}
-			-Xlinker -lpino
 		specs
 	)"
+	
+	if (( base_version < 21 )); then
+		specs+=' -Xlinker -lpino'
+	fi
 	
 	if [[ "${triplet}" = 'arm'*'-unknown-linux-androideabi' ]] || [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		specs+=' -fno-signed-char'
