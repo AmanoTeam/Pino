@@ -108,11 +108,14 @@ jobs:
           'x86_64-unknown-dragonfly',
           
           # Android
-          'x86_64-unknown-linux-android',
-          'i686-unknown-linux-android',
-          'arm-unknown-linux-androideabi',
-          'aarch64-unknown-linux-android',
-          'riscv64-unknown-linux-android'
+          'x86_64-unknown-linux-android21',
+          'i686-unknown-linux-android21',
+          'aarch64-unknown-linux-android21',
+          'riscv64-unknown-linux-android21',
+          'armv5-unknown-linux-androideabi21',
+          'armv7-unknown-linux-androideabi21',
+          'mips64el-unknown-linux-android21',
+          'mipsel-unknown-linux-android21'
         ]
     steps:
     - uses: actions/checkout@main
@@ -227,7 +230,9 @@ jobs:
             source "${PINO_HOME}/usr/local/share/pino/autotools/${{ matrix.target }}.sh"
         fi
         
-        bash './build.sh' '${{ matrix.target }}'
+        echo "CROSS_COMPILE_TRIPLET=${CROSS_COMPILE_TRIPLET}" >> "${GITHUB_ENV}"
+        
+        bash './build.sh' "${CROSS_COMPILE_TRIPLET}"
     - name: Create logs
       if: always()
       run: |
