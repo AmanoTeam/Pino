@@ -227,6 +227,8 @@ jobs:
             # export PINO_HOME='/tmp/pino-toolchain'
             export PATH="${PINO_HOME}/bin:${PATH}"
             
+            export PINO_STATIC='0'
+            
             source "${PINO_HOME}/usr/local/share/pino/autotools/${{ matrix.target }}.sh"
         fi
         
@@ -259,9 +261,9 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@main
       with:
-        name: ${{ matrix.target }}
+        name: ${{ env.CROSS_COMPILE_TRIPLET }}
         if-no-files-found: error
         path: |
-          /tmp/${{ matrix.target }}.tar.xz
-          /tmp/${{ matrix.target }}.tar.xz.sha256
+          /tmp/${{ env.CROSS_COMPILE_TRIPLET }}.tar.xz
+          /tmp/${{ env.CROSS_COMPILE_TRIPLET }}.tar.xz.sha256
 
