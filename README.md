@@ -21,11 +21,11 @@ $ ./gradlew clean
 Starting a Gradle Daemon (subsequent builds will be faster)
 
 > Configure project :
-Checking the license for package NDK (Side by side) 25.1.8937393 in /home/ubuntu/sdk/licenses
+Checking the license for package NDK (Side by side) 25.1.8937393 in /home/runner/sdk/licenses
 License for package NDK (Side by side) 25.1.8937393 accepted.
 Preparing "Install NDK (Side by side) 25.1.8937393 v.25.1.8937393".
 "Install NDK (Side by side) 25.1.8937393 v.25.1.8937393" ready.
-Installing NDK (Side by side) 25.1.8937393 in /home/ubuntu/sdk/ndk/25.1.8937393
+Installing NDK (Side by side) 25.1.8937393 in /home/runner/sdk/ndk/25.1.8937393
 "Install NDK (Side by side) 25.1.8937393 v.25.1.8937393" complete.
 "Install NDK (Side by side) 25.1.8937393 v.25.1.8937393" finished.
 
@@ -181,12 +181,14 @@ $ export PINO_NZ=1
 #### Limitations
 
 - No auto-bundling of shared libraries
-  - At least for now, the GCC wrapper only takes care of copying/bundling shared libraries into the APK when those libraries are part of the NDK. If you build an APK and link C/C++ code with third-party libraries installed from the Termux repository or another APT repository, you will have to manually copy them to the APK, as Pino won't be doing that for you. Alternatively, you can avoid copying the shared libraries by installing the static variants of those libraries and having GCC link with them instead.
+  - At least for now, the GCC wrapper only takes care of copying/bundling shared libraries into the APK when those libraries are part of the GCC support library. If you build an APK and link C/C++ code with third-party libraries installed from the Termux repository or another APT repository, you will have to manually copy them to the APK, as Pino won't be doing that for you. Alternatively, you can avoid copying the shared libraries by installing the static variants of those libraries and having GCC link with them instead.
 - Outdated libraries on Android 5 and 6
   - Since Termux has dropped support for Android 5 and 6, you will only get up-to-date packages when targeting Android 7 or newer.
 
 ## Releases
 
 The current release is based on GCC 15 and supports cross-compiling software to all major Android architectures (`arm`, `arm64`, `x86`, and `x86_64`). There is also experimental support for the `riscv64` architecture.
+
+Additionally, it supports cross-compiling to architectures whose support has been dropped in the official NDK: `armv5`, `mips`, and `mips64`.
 
 You can obtain releases from the [releases](https://github.com/AmanoTeam/Pino/releases) page.
