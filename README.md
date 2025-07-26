@@ -185,6 +185,54 @@ $ export PINO_NZ=1
 - Outdated libraries on Android 5 and 6
   - Since Termux has dropped support for Android 5 and 6, you will only get up-to-date packages when targeting Android 7 or newer.
 
+## ABIs
+
+The NDK has its own page explaining its supported architectures and ABIs (see [Android ABIs](https://developer.android.com/ndk/guides/abis)), but since Pino differs from the Clang NDK in some aspects, this section covers the specifics of Pino and compares the behavior of both:
+
+### `armeabi-v7a`
+
+This refers to the ARMv7-A system architecture. Just like the Clang NDK, Pino uses `softfp` hardware floating-point and generates code in `Thumb-2` mode by default.
+
+The Clang NDK defaults to using the `VFPv3-D32` floating-point unit along with the **ARM Advanced SIMD (Neon)** extension. Pino, however, defaults to using the `VFPv3-D16` floating-point unit and disables the Neon extension by default.
+
+The reason for using `VFPv3-D16` instead of `VFPv3-D32` and disabling Neon is to support backward compatibility with older hardware. When first introduced in the NDK, the ARMv7-A target didn't require `VFPv3-D32` and `Neon`; they were completely optional features, so there might still be hardware around that doesn't support these instruction sets. Also, not everyone needs those fancy floating-point operations. If for some reason you do, enable it manually.
+
+### `arm64-v8a`
+
+This refers to the ARMv8 system architecture. Pino enables PAC (Pointer Authentication Code) and BTI (Branch Target Identification) by default for this architecture, while on the Clang NDK, these features are optional. Other than that, there are no differences between Pino and the Clang NDK.
+
+### `x86`
+
+This refers to the i386 system architecture. GCC supports all the instructions that Clang supports. Just like the Clang NDK, GCC also assumes a 16-byte stack alignment before a function call. There are no additional differences between the ABI supported by Pino and the ABI supported by the Clang NDK.
+
+### `x86_64`
+
+This refers to the x64 system architecture. GCC supports all the instructions that Clang supports. There are no additional differences between the ABI supported by Pino and the ABI supported by the Clang NDK.
+
+### `riscv64`
+
+This refers to the RISC-V system architecture. There is currently very little information about this ABI in the Android ecosystem, so I can't make a proper comparison. Pino emits code for the `rv64gc` architecture on the `lp64d` ABI by default.
+
+### `armeabi`
+
+This refers to the ARMv5TE system architecture. It uses `softfp` hardware floating-point and generates code in `Thumb-1` mode. The `VFPv2` floating-point unit is the default, without the Neon extension.
+
+This architecture is no longer supported by the Android NDK, but it is available in Pino for anyone interested.
+
+For some time, it was the only supported architecture in the Android ecosystem. Devices manufactured with this specific CPU stopped being a thing around 2012. By 2015, most newer 32-bit ARM devices were using ARMv7-A instead.
+
+### `mips`
+
+This refers to the mips32r2 system architecture. It uses `hard` hardware floating-point. It generates code targeting the 32-bit ABI by default, optionally supporting the o32 ABI as well.
+
+This architecture is no longer supported by the Android NDK, but it is available in Pino for anyone interested.
+
+### `mips64`
+
+This refers to the mips64r6 system architecture. It uses `hard` hardware floating-point. It generates code targeting the 64-bit ABI by default.
+
+This architecture is no longer supported by the Android NDK, but it is available in Pino for anyone interested.
+
 ## Releases
 
 The current release is based on GCC 15 and supports cross-compiling software to all major Android architectures (`arm`, `arm64`, `x86`, and `x86_64`). There is also experimental support for the `riscv64` architecture.
