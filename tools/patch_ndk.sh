@@ -129,8 +129,8 @@ for directory in "${directories[@]}"; do
 		declare library="${directory}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${triplet}/libc++_shared.so"
 		
 		if [ -f "${library}" ]; then
-			echo "- Removing ${library}"
-			unlink "${library}"
+			echo "- Replacing ${library} with a dummy file"
+			echo > "${library}"
 		fi
 		
 		if [ "${triplet}" = 'arm-linux-androideabi' ]; then
