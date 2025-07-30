@@ -1,0 +1,26 @@
+From 0ec88e8857672936c5ebcd2379baaee46431475c Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Wed, 30 Jul 2025 02:04:58 -0300
+Subject: [PATCH] Fix declaration of mblen
+
+---
+ libstdc++-v3/include/c_compatibility/stdlib.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libstdc++-v3/include/c_compatibility/stdlib.h b/libstdc++-v3/include/c_compatibility/stdlib.h
+index 283496269..50c057eb8 100644
+--- a/libstdc++-v3/include/c_compatibility/stdlib.h
++++ b/libstdc++-v3/include/c_compatibility/stdlib.h
+@@ -67,7 +67,9 @@ using std::labs;
+ using std::ldiv;
+ using std::malloc;
+ #ifdef _GLIBCXX_HAVE_MBSTATE_T
++#if !(defined(__ANDROID__) && __ANDROID_API__ < 26)
+ using std::mblen;
++#endif
+ using std::mbstowcs;
+ using std::mbtowc;
+ #endif // _GLIBCXX_HAVE_MBSTATE_T
+-- 
+2.49.0
+
