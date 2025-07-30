@@ -6,6 +6,10 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 
+#if !defined(PAGE_SIZE)
+	#define PAGE_SIZE 4096
+#endif
+
 void* mmap64(void* __addr, size_t __size, int __prot, int __flags, int __fd, off64_t __offset) {
 	
 	const int __mmap2_shift = 12; /* 2**12 == 4096 */
