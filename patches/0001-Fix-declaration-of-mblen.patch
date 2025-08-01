@@ -1,19 +1,19 @@
-From 9b264420a004d9a7b7966d512814ce782c479c26 Mon Sep 17 00:00:00 2001
+From 5ae85bea411e355cd5f413519d6899dc27a77dad Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Wed, 30 Jul 2025 02:04:58 -0300
 Subject: [PATCH] Fix declaration of mblen
 
 ---
- libstdc++-v3/include/c_compatibility/stdlib.h | 2 ++
+ libstdc++-v3/include/c_compatibility/stdlib.h | 6 ++++++
  libstdc++-v3/include/c_global/cstdlib         | 6 ++++++
  libstdc++-v3/include/c_global/cwctype         | 4 +++-
- 3 files changed, 11 insertions(+), 1 deletion(-)
+ 3 files changed, 15 insertions(+), 1 deletion(-)
 
 diff --git a/libstdc++-v3/include/c_compatibility/stdlib.h b/libstdc++-v3/include/c_compatibility/stdlib.h
-index 283496269..50c057eb8 100644
+index 283496269..e3e430c78 100644
 --- a/libstdc++-v3/include/c_compatibility/stdlib.h
 +++ b/libstdc++-v3/include/c_compatibility/stdlib.h
-@@ -67,7 +67,9 @@ using std::labs;
+@@ -67,9 +67,13 @@ using std::labs;
  using std::ldiv;
  using std::malloc;
  #ifdef _GLIBCXX_HAVE_MBSTATE_T
@@ -21,8 +21,22 @@ index 283496269..50c057eb8 100644
  using std::mblen;
 +#endif
  using std::mbstowcs;
++#if !(defined(__ANDROID__) && __ANDROID_API__ < 21)
  using std::mbtowc;
++#endif
  #endif // _GLIBCXX_HAVE_MBSTATE_T
+ using std::qsort;
+ using std::rand;
+@@ -81,7 +85,9 @@ using std::strtoul;
+ using std::system;
+ #ifdef _GLIBCXX_USE_WCHAR_T
+ using std::wcstombs;
++#if !(defined(__ANDROID__) && __ANDROID_API__ < 21)
+ using std::wctomb;
++#endif
+ #endif // _GLIBCXX_USE_WCHAR_T
+ #endif
+ 
 diff --git a/libstdc++-v3/include/c_global/cstdlib b/libstdc++-v3/include/c_global/cstdlib
 index ced924793..50b32edc8 100644
 --- a/libstdc++-v3/include/c_global/cstdlib
