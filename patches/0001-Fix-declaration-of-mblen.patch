@@ -1,13 +1,13 @@
-From fd283cb835b631e91c23776beca422b2ca605c21 Mon Sep 17 00:00:00 2001
+From 9b264420a004d9a7b7966d512814ce782c479c26 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Wed, 30 Jul 2025 02:04:58 -0300
 Subject: [PATCH] Fix declaration of mblen
 
 ---
  libstdc++-v3/include/c_compatibility/stdlib.h | 2 ++
- libstdc++-v3/include/c_global/cstdlib         | 8 +++++++-
+ libstdc++-v3/include/c_global/cstdlib         | 6 ++++++
  libstdc++-v3/include/c_global/cwctype         | 4 +++-
- 3 files changed, 12 insertions(+), 2 deletions(-)
+ 3 files changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/libstdc++-v3/include/c_compatibility/stdlib.h b/libstdc++-v3/include/c_compatibility/stdlib.h
 index 283496269..50c057eb8 100644
@@ -24,10 +24,10 @@ index 283496269..50c057eb8 100644
  using std::mbtowc;
  #endif // _GLIBCXX_HAVE_MBSTATE_T
 diff --git a/libstdc++-v3/include/c_global/cstdlib b/libstdc++-v3/include/c_global/cstdlib
-index ced924793..a4ec013f5 100644
+index ced924793..50b32edc8 100644
 --- a/libstdc++-v3/include/c_global/cstdlib
 +++ b/libstdc++-v3/include/c_global/cstdlib
-@@ -160,15 +160,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+@@ -160,9 +160,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    using ::ldiv;
    using ::malloc;
  #ifdef _GLIBCXX_HAVE_MBSTATE_T
@@ -41,13 +41,6 @@ index ced924793..a4ec013f5 100644
  #endif // _GLIBCXX_HAVE_MBSTATE_T
    using ::qsort;
  #if __cplusplus >= 201103L
- # ifdef _GLIBCXX_HAVE_QUICK_EXIT
-   using ::quick_exit;
--# endif
-+
- #endif
-   using ::rand;
-   using ::realloc;
 @@ -179,7 +183,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    using ::system;
  #ifdef _GLIBCXX_USE_WCHAR_T
