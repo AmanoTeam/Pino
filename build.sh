@@ -673,6 +673,7 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	touch "${toolchain_directory}/${triplet}/lib/libpino.a"
+	sed -i "s/#define __static_inline__ static __inline/#define __static_inline__ __extern_inline__/g" "${toolchain_directory}/${triplet}/include/sys/cdefs.h"
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
