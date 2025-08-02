@@ -113,7 +113,7 @@ jobs:
           'aarch64-unknown-linux-android21',
           'riscv64-unknown-linux-android21',
           'armv5-unknown-linux-androideabi21',
-          'armv7-unknown-linux-androideabi21',
+          'armv7-unknown-linux-androideabi14',
           'mips64el-unknown-linux-android21',
           'mipsel-unknown-linux-android21'
         ]
