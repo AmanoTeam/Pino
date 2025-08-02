@@ -741,7 +741,7 @@ for triplet in "${targets[@]}"; do
 		--without-headers \
 		--without-static-standard-libraries \
 		${extra_configure_flags} \
-		CFLAGS="${optflags}" \
+		CFLAGS="${optflags} -lm" \
 		CXXFLAGS="${optflags}" \
 		LDFLAGS="${linkflags}"
 	
