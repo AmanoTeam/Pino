@@ -17,7 +17,7 @@ jobs:
       id: check-cache
       uses: actions/cache@main
       with:
-        key: gcc-15.1.0-nzn16
+        key: gcc-15.1.0-nzn17
         lookup-only: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -63,7 +63,7 @@ jobs:
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       uses: actions/cache@main
       with:
-        key: gcc-15.1.0-nzn16
+        key: gcc-15.1.0-nzn17
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
           /tmp/x86_64-linux-gnu.tar.xz.sha256
@@ -113,7 +113,7 @@ jobs:
           'aarch64-unknown-linux-android21',
           'riscv64-unknown-linux-android21',
           'armv5-unknown-linux-androideabi21',
-          'armv7-unknown-linux-androideabi14',
+          'armv7-unknown-linux-androideabi21',
           'mips64el-unknown-linux-android21',
           'mipsel-unknown-linux-android21'
         ]
@@ -131,7 +131,7 @@ jobs:
     - name: Restore from cache
       uses: actions/cache@main
       with:
-        key: gcc-15.1.0-nzn16
+        key: gcc-15.1.0-nzn17
         fail-on-cache-miss: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
