@@ -1,0 +1,31 @@
+From 76ca77be12a2f78058e8d8afd1ba95b4362a2683 Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Sat, 2 Aug 2025 13:37:32 -0300
+Subject: [PATCH] Fix missing C99 definitions in the C++ standard library
+
+---
+ libstdc++-v3/config/os/bionic/os_defines.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/libstdc++-v3/config/os/bionic/os_defines.h b/libstdc++-v3/config/os/bionic/os_defines.h
+index 830e4ba2d..322568e6a 100644
+--- a/libstdc++-v3/config/os/bionic/os_defines.h
++++ b/libstdc++-v3/config/os/bionic/os_defines.h
+@@ -33,4 +33,14 @@
+ // System-specific #define, typedefs, corrections, etc, go here.  This
+ // file will come before all others.
+ 
++#define _GLIBCXX_USE_C99_STDIO 1
++#define _GLIBCXX_USE_C99_STDLIB 1
++#define _GLIBCXX_USE_C99_WCHAR 1
++#define _GLIBCXX_USE_C99_CHECK 1
++#define _GLIBCXX_USE_C99_DYNAMIC 0
++#define _GLIBCXX_USE_C99_LONG_LONG_CHECK 1
++#define _GLIBCXX_USE_C99_LONG_LONG_DYNAMIC 0
++#define _GLIBCXX_USE_C99_FLOAT_TRANSCENDENTALS_CHECK 1
++#define _GLIBCXX_USE_C99_FLOAT_TRANSCENDENTALS_DYNAMIC 0
++
+ #endif
+-- 
+2.49.0
+
