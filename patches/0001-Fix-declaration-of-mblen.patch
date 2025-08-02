@@ -1,13 +1,14 @@
-From 5ae85bea411e355cd5f413519d6899dc27a77dad Mon Sep 17 00:00:00 2001
+From e7f07c61b272974a4c6c422edc0713691b40bab5 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Wed, 30 Jul 2025 02:04:58 -0300
-Subject: [PATCH] Fix declaration of mblen
+Subject: [PATCH 1/2] Fix declaration of mblen
 
 ---
  libstdc++-v3/include/c_compatibility/stdlib.h | 6 ++++++
  libstdc++-v3/include/c_global/cstdlib         | 6 ++++++
+ libstdc++-v3/include/c_global/cwchar          | 2 ++
  libstdc++-v3/include/c_global/cwctype         | 4 +++-
- 3 files changed, 15 insertions(+), 1 deletion(-)
+ 4 files changed, 17 insertions(+), 1 deletion(-)
 
 diff --git a/libstdc++-v3/include/c_compatibility/stdlib.h b/libstdc++-v3/include/c_compatibility/stdlib.h
 index 283496269..e3e430c78 100644
@@ -65,6 +66,22 @@ index ced924793..50b32edc8 100644
  #endif // _GLIBCXX_USE_WCHAR_T
  
  #ifndef __CORRECT_ISO_CPP_STDLIB_H_PROTO
+diff --git a/libstdc++-v3/include/c_global/cwchar b/libstdc++-v3/include/c_global/cwchar
+index dbcc10464..cc081c60b 100644
+--- a/libstdc++-v3/include/c_global/cwchar
++++ b/libstdc++-v3/include/c_global/cwchar
+@@ -259,9 +259,11 @@ namespace __gnu_cxx
+     (wcstoull)(const wchar_t * __restrict, wchar_t ** __restrict, int) throw ();
+ #endif
+ #if !_GLIBCXX_USE_C99_LONG_LONG_DYNAMIC
++#if !(defined(__ANDROID__) && __ANDROID_API__ < 21)
+   using ::wcstoll;
+   using ::wcstoull;
+ #endif
++#endif
+ } // namespace __gnu_cxx
+ 
+ namespace std
 diff --git a/libstdc++-v3/include/c_global/cwctype b/libstdc++-v3/include/c_global/cwctype
 index 07471eb00..15e6e1184 100644
 --- a/libstdc++-v3/include/c_global/cwctype
