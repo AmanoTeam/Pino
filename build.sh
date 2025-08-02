@@ -47,14 +47,14 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	# 'riscv64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
+	'riscv64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
 	'armv7-unknown-linux-androideabi'
-	# 'mips64el-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
-	# 'aarch64-unknown-linux-android'
+	'mips64el-unknown-linux-android'
+	'mipsel-unknown-linux-android'
+	'aarch64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -673,7 +673,6 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	touch "${toolchain_directory}/${triplet}/lib/libpino.a"
-	sed -i "s/#define __static_inline__ static __inline/#define __static_inline__ __extern_inline__/g" "${toolchain_directory}/${triplet}/include/sys/cdefs.h"
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
@@ -753,8 +752,8 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	env ${args} make \
-		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
-		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
 		all --jobs="${max_jobs}"
 	make install
