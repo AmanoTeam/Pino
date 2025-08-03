@@ -1,21 +1,18 @@
-From 7a4d8a65c2594e42893bdf7dc4b8b6266854b2e9 Mon Sep 17 00:00:00 2001
+From f8c9f285a767605db0b6f7ae36fa6039e8b0b265 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Sun, 3 Aug 2025 15:52:44 -0300
 Subject: [PATCH] Don't warn when passing command-line options that don't match
  the expected language
 
-Manually removing these options in the GCC wrapper is annoying, so just stop emitting
-the warning for such mismatches.
-
 ---
- gcc/opts-global.cc | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ gcc/opts-global.cc | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/gcc/opts-global.cc b/gcc/opts-global.cc
-index b9b42d3b2..95eca4475 100644
+index b9b42d3b2..46c79dce8 100644
 --- a/gcc/opts-global.cc
 +++ b/gcc/opts-global.cc
-@@ -110,8 +110,8 @@ complain_wrong_lang (const struct cl_decoded_option *decoded,
+@@ -110,8 +110,9 @@ complain_wrong_lang (const struct cl_decoded_option *decoded,
      gcc_unreachable ();
    else if (ok_langs[0] != '\0')
      /* Eventually this should become a hard error IMO.  */
@@ -23,6 +20,7 @@ index b9b42d3b2..95eca4475 100644
 -	     text, ok_langs, bad_lang);
 +    /* warning (0, "command-line option %qs is valid for %s but not for %s",
 +	     text, ok_langs, bad_lang); */
++    ;
    else
      /* Happens for -Werror=warning_name.  */
      warning (0, "%<-Werror=%> argument %qs is not valid for %s",
