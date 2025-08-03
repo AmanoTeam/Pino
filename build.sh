@@ -48,7 +48,7 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
+	#'armv7-unknown-linux-androideabi'
 	# 'riscv64-unknown-linux-android'
 	# 'x86_64-unknown-linux-android'
 	# 'armv5-unknown-linux-androideabi'
@@ -314,6 +314,8 @@ if ! [ -f "${gcc_tarball}" ]; then
 		--directory="$(dirname "${gcc_directory}")" \
 		--extract \
 		--file="${gcc_tarball}"
+	
+	sed -i 's/-fno-builtin//g' ${gcc_directory}/libstdc++-v3/configure
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-GCC-15.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Avoid-relying-on-dynamic-shadow-when-building-libsan.patch"

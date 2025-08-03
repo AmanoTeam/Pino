@@ -260,6 +260,26 @@ Note that this setting only affects linking with the GCC support libraries (e.g.
 
 `PINO_STATIC` works similarly to the Clang NDK's `ANDROID_STL`/`APP_STL`, but they are not quite the same. While `ANDROID_STL` and `APP_STL` only allow you to switch between static and shared runtimes for the libc++ library, `PINO_STATIC` lets you toggle between static and shared runtimes for all GCC support libraries. This means that you can even dynamically link with libraries that the Clang NDK would otherwise force you to statically link with.
 
+### NEON Intrinsics
+
+Unlike the Clang NDK, Pino disables NEON by default for the ARMv7-A target. The reasoning behind this is explained [here](#armeabi-v7a).
+
+However, if you want to enable NEON intrinsics, you can do so by setting the `PINO_NEON` environment variable:
+
+```bash
+# Enable NEON (also enables VFPv3-D32)
+export PINO_NEON=1
+```
+
+To revert to the default behavior, set:
+
+```bash
+# Disable NEON (default behavior)
+export PINO_NEON=0
+```
+
+Note that this flag has no effect on the ARMv5TE target.
+
 ## Releases
 
 The current release is based on GCC 15 and supports cross-compiling software for all major Android architectures: `armv7`, `arm64`, `x86`, and `x86_64`. There is also experimental support for the `riscv64` architecture.
