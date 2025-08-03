@@ -1,17 +1,17 @@
-From 76ca77be12a2f78058e8d8afd1ba95b4362a2683 Mon Sep 17 00:00:00 2001
+From c91bbc53e999afa98e9c287b44f738fc18c7f196 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Sat, 2 Aug 2025 13:37:32 -0300
-Subject: [PATCH] Fix missing C99 definitions in the C++ standard library
+Subject: [PATCH 1/2] Fix missing C99 definitions in the C++ standard library
 
 ---
- libstdc++-v3/config/os/bionic/os_defines.h | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ libstdc++-v3/config/os/bionic/os_defines.h | 56 ++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
 
 diff --git a/libstdc++-v3/config/os/bionic/os_defines.h b/libstdc++-v3/config/os/bionic/os_defines.h
-index 830e4ba2d..322568e6a 100644
+index 830e4ba2d..0c695d90a 100644
 --- a/libstdc++-v3/config/os/bionic/os_defines.h
 +++ b/libstdc++-v3/config/os/bionic/os_defines.h
-@@ -33,4 +33,14 @@
+@@ -33,4 +33,60 @@
  // System-specific #define, typedefs, corrections, etc, go here.  This
  // file will come before all others.
  
@@ -25,7 +25,53 @@ index 830e4ba2d..322568e6a 100644
 +#define _GLIBCXX_USE_C99_FLOAT_TRANSCENDENTALS_CHECK 1
 +#define _GLIBCXX_USE_C99_FLOAT_TRANSCENDENTALS_DYNAMIC 0
 +
++#define _GLIBCXX_HAVE_ACOSF
++#define _GLIBCXX_HAVE_ACOSL
++#define _GLIBCXX_HAVE_ASINF
++#define _GLIBCXX_HAVE_ASINL
++#define _GLIBCXX_HAVE_ATANF
++#define _GLIBCXX_HAVE_ATANL
++#define _GLIBCXX_HAVE_ATAN2F
++#define _GLIBCXX_HAVE_ATAN2L
++#define _GLIBCXX_HAVE_CEILF
++#define _GLIBCXX_HAVE_CEILL
++#define _GLIBCXX_HAVE_COSF
++#define _GLIBCXX_HAVE_COSL
++#define _GLIBCXX_HAVE_COSHF
++#define _GLIBCXX_HAVE_COSHL
++#define _GLIBCXX_HAVE_EXPF
++#define _GLIBCXX_HAVE_EXPL
++#define _GLIBCXX_HAVE_FABSF
++#define _GLIBCXX_HAVE_FABSL
++#define _GLIBCXX_HAVE_FLOORF
++#define _GLIBCXX_HAVE_FLOORL
++#define _GLIBCXX_HAVE_FMODF
++#define _GLIBCXX_HAVE_FMODL
++#define _GLIBCXX_HAVE_FREXPF
++#define _GLIBCXX_HAVE_FREXPL
++#define _GLIBCXX_HAVE_LDEXPF
++#define _GLIBCXX_HAVE_LDEXPL
++#define _GLIBCXX_HAVE_LOGF
++#define _GLIBCXX_HAVE_LOGL
++#define _GLIBCXX_HAVE_LOG10F
++#define _GLIBCXX_HAVE_LOG10L
++#define _GLIBCXX_HAVE_MODFF
++#define _GLIBCXX_HAVE_MODFL
++#define _GLIBCXX_HAVE_POWF
++#define _GLIBCXX_HAVE_POWL
++#define _GLIBCXX_HAVE_SINF
++#define _GLIBCXX_HAVE_SINL
++#define _GLIBCXX_HAVE_SINHF
++#define _GLIBCXX_HAVE_SINHL
++#define _GLIBCXX_HAVE_SQRTF
++#define _GLIBCXX_HAVE_SQRTL
++#define _GLIBCXX_HAVE_TANF
++#define _GLIBCXX_HAVE_TANL
++#define _GLIBCXX_HAVE_TANHF
++#define _GLIBCXX_HAVE_TANHL
++
  #endif
++
 -- 
 2.49.0
 
