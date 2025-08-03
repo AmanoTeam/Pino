@@ -1,19 +1,19 @@
-From 9c6966f364bc505350c108f6001fe311d88fe91a Mon Sep 17 00:00:00 2001
+From bc2230a3da0b3963d516d0d16ea3352d6bfcb335 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Wed, 30 Jul 2025 02:04:58 -0300
 Subject: [PATCH 1/2] Fix declaration of mblen
 
 ---
- libstdc++-v3/include/bits/basic_string.h      | 2 ++
+ libstdc++-v3/include/bits/basic_string.h      | 4 ++++
  libstdc++-v3/include/c_compatibility/stdlib.h | 6 ++++++
  libstdc++-v3/include/c_global/cstdlib         | 6 ++++++
  libstdc++-v3/include/c_global/cwchar          | 6 ++++--
  libstdc++-v3/include/c_global/cwctype         | 4 +++-
  libstdc++-v3/include/c_std/cwchar             | 2 +-
- 6 files changed, 22 insertions(+), 4 deletions(-)
+ 6 files changed, 24 insertions(+), 4 deletions(-)
 
 diff --git a/libstdc++-v3/include/bits/basic_string.h b/libstdc++-v3/include/bits/basic_string.h
-index c90bd099b..3df0996fa 100644
+index c90bd099b..1a8fa39e9 100644
 --- a/libstdc++-v3/include/bits/basic_string.h
 +++ b/libstdc++-v3/include/bits/basic_string.h
 @@ -4726,10 +4726,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
@@ -29,6 +29,19 @@ index c90bd099b..3df0996fa 100644
  
    inline unsigned long
    stoul(const wstring& __str, size_t* __idx = 0, int __base = 10)
+@@ -4746,10 +4748,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
+   { return __gnu_cxx::__stoa(&std::wcstoull, "stoull", __str.c_str(),
+ 			     __idx, __base); }
+ 
++#if _GLIBCXX_HAVE_WCSTOF || (defined(__ANDROID__) && __ANDROID_API__ >= 21)
+   // NB: wcstof vs wcstod.
+   inline float
+   stof(const wstring& __str, size_t* __idx = 0)
+   { return __gnu_cxx::__stoa(&std::wcstof, "stof", __str.c_str(), __idx); }
++#endif
+ 
+   inline double
+   stod(const wstring& __str, size_t* __idx = 0)
 diff --git a/libstdc++-v3/include/c_compatibility/stdlib.h b/libstdc++-v3/include/c_compatibility/stdlib.h
 index 283496269..e3e430c78 100644
 --- a/libstdc++-v3/include/c_compatibility/stdlib.h
