@@ -611,8 +611,9 @@ for triplet in "${targets[@]}"; do
 	
 	cd "$(mktemp --directory)"
 	
+	declare libpino_url="https://github.com/AmanoTeam/libpino/releases/latest/download/${triplet}.tar.xz"
 	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${target}${base_version}.tar.xz"
-	declare sysroot_file="${PWD}/${target}.tar.xz"
+	declare tarball="${PWD}/${target}.tar.xz"
 	declare sysroot_directory="${PWD}/${target}"
 	
 	if [ "${target}" != "${triplet}" ]; then
@@ -629,15 +630,35 @@ for triplet in "${targets[@]}"; do
 		--retry-max-time '0' \
 		--location \
 		--silent \
-		--output "${sysroot_file}"
+		--output "${tarball}"
 	
 	tar \
 		--extract \
-		--file="${sysroot_file}"
+		--file="${tarball}"
+	
+	echo "Fetching prebuilts from '${libpino_url}'"
+	
+	curl \
+		--url "${libpino_url}" \
+		--retry '30' \
+		--retry-delay '0' \
+		--retry-all-errors \
+		--retry-max-time '0' \
+		--location \
+		--silent \
+		--output "${tarball}"
+	
+	tar \
+		--extract \
+		--file="${tarball}"
 	
 	mv "${PWD}/${target}${base_version}" "${sysroot_directory}"
+	mv './libpino-'* "${sysroot_directory}/lib"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
+	
+	cp "${workdir}/submodules/libpino/complex.h" "${sysroot_directory}/include/pino_complex.h"
+	cp "${workdir}/submodules/libpino/math.h" "${sysroot_directory}/include/pino_math.h"
 	
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
 	
@@ -645,8 +666,10 @@ for triplet in "${targets[@]}"; do
 	
 	declare specs=''
 	
+	specs+=' -Xlinker -l -Xlinker pino-math'
+	
 	if (( base_version < 21 )); then
-		specs+=' -Xlinker -lpino'
+		specs+=' -Xlinker -l -Xlinker pino-mman'
 	fi
 	
 	if [[ "${triplet}" = 'arm'*'-unknown-linux-androideabi' ]] || [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
@@ -779,26 +802,6 @@ for triplet in "${targets[@]}"; do
 	
 	cd "${toolchain_directory}/${triplet}/lib64" 2>/dev/null || cd "${toolchain_directory}/${triplet}/lib"
 	
-	[ -f './libiberty.a' ] && unlink './libiberty.a'
-	
-	declare cc="${triplet}-gcc"
-	declare ar="${triplet}-ar"
-	
-	if (( is_native )); then
-		cc="${toolchain_directory}/bin/${triplet}-gcc"
-		ar="${toolchain_directory}/bin/${triplet}-ar"
-	fi
-	
-	if (( base_version < 21 )); then
-		cp \
-			"${workdir}/submodules/obggcc/tools/gcc-wrapper/fstream."{c,h} \
-			"${workdir}/tools"
-		
-		[ -f libpino.a ] && unlink libpino.a
-		${cc} -c "${workdir}/tools/"*'.c'
-		${ar} rcs 'libpino.a' 'mmap64.o'
-	fi
-	
 	if [[ "$(basename "${PWD}")" = 'lib64' ]]; then
 		mv ./* '../lib' || true
 		rmdir "${PWD}"
@@ -853,12 +856,12 @@ for triplet in "${targets[@]}"; do
 			--retry-max-time '0' \
 			--location \
 			--silent \
-			--output "${sysroot_file}"
+			--output "${tarball}"
 		
 		tar \
 			--directory="${toolchain_directory}" \
 			--extract \
-			--file="${sysroot_file}" 2>/dev/null || continue
+			--file="${tarball}" 2>/dev/null || continue
 		
 		if [ "${target}" != "${triplet}" ]; then
 			declare new_sysroot_directory="${toolchain_directory}/${triplet}${version}"

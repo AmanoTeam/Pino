@@ -7,3 +7,6 @@
 [submodule "submodules/libsanitizer"]
 	path = submodules/libsanitizer
 	url = https://github.com/AmanoTeam/libsanitizer
+[submodule "submodules/libpino"]
+	path = submodules/libpino
+	url = https://github.com/AmanoTeam/libpino
