@@ -666,10 +666,10 @@ for triplet in "${targets[@]}"; do
 	
 	declare specs=''
 	
-	specs+=' -Xlinker -l -Xlinker pino-math'
+	specs+=' -l pino-math'
 	
 	if (( base_version < 21 )); then
-		specs+=' -Xlinker -l -Xlinker pino-mman'
+		specs+=' -l pino-mman'
 	fi
 	
 	if [[ "${triplet}" = 'arm'*'-unknown-linux-androideabi' ]] || [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
