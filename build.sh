@@ -666,7 +666,7 @@ for triplet in "${targets[@]}"; do
 	
 	declare specs=''
 	
-	specs+=' -l pino-math -l m'
+	specs+=' -l pino-math'
 	
 	if (( base_version < 21 )); then
 		specs+=' -l pino-mman'
