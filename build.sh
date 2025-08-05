@@ -507,6 +507,14 @@ fi
 	-o "${gcc_wrapper}"
 
 for cc in "${PINO_HOME}/bin/"*-{gcc,g++}; do
+	if [[ "${cc}" == *'droid-'* ]]; then
+		continue
+	fi
+	
+	if [[ "${cc}" == *'eabi-'* ]]; then
+		continue
+	fi
+	
 	cp "${gcc_wrapper}" "${cc}"
 done
 
