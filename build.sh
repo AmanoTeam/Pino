@@ -777,11 +777,14 @@ for triplet in "${targets[@]}"; do
 	if (( is_native )); then
 		args+="${environment}"
 	fi
+	a=''
+	
+	if ! (( is_native )); then
+		a+="GCC_FOR_TARGET=${triplet}${base_version}-gcc CC_FOR_TARGET=${triplet}${base_version}-gcc CXX_FOR_TARGET=${triplet}${base_version}-g++"
+	fi
 	
 	env ${args} make \
-		GCC_FOR_TARGET=${triplet}${base_version}-gcc \
-		CC_FOR_TARGET=${triplet}${base_version}-gcc \
-		CXX_FOR_TARGET=${triplet}${base_version}-g++ \
+		${a} \
 		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
 		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
