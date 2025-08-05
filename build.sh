@@ -47,14 +47,14 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'riscv64-unknown-linux-android'
 	'x86_64-unknown-linux-android'
 	'armv5-unknown-linux-androideabi'
 	'mips64el-unknown-linux-android'
 	'mipsel-unknown-linux-android'
 	'aarch64-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv7-unknown-linux-androideabi'
+	'riscv64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -666,7 +666,7 @@ for triplet in "${targets[@]}"; do
 	
 	declare specs=''
 	
-	specs+=' -l pino-math'
+	specs+=' -l pino-math -l m'
 	
 	if (( base_version < 21 )); then
 		specs+=' -l pino-mman'
