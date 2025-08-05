@@ -47,14 +47,14 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	# 'x86_64-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'mips64el-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
-	# 'aarch64-unknown-linux-android'
-	# 'i686-unknown-linux-android'
+	'x86_64-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'mips64el-unknown-linux-android'
+	'mipsel-unknown-linux-android'
+	'aarch64-unknown-linux-android'
+	'i686-unknown-linux-android'
 	'armv7-unknown-linux-androideabi'
-	# 'riscv64-unknown-linux-android'
+	'riscv64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -788,14 +788,17 @@ for triplet in "${targets[@]}"; do
 	if (( is_native )); then
 		args+="${environment}"
 	fi
-	a=''
+	
+	declare subargs=''
 	
 	if ! (( is_native )); then
-		a+="GCC_FOR_TARGET=${triplet}${base_version}-gcc CC_FOR_TARGET=${triplet}${base_version}-gcc CXX_FOR_TARGET=${triplet}${base_version}-g++"
+		subargs+="GCC_FOR_TARGET=${triplet}${base_version}-gcc "
+		subargs+="CC_FOR_TARGET=${triplet}${base_version}-gcc "
+		subargs+="CXX_FOR_TARGET=${triplet}${base_version}-g++ "
 	fi
 	
 	env ${args} make \
-		${a} \
+		${subargs} \
 		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
 		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
