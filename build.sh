@@ -516,27 +516,6 @@ if [[ "${CROSS_COMPILE_TRIPLET}" == *'-android'* ]]; then
 	export ac_cv_func_ffsll=yes
 fi
 
-cc \
-	"${workdir}/submodules/obggcc/tools/gcc-wrapper/"*'/'*'.c' \
-	"${workdir}/submodules/obggcc/tools/gcc-wrapper/"*".c" \
-	-I "${workdir}/submodules/obggcc/tools/gcc-wrapper" \
-	${optflags} \
-	${linkflags} \
-	-D PINO \
-	-o "${gcc_wrapper}2"
-
-for cc in "${PINO_HOME}/bin/"*-{gcc,g++}; do
-	if [[ "${cc}" == *'droid-'* ]]; then
-		continue
-	fi
-	
-	if [[ "${cc}" == *'eabi-'* ]]; then
-		continue
-	fi
-	
-	cp "${gcc_wrapper}2" "${cc}"
-done
-
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	declare extra_binutils_flags=''
