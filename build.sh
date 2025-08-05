@@ -516,6 +516,27 @@ if [[ "${CROSS_COMPILE_TRIPLET}" == *'-android'* ]]; then
 	export ac_cv_func_ffsll=yes
 fi
 
+cc \
+	"${workdir}/submodules/obggcc/tools/gcc-wrapper/"*'/'*'.c' \
+	"${workdir}/submodules/obggcc/tools/gcc-wrapper/"*".c" \
+	-I "${workdir}/submodules/obggcc/tools/gcc-wrapper" \
+	${optflags} \
+	${linkflags} \
+	-D PINO \
+	-o "${gcc_wrapper}2"
+
+for cc in "${PINO_HOME}/bin/"*-{gcc,g++}; do
+	if [[ "${cc}" == *'droid-'* ]]; then
+		continue
+	fi
+	
+	if [[ "${cc}" == *'eabi-'* ]]; then
+		continue
+	fi
+	
+	cp "${gcc_wrapper}2" "${cc}"
+done
+
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	declare extra_binutils_flags=''
@@ -524,9 +545,6 @@ for triplet in "${targets[@]}"; do
 	
 	declare linker='bfd'
 	declare hash_style='both'
-	
-	declare ndk_major='27'
-	declare ndk_minor='0'
 	
 	if [[ "${target}" = 'arm'*'-unknown-linux-androideabi' ]]; then
 		target='arm-unknown-linux-androideabi'
@@ -547,13 +565,6 @@ for triplet in "${targets[@]}"; do
 	if [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		hash_style='sysv'
 	fi
-	
-	if (( base_version < 21 )); then
-		ndk_major='16'
-		ndk_minor='1'
-	fi
-	
-	declare ndk="${ndk_major}.${ndk_minor}"
 	
 	if [ "${triplet}" = 'armv7-unknown-linux-androideabi' ]; then
 		extra_configure_flags+=' --with-arch=armv7-a --with-float=softfp --with-fpu=vfpv3-d16 --with-mode=thumb'
