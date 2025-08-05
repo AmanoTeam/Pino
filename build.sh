@@ -506,9 +506,6 @@ fi
 	-D PINO \
 	-o "${gcc_wrapper}"
 
-cp "${gcc_wrapper}" "${CC}"
-cp "${gcc_wrapper}" "${CXX}"
-
 for cc in "${PINO_HOME}/bin/"*-{gcc,g++}; do
 	cp "${gcc_wrapper}" "${cc}"
 done
