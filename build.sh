@@ -506,18 +506,6 @@ fi
 	-D PINO \
 	-o "${gcc_wrapper}"
 
-for cc in "${PINO_HOME}/bin/"*-{gcc,g++}; do
-	if [[ "${cc}" == *'droid-'* ]]; then
-		continue
-	fi
-	
-	if [[ "${cc}" == *'eabi-'* ]]; then
-		continue
-	fi
-	
-	cp "${gcc_wrapper}" "${cc}"
-done
-
 # We prefer symbolic links over hard links.
 cp "${workdir}/submodules/obggcc/tools/ln.sh" '/tmp/ln'
 
