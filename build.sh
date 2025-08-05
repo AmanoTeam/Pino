@@ -506,6 +506,9 @@ fi
 	-D PINO \
 	-o "${gcc_wrapper}"
 
+cp "${gcc_wrapper}" "${CC}"
+cp "${gcc_wrapper}" "${CXX}"
+
 # We prefer symbolic links over hard links.
 cp "${workdir}/submodules/obggcc/tools/ln.sh" '/tmp/ln'
 
