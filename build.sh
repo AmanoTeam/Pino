@@ -506,6 +506,15 @@ fi
 	-D PINO \
 	-o "${gcc_wrapper}"
 
+cc \
+	"${workdir}/submodules/obggcc/tools/gcc-wrapper/"*'/'*'.c' \
+	"${workdir}/submodules/obggcc/tools/gcc-wrapper/"*".c" \
+	-I "${workdir}/submodules/obggcc/tools/gcc-wrapper" \
+	${optflags} \
+	${linkflags} \
+	-D PINO \
+	-o "${gcc_wrapper}2"
+
 for cc in "${PINO_HOME}/bin/"*-{gcc,g++}; do
 	if [[ "${cc}" == *'droid-'* ]]; then
 		continue
@@ -515,7 +524,7 @@ for cc in "${PINO_HOME}/bin/"*-{gcc,g++}; do
 		continue
 	fi
 	
-	cp "${gcc_wrapper}" "${cc}"
+	cp "${gcc_wrapper}2" "${cc}"
 done
 
 # We prefer symbolic links over hard links.
