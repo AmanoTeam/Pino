@@ -506,6 +506,18 @@ fi
 	-D PINO \
 	-o "${gcc_wrapper}"
 
+for cc in "${PINO_HOME}/bin/"*-{gcc,g++}; do
+	if [[ "${cc}" == *'droid-'* ]]; then
+		continue
+	fi
+	
+	if [[ "${cc}" == *'eabi-'* ]]; then
+		continue
+	fi
+	
+	cp "${gcc_wrapper}" "${cc}"
+done
+
 # We prefer symbolic links over hard links.
 cp "${workdir}/submodules/obggcc/tools/ln.sh" '/tmp/ln'
 
@@ -768,7 +780,7 @@ for triplet in "${targets[@]}"; do
 		--without-headers \
 		--without-static-standard-libraries \
 		${extra_configure_flags} \
-		CFLAGS="${optflags} -lm" \
+		CFLAGS="${optflags}" \
 		CXXFLAGS="${optflags}" \
 		LDFLAGS="${linkflags}"
 	
