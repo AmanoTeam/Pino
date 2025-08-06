@@ -24,7 +24,7 @@ declare -r isl_tarball='/tmp/isl.tar.xz'
 declare -r isl_directory='/tmp/isl-0.27'
 
 declare -r binutils_tarball='/tmp/binutils.tar.xz'
-declare -r binutils_directory='/tmp/binutils-with-gold-2.44'
+declare -r binutils_directory='/tmp/binutils-2.45'
 
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
 declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
@@ -47,11 +47,11 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
+	'aarch64-unknown-linux-android'
 	'x86_64-unknown-linux-android'
 	'armv5-unknown-linux-androideabi'
 	'mips64el-unknown-linux-android'
 	'mipsel-unknown-linux-android'
-	'aarch64-unknown-linux-android'
 	'i686-unknown-linux-android'
 	'armv7-unknown-linux-androideabi'
 	'riscv64-unknown-linux-android'
@@ -263,7 +263,7 @@ fi
 
 if ! [ -f "${binutils_tarball}" ]; then
 	curl \
-		--url 'https://mirrors.kernel.org/gnu/binutils/binutils-with-gold-2.44.tar.xz' \
+		--url 'https://mirrors.kernel.org/gnu/binutils/binutils-2.45.tar.xz' \
 		--retry '30' \
 		--retry-delay '0' \
 		--retry-all-errors \
@@ -538,7 +538,8 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
-		linker='gold'
+		# linker='gold'
+		true
 	fi
 	
 	if [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
