@@ -24,7 +24,7 @@ declare -r isl_tarball='/tmp/isl.tar.xz'
 declare -r isl_directory='/tmp/isl-0.27'
 
 declare -r binutils_tarball='/tmp/binutils.tar.xz'
-declare -r binutils_directory='/tmp/binutils-2.45'
+declare -r binutils_directory='/tmp/binutils-with-gold-2.44'
 
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
 declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
@@ -47,11 +47,11 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'aarch64-unknown-linux-android'
 	'x86_64-unknown-linux-android'
 	'armv5-unknown-linux-androideabi'
 	'mips64el-unknown-linux-android'
 	'mipsel-unknown-linux-android'
+	'aarch64-unknown-linux-android'
 	'i686-unknown-linux-android'
 	'armv7-unknown-linux-androideabi'
 	'riscv64-unknown-linux-android'
@@ -263,7 +263,7 @@ fi
 
 if ! [ -f "${binutils_tarball}" ]; then
 	curl \
-		--url 'https://mirrors.kernel.org/gnu/binutils/binutils-2.45.tar.xz' \
+		--url 'https://mirrors.kernel.org/gnu/binutils/binutils-with-gold-2.44.tar.xz' \
 		--retry '30' \
 		--retry-delay '0' \
 		--retry-all-errors \
@@ -277,9 +277,9 @@ if ! [ -f "${binutils_tarball}" ]; then
 		--extract \
 		--file="${binutils_tarball}"
 	
-	# patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Revert-gold-Use-char16_t-char32_t-instead-of-uint16_.patch"
-	patch -f --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Disable-annoying-linker-warnings.patch"||true
-	patch -f --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-binutils-host-tools.patch"||true
+	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Revert-gold-Use-char16_t-char32_t-instead-of-uint16_.patch"
+	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Disable-annoying-linker-warnings.patch"
+	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-binutils-host-tools.patch"
 fi
 
 if ! [ -f "${zstd_tarball}" ]; then
@@ -538,8 +538,7 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
-		# linker='gold'
-		true
+		linker='gold'
 	fi
 	
 	if [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
