@@ -709,7 +709,7 @@ for triplet in "${targets[@]}"; do
 		--with-zstd="${toolchain_directory}" \
 		--with-bugurl='https://github.com/AmanoTeam/Pino/issues' \
 		--with-gcc-major-version-only \
-		--with-pkgversion="Pino v0.1-${revision}" \
+		--with-pkgversion="Pino v0.3-${revision}" \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-native-system-header-dir='/include' \
 		--with-default-libstdcxx-abi='new' \
@@ -806,6 +806,8 @@ for triplet in "${targets[@]}"; do
 		rmdir "${PWD}"
 		cd '../lib'
 	fi
+	
+	[ -f './libiberty.a' ] && unlink './libiberty.a'
 	
 	if ! (( is_native )); then
 		ln --symbolic './libestdc++.so' './libstdc++.so'
