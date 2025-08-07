@@ -538,7 +538,8 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
-		linker='gold'
+		# linker='gold'
+		true
 	fi
 	
 	if [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
