@@ -47,11 +47,11 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
+	'aarch64-unknown-linux-android'
 	'x86_64-unknown-linux-android'
 	'armv5-unknown-linux-androideabi'
 	'mips64el-unknown-linux-android'
 	'mipsel-unknown-linux-android'
-	'aarch64-unknown-linux-android'
 	'i686-unknown-linux-android'
 	'armv7-unknown-linux-androideabi'
 	'riscv64-unknown-linux-android'
@@ -747,7 +747,7 @@ for triplet in "${targets[@]}"; do
 		--enable-frame-pointer \
 		--with-pic \
 		--with-specs="${specs}" \
-		--disable-libsanitizer \
+		--enable-libsanitizer \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
@@ -778,10 +778,10 @@ for triplet in "${targets[@]}"; do
 	
 	env ${args} make \
 		${subargs} \
-		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
-		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CFLAGS_FOR_TARGET="-fplt -fuse-ld=${linker} -D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CXXFLAGS_FOR_TARGET="-fplt -fuse-ld=${linker} -D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
-		all --jobs="${max_jobs}"
+		all --jobs='1' # "${max_jobs}"
 	make install
 	
 	cp "${workdir}/submodules/obggcc/tools/pkg-config.sh" "${toolchain_directory}/bin/${triplet}-pkg-config"
