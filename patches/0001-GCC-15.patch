@@ -1,7 +1,7 @@
-From 991602cad9e6a7e93d3940c64e30234cb3c9c3e8 Mon Sep 17 00:00:00 2001
+From a28a05f2abb2beda47020c66bcb38da7ecf197c4 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Sat, 19 Jul 2025 18:07:07 -0300
-Subject: [PATCH 1/2] GCC 15
+Subject: [PATCH] GCC 15
 
 ---
  Makefile.in                                   |  6 +-
@@ -520,7 +520,7 @@ index e91a4ac9e..d47dadc79 100644
  {
  _GLIBCXX_BEGIN_NAMESPACE_VERSION
 diff --git a/libstdc++-v3/config/os/bionic/os_defines.h b/libstdc++-v3/config/os/bionic/os_defines.h
-index 830e4ba2d..50e33e492 100644
+index 830e4ba2d..02534a78a 100644
 --- a/libstdc++-v3/config/os/bionic/os_defines.h
 +++ b/libstdc++-v3/config/os/bionic/os_defines.h
 @@ -33,4 +33,61 @@
@@ -581,7 +581,7 @@ index 830e4ba2d..50e33e492 100644
 +#define _GLIBCXX_HAVE_TANL
 +#define _GLIBCXX_HAVE_TANHF
 +#define _GLIBCXX_HAVE_TANHL
-+#define _GLIBCXX_HAVE_WCSTOF
++#define _GLIBCXX_HAVE_WCSTOF 1
 +
  #endif
 +
