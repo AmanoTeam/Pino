@@ -24,7 +24,7 @@ declare -r isl_tarball='/tmp/isl.tar.xz'
 declare -r isl_directory='/tmp/isl-0.27'
 
 declare -r binutils_tarball='/tmp/binutils.tar.xz'
-declare -r binutils_directory='/tmp/binutils-with-gold-2.44'
+declare -r binutils_directory='/tmp/binutils-2.45'
 
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
 declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
@@ -263,7 +263,7 @@ fi
 
 if ! [ -f "${binutils_tarball}" ]; then
 	curl \
-		--url 'https://mirrors.kernel.org/gnu/binutils/binutils-with-gold-2.44.tar.xz' \
+		--url 'https://mirrors.kernel.org/gnu/binutils/binutils-2.45.tar.xz' \
 		--retry '30' \
 		--retry-delay '0' \
 		--retry-all-errors \
@@ -277,8 +277,6 @@ if ! [ -f "${binutils_tarball}" ]; then
 		--extract \
 		--file="${binutils_tarball}"
 	
-	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Revert-gold-Use-char16_t-char32_t-instead-of-uint16_.patch"
-	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Disable-annoying-linker-warnings.patch"
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-binutils-host-tools.patch"
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-assertion-failure-when-linking-code-with-STT_GNU.patch"
 fi
@@ -523,7 +521,6 @@ for triplet in "${targets[@]}"; do
 	declare base_version='14'
 	declare target="${triplet}"
 	
-	declare linker='bfd'
 	declare hash_style='both'
 	
 	if [[ "${target}" = 'arm'*'-unknown-linux-androideabi' ]]; then
@@ -775,8 +772,8 @@ for triplet in "${targets[@]}"; do
 	
 	env ${args} make \
 		${subargs} \
-		CFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
-		CXXFLAGS_FOR_TARGET="-fuse-ld=${linker} -D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CFLAGS_FOR_TARGET="-D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
+		CXXFLAGS_FOR_TARGET="-D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${optflags} ${linkflags}" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
 		all --jobs="${max_jobs}"
 	make install
