@@ -314,22 +314,12 @@ if ! [ -f "${gcc_tarball}" ]; then
 		--extract \
 		--file="${gcc_tarball}"
 	
-	sed -i 's/-fno-builtin//g' ${gcc_directory}/libstdc++-v3/configure
-	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-GCC-15.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Avoid-relying-on-dynamic-shadow-when-building-libsan.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declarations-of-fgetpos-and-fsetpos.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declaration-of-localeconv.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declaration-of-posix_memalign-on-x86.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-declaration-of-mblen.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Avoid-including-langinfo.h-on-older-Android.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Disable-SONAME-versioning-for-all-target-libraries.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Change-GCC-s-C-standard-library-name-to-libestdc.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Rename-GCC-s-libgcc-library-to-libegcc.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Ignore-pragma-weak-when-the-declaration-is-private-o.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Add-support-to-riscv64.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-missing-C99-definitions-in-the-C-standard-librar.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Don-t-warn-when-passing-command-line-options-that-do.patch"
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-libgcc-build-on-arm.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Change-the-default-language-version-for-C-compilatio.patch"
@@ -649,6 +639,12 @@ for triplet in "${targets[@]}"; do
 	rm --force --recursive ./*
 	
 	declare specs=''
+	
+	specs+=' %{!Wno-complain-wrong-lang:%{!Wcomplain-wrong-lang:-Wno-complain-wrong-lang}}'
+	
+	if [ "${triplet}" = 'x86_64-unknown-linux-android' ] || [ "${triplet}" = 'i686-unknown-linux-android' ]; then
+		specs+=' %{!fno-plt:%{!fplt:-fno-plt}}'
+	fi
 	
 	if (( is_native )); then
 		specs+=' -l pino-math'
