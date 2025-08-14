@@ -17,7 +17,7 @@ jobs:
       id: check-cache
       uses: actions/cache@main
       with:
-        key: gcc-15.2.0
+        key: gcc-15.2.0-2
         lookup-only: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -26,6 +26,9 @@ jobs:
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       run: |
         bash './build.sh' 'native'
+    - name: Package profiling data
+      run: |
+        tar --directory='/tmp' --create --file=- 'profile-guided' | xz --threads='0' --compress -9 > '/tmp/profiling.tar.xz'
     - name: Create logs
       if: always()
       run: |
@@ -59,14 +62,16 @@ jobs:
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
           /tmp/x86_64-linux-gnu.tar.xz.sha256
+          /tmp/profiling.tar.xz
     - name: Cache artifact
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       uses: actions/cache@main
       with:
-        key: gcc-15.2.0
+        key: gcc-15.2.0-2
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
           /tmp/x86_64-linux-gnu.tar.xz.sha256
+          /tmp/profiling.tar.xz
   
   cross-build:
     name: 'Cross build'
@@ -131,15 +136,19 @@ jobs:
     - name: Restore from cache
       uses: actions/cache@main
       with:
-        key: gcc-15.2.0
+        key: gcc-15.2.0-2
         fail-on-cache-miss: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
           /tmp/x86_64-linux-gnu.tar.xz.sha256
+          /tmp/profiling.tar.xz
     - name: Setup toolchain
       run: |
         tar --directory='/tmp' --extract --file='/tmp/x86_64-linux-gnu.tar.xz'
         mv '/tmp/pino' '/tmp/pino-toolchain'
+    - name: Setup profiling data
+      run: |
+        tar --directory='/tmp' --extract --file='/tmp/profiling.tar.xz'
     - name: Cross-compile Pino to ${{ matrix.target }}
       run: |
         source './tools/setup_toolchain.sh'
@@ -157,7 +166,7 @@ jobs:
             
             source "${RAIDEN_HOME}/usr/local/share/raiden/autotools/${{ matrix.target }}.sh"
         elif [[ '${{ matrix.target }}' == *'-linux-gnu'* ]]; then
-            declare -r OBGGCC_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/obggcc/releases/latest')")"
+            declare -r OBGGCC_TAG=3.4 #"$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/obggcc/releases/latest')")"
             declare -r OBGGCC_TARBALL='/tmp/toolchain.tar.xz'
             declare -r OBGGCC_URL="https://github.com/AmanoTeam/obggcc/releases/download/${OBGGCC_TAG}/x86_64-unknown-linux-gnu.tar.xz"
             
