@@ -46,15 +46,18 @@ declare -r pieflags='-fPIE'
 declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
+declare -r ltoflags='-flto=auto -fno-fat-lto-objects -flto-compression-level=0 -fdevirtualize-at-ltrans'
+declare -r ltolinkflags='-flto'
+
 declare -ra targets=(
-	'x86_64-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
-	'mips64el-unknown-linux-android'
-	'mipsel-unknown-linux-android'
 	'aarch64-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'riscv64-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
+	# 'mips64el-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'riscv64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -576,9 +579,9 @@ for triplet in "${targets[@]}"; do
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-zstd="${toolchain_directory}" \
 		${extra_binutils_flags} \
-		CFLAGS="${optflags}" \
-		CXXFLAGS="${optflags}" \
-		LDFLAGS="${linkflags}"
+		CFLAGS="${optflags} ${ltoflags}" \
+		CXXFLAGS="${optflags} ${ltoflags}" \
+		LDFLAGS="${linkflags} ${ltolinkflags}"
 	
 	make all --jobs="${max_jobs}"
 	make install
@@ -699,7 +702,7 @@ for triplet in "${targets[@]}"; do
 		--with-zstd="${toolchain_directory}" \
 		--with-bugurl='https://github.com/AmanoTeam/Pino/issues' \
 		--with-gcc-major-version-only \
-		--with-pkgversion="Pino v0.3-${revision}" \
+		--with-pkgversion="Pino v0.4-${revision}" \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-native-system-header-dir='/include' \
 		--with-default-libstdcxx-abi='new' \
@@ -748,9 +751,9 @@ for triplet in "${targets[@]}"; do
 		--without-headers \
 		--without-static-standard-libraries \
 		${extra_configure_flags} \
-		CFLAGS="${optflags} -flto -fno-fat-lto-objects" \
-		CXXFLAGS="${optflags} -flto -fno-fat-lto-objects" \
-		LDFLAGS="${linkflags} -flto"
+		CFLAGS="${optflags} ${ltoflags}" \
+		CXXFLAGS="${optflags} ${ltoflags}" \
+		LDFLAGS="${linkflags} ${ltolinkflags}"
 	
 	declare args=''
 	
