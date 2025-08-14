@@ -46,7 +46,7 @@ declare -r pieflags='-fPIE'
 declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
-declare -r ltoflags='-flto=auto -fno-fat-lto-objects -flto-compression-level=0 -fdevirtualize-at-ltrans'
+declare -r ltoflags='-flto=auto -fno-fat-lto-objects -flto-partition=one -flto-compression-level=0 -fdevirtualize-at-ltrans'
 declare -r ltolinkflags='-flto'
 
 declare -ra targets=(
@@ -405,9 +405,9 @@ cd "${gmp_directory}/build"
 	--prefix="${toolchain_directory}" \
 	--enable-shared \
 	--disable-static \
-	CFLAGS="${optflags}" \
-	CXXFLAGS="${optflags}" \
-	LDFLAGS="${linkflags}"
+	CFLAGS="${optflags} ${ltoflags}" \
+	CXXFLAGS="${optflags} ${ltoflags}" \
+	LDFLAGS="${linkflags} ${ltolinkflags}"
 
 make all --jobs
 make install
@@ -422,9 +422,9 @@ cd "${mpfr_directory}/build"
 	--with-gmp="${toolchain_directory}" \
 	--enable-shared \
 	--disable-static \
-	CFLAGS="${optflags} -DMPFR_LCONV_DPTS=0" \
-	CXXFLAGS="${optflags}" \
-	LDFLAGS="${linkflags}"
+	CFLAGS="${optflags} ${ltoflags} -DMPFR_LCONV_DPTS=0" \
+	CXXFLAGS="${optflags} ${ltoflags}" \
+	LDFLAGS="${linkflags} ${ltolinkflags}"
 
 make all --jobs
 make install
@@ -439,9 +439,9 @@ cd "${mpc_directory}/build"
 	--with-gmp="${toolchain_directory}" \
 	--enable-shared \
 	--disable-static \
-	CFLAGS="${optflags}" \
-	CXXFLAGS="${optflags}" \
-	LDFLAGS="${linkflags}"
+	CFLAGS="${optflags} ${ltoflags}" \
+	CXXFLAGS="${optflags} ${ltoflags}" \
+	LDFLAGS="${linkflags} ${ltolinkflags}"
 
 make all --jobs
 make install
@@ -457,9 +457,9 @@ rm --force --recursive ./*
 	--with-gmp-prefix="${toolchain_directory}" \
 	--enable-shared \
 	--disable-static \
-	CFLAGS="${pieflags} ${optflags}" \
-	CXXFLAGS="${pieflags} ${optflags}" \
-	LDFLAGS="-Xlinker -rpath-link -Xlinker ${toolchain_directory}/lib ${linkflags}"
+	CFLAGS="${pieflags} ${optflags} ${ltoflags}" \
+	CXXFLAGS="${pieflags} ${optflags} ${ltoflags}" \
+	LDFLAGS="-Xlinker -rpath-link -Xlinker ${toolchain_directory}/lib ${linkflags} ${ltolinkflags}"
 
 make all --jobs
 make install
@@ -494,6 +494,7 @@ fi
 	"${workdir}/submodules/obggcc/tools/gcc-wrapper/"*".c" \
 	-I "${workdir}/submodules/obggcc/tools/gcc-wrapper" \
 	${optflags} \
+	${ltoflags} \
 	${linkflags} \
 	-D PINO \
 	-o "${gcc_wrapper}"
