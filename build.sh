@@ -748,9 +748,9 @@ for triplet in "${targets[@]}"; do
 		--without-headers \
 		--without-static-standard-libraries \
 		${extra_configure_flags} \
-		CFLAGS="${optflags}" \
-		CXXFLAGS="${optflags}" \
-		LDFLAGS="${linkflags}"
+		CFLAGS="${optflags} -flto -fno-fat-lto-objects" \
+		CXXFLAGS="${optflags} -flto -fno-fat-lto-objects" \
+		LDFLAGS="${linkflags} -flto"
 	
 	declare args=''
 	
