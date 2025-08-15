@@ -46,8 +46,8 @@ declare -r pieflags='-fPIE'
 declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
-declare -r ltoflags='-flto=auto -fno-fat-lto-objects -flto-partition=one -flto-compression-level=0 -fdevirtualize-at-ltrans'
-declare -r ltolinkflags='-flto'
+declare -r ltoflags='' #'-flto -fno-fat-lto-objects -flto-partition=one -flto-compression-level=0 -fdevirtualize-at-ltrans'
+declare -r ltolinkflags='' #'-flto'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
