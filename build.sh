@@ -38,6 +38,8 @@ declare -r zstd_directory='/tmp/zstd-dev'
 declare -r nz_tarball='/tmp/nz.tar.xz'
 declare -r nz_directory='/tmp/nouzen'
 
+declare -r pgo_directory='/tmp/pgo'
+
 declare nz='1'
 
 declare -r max_jobs='30'
@@ -46,8 +48,12 @@ declare -r pieflags='-fPIE'
 declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
-declare -r ltoflags='' #'-flto -fno-fat-lto-objects -flto-partition=one -flto-compression-level=0 -fdevirtualize-at-ltrans'
-declare -r ltolinkflags='' #'-flto'
+declare lto_partition='none'
+
+declare -r profile_generate="-fprofile-generate=${pgo_directory} -fprofile-dir=${pgo_directory} -fprofile-update=atomic -fprofile-abs-path"
+declare -r profile_generate_link="-fprofile-generate"
+
+declare -r profile_use="-fprofile-use=${pgo_directory} -fprofile-dir=${pgo_directory}"
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
@@ -187,6 +193,29 @@ set -u
 declare -r \
 	build_type \
 	is_native
+
+if (( is_native )); then
+	declare -r profile_cflags="${profile_generate}"
+	declare -r profile_ldflags="${profile_generate_link}"
+elif [ "${build_type}" = 'x86_64-unknown-linux-gnu' ]; then
+	declare -r profile_cflags="${profile_use}"
+	declare -r profile_ldflags=''
+else
+	declare -r profile_cflags=''
+	declare -r profile_ldflags=''
+fi
+
+if [[ "${build_type}" = 'arm'* ]]; then
+	lto_partition='balanced'
+fi
+
+if [[ "${build_type}" = *'openbsd' ]]; then
+	declare -r ltoflags=''
+	declare -r ltolinkflags=''
+else
+	declare -r ltoflags="-flto=auto -fno-fat-lto-objects -flto-partition=${lto_partition} -flto-compression-level=0 -fdevirtualize-at-ltrans -fuse-linker-plugin"
+	declare -r ltolinkflags='-flto'
+fi
 
 if ! [ -f "${gmp_tarball}" ]; then
 	curl \
@@ -752,9 +781,9 @@ for triplet in "${targets[@]}"; do
 		--without-headers \
 		--without-static-standard-libraries \
 		${extra_configure_flags} \
-		CFLAGS="${optflags} ${ltoflags}" \
-		CXXFLAGS="${optflags} ${ltoflags}" \
-		LDFLAGS="${linkflags} ${ltolinkflags}"
+		CFLAGS="${optflags} ${ltoflags} ${profile_cflags}" \
+		CXXFLAGS="${optflags} ${ltoflags} ${profile_cflags}" \
+		LDFLAGS="${linkflags} ${ltolinkflags} ${profile_ldflags}"
 	
 	declare args=''
 	
