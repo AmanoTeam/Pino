@@ -38,9 +38,6 @@ declare -r zstd_directory='/tmp/zstd-dev'
 declare -r nz_tarball='/tmp/nz.tar.xz'
 declare -r nz_directory='/tmp/nouzen'
 
-declare -r profile_sampling_directory='/tmp/profile-sampling'
-declare -r profile_guided_directory='/tmp/profile-guided'
-
 declare nz='1'
 
 declare -r max_jobs='30'
@@ -49,14 +46,12 @@ declare -r pieflags='-fPIE'
 declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
-declare lto_partition='none'
-
 declare -ra targets=(
-	'aarch64-unknown-linux-android'
+	# 'aarch64-unknown-linux-android'
 	# 'x86_64-unknown-linux-android'
 	# 'armv5-unknown-linux-androideabi'
 	# 'mips64el-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
+	'mipsel-unknown-linux-android'
 	# 'i686-unknown-linux-android'
 	# 'armv7-unknown-linux-androideabi'
 	# 'riscv64-unknown-linux-android'
@@ -189,26 +184,6 @@ set -u
 declare -r \
 	build_type \
 	is_native
-
-declare -r profiling_generate="-fprofile-generate=${profile_sampling_directory} -fprofile-dir=${profile_sampling_directory} -fprofile-update=atomic"
-declare -r profiling_generate_link="-fprofile-generate"
-
-declare -r profiling_use="-fprofile-use=${profile_guided_directory} -fprofile-dir=${profile_guided_directory}"
-
-declare -r profiling_cflags=''
-declare -r profiling_ldflags=''
-
-if [[ "${build_type}" = 'arm'* ]]; then
-	lto_partition='balanced'
-fi
-
-if (( 1 )) || [[ "${build_type}" = *'openbsd' ]]; then
-	declare -r ltoflags=''
-	declare -r ltolinkflags=''
-else
-	declare -r ltoflags="-flto=auto -fno-fat-lto-objects -flto-partition=${lto_partition} -flto-compression-level=0 -fdevirtualize-at-ltrans -fuse-linker-plugin"
-	declare -r ltolinkflags='-flto'
-fi
 
 if ! [ -f "${gmp_tarball}" ]; then
 	curl \
@@ -427,9 +402,9 @@ cd "${gmp_directory}/build"
 	--prefix="${toolchain_directory}" \
 	--enable-shared \
 	--disable-static \
-	CFLAGS="${optflags} ${ltoflags}" \
-	CXXFLAGS="${optflags} ${ltoflags}" \
-	LDFLAGS="${linkflags} ${ltolinkflags}"
+	CFLAGS="${optflags}" \
+	CXXFLAGS="${optflags}" \
+	LDFLAGS="${linkflags}"
 
 make all --jobs
 make install
@@ -444,9 +419,9 @@ cd "${mpfr_directory}/build"
 	--with-gmp="${toolchain_directory}" \
 	--enable-shared \
 	--disable-static \
-	CFLAGS="${optflags} ${ltoflags} -DMPFR_LCONV_DPTS=0" \
-	CXXFLAGS="${optflags} ${ltoflags}" \
-	LDFLAGS="${linkflags} ${ltolinkflags}"
+	CFLAGS="${optflags} -DMPFR_LCONV_DPTS=0" \
+	CXXFLAGS="${optflags}" \
+	LDFLAGS="${linkflags}"
 
 make all --jobs
 make install
@@ -461,9 +436,9 @@ cd "${mpc_directory}/build"
 	--with-gmp="${toolchain_directory}" \
 	--enable-shared \
 	--disable-static \
-	CFLAGS="${optflags} ${ltoflags}" \
-	CXXFLAGS="${optflags} ${ltoflags}" \
-	LDFLAGS="${linkflags} ${ltolinkflags}"
+	CFLAGS="${optflags}" \
+	CXXFLAGS="${optflags}" \
+	LDFLAGS="${linkflags}"
 
 make all --jobs
 make install
@@ -479,9 +454,9 @@ rm --force --recursive ./*
 	--with-gmp-prefix="${toolchain_directory}" \
 	--enable-shared \
 	--disable-static \
-	CFLAGS="${pieflags} ${optflags} ${ltoflags}" \
-	CXXFLAGS="${pieflags} ${optflags} ${ltoflags}" \
-	LDFLAGS="-Xlinker -rpath-link -Xlinker ${toolchain_directory}/lib ${linkflags} ${ltolinkflags}"
+	CFLAGS="${pieflags} ${optflags}" \
+	CXXFLAGS="${pieflags} ${optflags}" \
+	LDFLAGS="-Xlinker -rpath-link -Xlinker ${toolchain_directory}/lib ${linkflags}"
 
 make all --jobs
 make install
@@ -516,7 +491,6 @@ fi
 	"${workdir}/submodules/obggcc/tools/gcc-wrapper/"*".c" \
 	-I "${workdir}/submodules/obggcc/tools/gcc-wrapper" \
 	${optflags} \
-	${ltoflags} \
 	${linkflags} \
 	-D PINO \
 	-o "${gcc_wrapper}"
@@ -602,9 +576,9 @@ for triplet in "${targets[@]}"; do
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-zstd="${toolchain_directory}" \
 		${extra_binutils_flags} \
-		CFLAGS="${optflags} ${ltoflags}" \
-		CXXFLAGS="${optflags} ${ltoflags}" \
-		LDFLAGS="${linkflags} ${ltolinkflags}"
+		CFLAGS="${optflags}" \
+		CXXFLAGS="${optflags}" \
+		LDFLAGS="${linkflags}"
 	
 	make all --jobs="${max_jobs}"
 	make install
@@ -774,9 +748,9 @@ for triplet in "${targets[@]}"; do
 		--without-headers \
 		--without-static-standard-libraries \
 		${extra_configure_flags} \
-		CFLAGS="${optflags} ${ltoflags} ${profiling_cflags}" \
-		CXXFLAGS="${optflags} ${ltoflags} ${profiling_cflags}" \
-		LDFLAGS="${linkflags} ${ltolinkflags} ${profiling_ldflags}"
+		CFLAGS="${optflags}" \
+		CXXFLAGS="${optflags}" \
+		LDFLAGS="${linkflags}"
 	
 	declare args=''
 	
@@ -804,10 +778,6 @@ for triplet in "${targets[@]}"; do
 	sed --in-place 's/OBGGCC/PINO/g' "${toolchain_directory}/bin/${triplet}-pkg-config"
 	
 	rm "${toolchain_directory}/bin/${triplet}-${triplet}-"* 2>/dev/null || true
-	
-	if ! (( is_native )) && [ "${triplet}" != 'mips64el-unknown-linux-android' ]; then
-		rm "${toolchain_directory}/${triplet}/lib/"*.o
-	fi
 	
 	cd "${toolchain_directory}/lib/bfd-plugins"
 	
@@ -897,6 +867,7 @@ for triplet in "${targets[@]}"; do
 		mkdir 'gcc' 'static'
 		
 		ln --symbolic --relative './lib'*'.'{so,a} './static'
+		ln --symbolic --relative './crt'*'.o' './static'
 		
 		for library in "../../${triplet}/lib/lib"*.{so,a,1,spec}; do
 			declare name="$(basename "${library}")"
@@ -1066,5 +1037,3 @@ fi
 mkdir --parent "${share_directory}"
 
 cp --recursive "${workdir}/tools/dev/"* "${share_directory}"
-
-mv "${profile_sampling_directory}" "${profile_guided_directory}"
