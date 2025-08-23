@@ -1,6 +1,6 @@
-From a28a05f2abb2beda47020c66bcb38da7ecf197c4 Mon Sep 17 00:00:00 2001
+From 11bc792863871fb02b0ac9b44a3245217a3fad8d Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
-Date: Sat, 19 Jul 2025 18:07:07 -0300
+Date: Fri, 22 Aug 2025 23:02:28 -0300
 Subject: [PATCH] GCC 15
 
 ---
@@ -16,7 +16,7 @@ Subject: [PATCH] GCC 15
  gcc/config/i386/i386.cc                       |  4 +-
  gcc/config/i386/linux-common.h                |  8 ++-
  gcc/config/i386/pmm_malloc.h                  |  2 +-
- gcc/config/linux-android.h                    | 14 +++--
+ gcc/config/linux-android.h                    | 20 ++++---
  gcc/config/riscv/linux.h                      | 34 ++++++++++-
  gcc/input.cc                                  |  2 +
  gcc/mem-stats.h                               |  2 +
@@ -34,7 +34,7 @@ Subject: [PATCH] GCC 15
  libstdc++-v3/include/c_global/cwctype         |  4 +-
  libstdc++-v3/include/c_std/cwchar             |  2 +-
  libstdc++-v3/src/c++17/floating_to_chars.cc   |  2 +-
- 30 files changed, 254 insertions(+), 30 deletions(-)
+ 30 files changed, 258 insertions(+), 32 deletions(-)
  create mode 100644 gcc/config/aarch64/aarch64-linux-android.h
 
 diff --git a/Makefile.in b/Makefile.in
@@ -84,7 +84,7 @@ index 55b4cd7db..da74d4469 100644
  # Directory for prefix to system directories, for
  # each of $(system_prefix)/usr/include, $(system_prefix)/usr/lib, etc.
 diff --git a/gcc/config.gcc b/gcc/config.gcc
-index 5725704e0..8caa48a11 100644
+index 087aaa7be..3f4cc442c 100644
 --- a/gcc/config.gcc
 +++ b/gcc/config.gcc
 @@ -1237,14 +1237,18 @@ aarch64*-*-netbsd*)
@@ -272,10 +272,10 @@ index abe714711..634081c2e 100644
  #define ASM_SPEC "%{" SPEC_32 ":--32} \
   %{" SPEC_64 ":--64} \
 diff --git a/gcc/config/i386/i386.cc b/gcc/config/i386/i386.cc
-index 08d0519cc..94e50964e 100644
+index b481f0161..996f4f834 100644
 --- a/gcc/config/i386/i386.cc
 +++ b/gcc/config/i386/i386.cc
-@@ -24633,9 +24633,7 @@ ix86_stack_protect_runtime_enabled_p (void)
+@@ -24655,9 +24655,7 @@ ix86_stack_protect_runtime_enabled_p (void)
  static tree ATTRIBUTE_UNUSED
  ix86_stack_protect_fail (void)
  {
@@ -319,10 +319,23 @@ index d1d79a32f..d66dcdd68 100644
  
  static __inline void *
 diff --git a/gcc/config/linux-android.h b/gcc/config/linux-android.h
-index ecdc1da23..b460728b2 100644
+index ecdc1da23..b3daf3f16 100644
 --- a/gcc/config/linux-android.h
 +++ b/gcc/config/linux-android.h
-@@ -38,15 +38,19 @@
+@@ -21,8 +21,10 @@
+ 
+ #define ANDROID_TARGET_OS_CPP_BUILTINS()			\
+     do {							\
+-	if (TARGET_ANDROID)					\
+-	  builtin_define ("__ANDROID__");			\
++	  if (TARGET_ANDROID) {					\
++	    builtin_define ("__ANDROID__");			\
++	    builtin_define ("ANDROID");			\
++	  }			\
+     } while (0)
+ 
+ #if ANDROID_DEFAULT
+@@ -38,15 +40,19 @@
    "%{" NOANDROID "|tno-android-ld:" LINUX_SPEC ";:" ANDROID_SPEC "}"
  
  #define ANDROID_LINK_SPEC \

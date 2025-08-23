@@ -532,7 +532,7 @@ for triplet in "${targets[@]}"; do
 	if [ "${triplet}" = 'armv7-unknown-linux-androideabi' ]; then
 		extra_configure_flags+=' --with-arch=armv7-a --with-float=softfp --with-fpu=vfpv3-d16 --with-mode=thumb'
 	elif [ "${triplet}" = 'armv5-unknown-linux-androideabi' ]; then
-		extra_configure_flags+=' --with-arch=armv5te --with-float=soft --with-fpu=vfpv2 --with-mode=thumb'
+		extra_configure_flags+=' --with-arch=armv5te --with-tune=xscale --with-float=soft --with-fpu=vfpv2 --with-mode=thumb'
 	elif [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --enable-fix-cortex-a53-835769 --enable-fix-cortex-a53-843419'
 	elif [ "${triplet}" = 'i686-unknown-linux-android' ]; then
@@ -572,6 +572,7 @@ for triplet in "${targets[@]}"; do
 		--enable-default-compressed-debug-sections-algorithm='zstd' \
 		--disable-gprofng \
 		--disable-default-execstack \
+		--disable-warn-rwx-segments \
 		--without-static-standard-libraries \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-zstd="${toolchain_directory}" \
