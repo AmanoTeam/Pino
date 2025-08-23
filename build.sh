@@ -629,6 +629,11 @@ for triplet in "${targets[@]}"; do
 		--file="${tarball}"
 	
 	mv "${PWD}/${target}${base_version}" "${sysroot_directory}"
+	
+	unlink './libpino-math.so'
+	
+	[ -f './libpino-mman.so' ] && unlink './libpino-mman.so'
+	
 	mv './libpino-'* "${sysroot_directory}/lib"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
