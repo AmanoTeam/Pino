@@ -47,14 +47,14 @@ declare -r optflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'aarch64-unknown-linux-android'
-	'x86_64-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
-	'mips64el-unknown-linux-android'
+	# 'aarch64-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
+	# 'mips64el-unknown-linux-android'
 	'mipsel-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'riscv64-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'riscv64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -278,6 +278,7 @@ if ! [ -f "${binutils_tarball}" ]; then
 		--file="${binutils_tarball}"
 	
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-binutils-host-tools.patch"
+	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Don-t-warn-about-local-symbols-within-the-globals.patch"
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-assertion-failure-when-linking-code-with-STT_GNU.patch"
 fi
 
