@@ -1039,3 +1039,11 @@ fi
 mkdir --parent "${share_directory}"
 
 cp --recursive "${workdir}/tools/dev/"* "${share_directory}"
+
+[ -d "${toolchain_directory}/build" ] || mkdir "${toolchain_directory}/build"
+
+ln \
+	--symbolic \
+	--relative \
+	"${share_directory}/"* \
+	"${toolchain_directory}/build"

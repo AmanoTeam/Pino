@@ -59,6 +59,8 @@ $ ./pino/bin/ndk-patch
 
 Essentially, it overrides the NDK's `clang`/`clang++` commands with alternatives that call `gcc`/`g++` instead. It also deletes the NDK's built-in libc++ shared libraries to prevent the Android Gradle plugin from automatically bundling them into the APK when using `-ANDROID_STL=c++_shared`.
 
+This supports patching any NDK version from r16 (16.1.4479499) onward.
+
 #### Building the project
 
 After patching the NDK, you are almost ready to go and compile the project. Just run `./gradlew clean` before compiling it to make sure compiled objects from previous builds (Clang) don't interfere with the new build.
@@ -67,10 +69,10 @@ Changing the build workflow further (i.e., Gradle, CMake, ndk-build) is usually 
 
 ### CMake
 
-The Clang NDK provides a single, unified CMake toolchain for cross-compilation, typically located at `<ndk_prefix>/build/cmake/android.toolchain.cmake`. In contrast, Pino provides a separate toolchain for each architecture/API level supported by the NDK. These toolchains can be found in `<pino_prefix>/usr/local/share/pino/cmake`:
+The Clang NDK provides a single, unified CMake toolchain for cross-compilation, typically located at `<ndk-prefix>/build/cmake/android.toolchain.cmake`. In contrast, Pino provides a separate toolchain for each architecture/API level supported by the NDK. These toolchains can be found in `<pino-prefix>/build/cmake`:
 
 ```bash
-$ ls <pino_prefix>/usr/local/share/pino/cmake
+$ ls <pino-prefix>/build/cmake
 aarch64-unknown-linux-android.cmake
 aarch64-unknown-linux-android21.cmake
 aarch64-unknown-linux-android22.cmake
@@ -95,7 +97,7 @@ So, instead of configuring your project like this...
 
 ```
 $ cmake \
-    -DCMAKE_TOOLCHAIN_FILE='<ndk_prefix>/build/cmake/android.toolchain.cmake' \
+    -DCMAKE_TOOLCHAIN_FILE='<ndk-prefix>/build/cmake/android.toolchain.cmake' \
     -DANDROID_ABI='armeabi-v7a' \
     -DANDROID_PLATFORM='android-24' \
     ...
@@ -105,16 +107,16 @@ $ cmake \
 
 ```
 $ cmake \
-    -DCMAKE_TOOLCHAIN_FILE='<pino_prefix>/usr/local/share/pino/cmake/arm-unknown-linux-androideabi24.cmake' \
+    -DCMAKE_TOOLCHAIN_FILE='<pino-prefix>/build/cmake/arm-unknown-linux-androideabi24.cmake' \
     ...
 ```
 
 ### Autotools
 
-For convenience, Pino also provides helper scripts that can be used to set up an environment suitable for cross-compiling projects based on Autotools and similar tools. These scripts can be found in `<pino_prefix>/usr/local/share/pino/autotools`:
+For convenience, Pino also provides helper scripts that can be used to set up an environment suitable for cross-compiling projects based on Autotools and similar tools. These scripts can be found in `<pino-prefix>/build/autotools`:
 
 ```bash
-$ ls <pino_prefix>/usr/local/share/pino/autotools
+$ ls <pino-prefix>/build/autotools
 aarch64-unknown-linux-android.sh
 aarch64-unknown-linux-android21.sh
 aarch64-unknown-linux-android22.sh
@@ -139,7 +141,7 @@ They are meant to be `source`d by you whenever you want to cross-compile a proje
 
 ```bash
 # Set up the environment for cross-compilation
-$ source <pino_prefix>/usr/local/share/pino/autotools/aarch64-unknown-linux-android21.sh
+$ source <pino-prefix>/build/autotools/aarch64-unknown-linux-android21.sh
 
 # Configure & build the project
 $ ./configure --host="${CROSS_COMPILE_TRIPLET}"
@@ -152,7 +154,7 @@ Essentially, these scripts handle the setup of `CC`, `CXX`, `LD`, and other envi
 
 Pino includes a portable APT-like package manager that works with APT repositories. You can use it to install additional third-party libraries from the Termux repository for use during cross-compilation.
 
-You can install packages to a specific system root using the corresponding `<triplet><api_level>-nz` command inside the `<pino_prefix>/bin` directory:
+You can install packages to a specific system root using the corresponding `<triplet><api-level>-nz` command inside the `<pino-prefix>/bin` directory. For example, to install the zlib and zstd packages, run:
 
 ```bash
 # Install zlib and zstd
