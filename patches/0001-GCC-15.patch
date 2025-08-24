@@ -1,4 +1,4 @@
-From 11bc792863871fb02b0ac9b44a3245217a3fad8d Mon Sep 17 00:00:00 2001
+From 0369ebbbdab373e17ce9ddc6fc60a82d3138df8f Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Fri, 22 Aug 2025 23:02:28 -0300
 Subject: [PATCH] GCC 15
@@ -24,7 +24,7 @@ Subject: [PATCH] GCC 15
  libgcc/unwind-dw2-fde-dip.c                   |  2 +-
  libiberty/physmem.c                           |  2 +-
  libstdc++-v3/config/os/bionic/ctype_base.h    | 14 +++++
- libstdc++-v3/config/os/bionic/os_defines.h    | 57 ++++++++++++++++++
+ libstdc++-v3/config/os/bionic/os_defines.h    | 58 ++++++++++++++++++
  libstdc++-v3/include/bits/basic_string.h      |  4 ++
  libstdc++-v3/include/c_compatibility/stdlib.h |  6 ++
  libstdc++-v3/include/c_global/clocale         |  2 +
@@ -34,7 +34,7 @@ Subject: [PATCH] GCC 15
  libstdc++-v3/include/c_global/cwctype         |  4 +-
  libstdc++-v3/include/c_std/cwchar             |  2 +-
  libstdc++-v3/src/c++17/floating_to_chars.cc   |  2 +-
- 30 files changed, 258 insertions(+), 32 deletions(-)
+ 30 files changed, 259 insertions(+), 32 deletions(-)
  create mode 100644 gcc/config/aarch64/aarch64-linux-android.h
 
 diff --git a/Makefile.in b/Makefile.in
@@ -533,10 +533,10 @@ index e91a4ac9e..d47dadc79 100644
  {
  _GLIBCXX_BEGIN_NAMESPACE_VERSION
 diff --git a/libstdc++-v3/config/os/bionic/os_defines.h b/libstdc++-v3/config/os/bionic/os_defines.h
-index 830e4ba2d..02534a78a 100644
+index 830e4ba2d..98b4c6b4b 100644
 --- a/libstdc++-v3/config/os/bionic/os_defines.h
 +++ b/libstdc++-v3/config/os/bionic/os_defines.h
-@@ -33,4 +33,61 @@
+@@ -33,4 +33,62 @@
  // System-specific #define, typedefs, corrections, etc, go here.  This
  // file will come before all others.
  
@@ -595,6 +595,7 @@ index 830e4ba2d..02534a78a 100644
 +#define _GLIBCXX_HAVE_TANHF
 +#define _GLIBCXX_HAVE_TANHL
 +#define _GLIBCXX_HAVE_WCSTOF 1
++#define _GLIBCXX_HAVE_HYPOTL
 +
  #endif
 +
