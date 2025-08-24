@@ -32,6 +32,9 @@ declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
 declare -r libsanitizer_tarball='/tmp/libsanitizer.tar.xz'
 declare -r libsanitizer_directory='/tmp/libsanitizer'
 
+declare -r zlib_tarball='/tmp/zlib.tar.gz'
+declare -r zlib_directory='/tmp/zlib-develop'
+
 declare -r zstd_tarball='/tmp/zstd.tar.gz'
 declare -r zstd_directory='/tmp/zstd-dev'
 
@@ -282,6 +285,25 @@ if ! [ -f "${binutils_tarball}" ]; then
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-assertion-failure-when-linking-code-with-STT_GNU.patch"
 fi
 
+if ! [ -f "${zlib_tarball}" ]; then
+	curl \
+		--url 'https://github.com/madler/zlib/archive/refs/heads/develop.tar.gz' \
+		--retry '30' \
+		--retry-all-errors \
+		--retry-delay '0' \
+		--retry-max-time '0' \
+		--location \
+		--silent \
+		--output "${zlib_tarball}"
+	
+	tar \
+		--directory="$(dirname "${zlib_directory}")" \
+		--extract \
+		--file="${zlib_tarball}"
+	
+	patch --directory="${zlib_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Remove-versioned-SONAME-from-libz.patch"
+fi
+
 if ! [ -f "${zstd_tarball}" ]; then
 	curl \
 		--url 'https://github.com/facebook/zstd/archive/refs/heads/dev.tar.gz' \
@@ -390,7 +412,9 @@ if ! [ -f "${nz_tarball}" ]; then
 		--file="${nz_tarball}" 2>/dev/null || nz='0'
 	
 	if (( nz )); then
-		mv "${directory}" "${nz_directory}" 
+		mv "${directory}" "${nz_directory}"
+		mkdir --parent "${toolchain_directory}/lib"
+		mv "${nz_directory}/lib" "${toolchain_directory}/lib/nouzen"
 	fi
 fi
 
@@ -461,6 +485,23 @@ rm --force --recursive ./*
 
 make all --jobs
 make install
+
+[ -d "${zlib_directory}/build" ] || mkdir "${zlib_directory}/build"
+
+cd "${zlib_directory}/build"
+rm --force --recursive ./*
+
+../configure \
+	--host="${CROSS_COMPILE_TRIPLET}" \
+	--prefix="${toolchain_directory}" \
+	CFLAGS="${optflags}" \
+	CXXFLAGS="${optflags}" \
+	LDFLAGS="${linkflags}"
+
+make all --jobs
+make install
+
+unlink "${toolchain_directory}/lib/libz.a"
 
 [ -d "${zstd_directory}/.build" ] || mkdir "${zstd_directory}/.build"
 
@@ -577,10 +618,11 @@ for triplet in "${targets[@]}"; do
 		--without-static-standard-libraries \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-zstd="${toolchain_directory}" \
+		--with-system-zlib \
 		${extra_binutils_flags} \
-		CFLAGS="${optflags}" \
-		CXXFLAGS="${optflags}" \
-		LDFLAGS="${linkflags}"
+		CFLAGS="-I${toolchain_directory}/include ${optflags}" \
+		CXXFLAGS="-I${toolchain_directory}/include ${optflags}" \
+		LDFLAGS="-L${toolchain_directory}/lib ${linkflags}"
 	
 	make all --jobs="${max_jobs}"
 	make install
@@ -704,6 +746,7 @@ for triplet in "${targets[@]}"; do
 		--with-mpfr="${toolchain_directory}" \
 		--with-isl="${toolchain_directory}" \
 		--with-zstd="${toolchain_directory}" \
+		--with-system-zlib \
 		--with-bugurl='https://github.com/AmanoTeam/Pino/issues' \
 		--with-gcc-major-version-only \
 		--with-pkgversion="Pino v0.4-${revision}" \
@@ -757,7 +800,7 @@ for triplet in "${targets[@]}"; do
 		${extra_configure_flags} \
 		CFLAGS="${optflags}" \
 		CXXFLAGS="${optflags}" \
-		LDFLAGS="${linkflags}"
+		LDFLAGS="-L${toolchain_directory}/lib ${linkflags}"
 	
 	declare args=''
 	
@@ -930,6 +973,13 @@ for triplet in "${targets[@]}"; do
 				mkdir 'nouzen'
 				
 				cp --recursive "${nz_directory}/"* './nouzen'
+				
+				ln \
+					--symbolic \
+					--relative \
+					"${toolchain_directory}/lib/nouzen" \
+					"${PWD}/nouzen/lib"
+			
 				mkdir --parent './nouzen/etc/nouzen/sources.list'
 				
 				declare repository='https://packages.termux.dev/apt/termux-main/'
