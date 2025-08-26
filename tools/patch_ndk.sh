@@ -187,13 +187,6 @@ for directory in "${directories[@]}"; do
 	fi
 	
 	for triplet in "${triplets[@]}"; do
-		declare library="${directory}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${triplet}/libc++_shared.so"
-		
-		if [ -f "${library}" ]; then
-			echo "- Replacing ${library} with a dummy file"
-			# echo > "${library}"
-		fi
-		
 		declare original_triplet="${triplet}"
 		
 		if [ "${triplet}" = 'arm-linux-androideabi' ]; then
