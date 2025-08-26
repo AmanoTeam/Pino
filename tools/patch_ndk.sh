@@ -173,6 +173,19 @@ for directory in "${directories[@]}"; do
 			"${destination}"
 	fi
 	
+	source="${source/llvm-strip/llvm-objcopy}"
+	destination="${destination/llvm-strip/llvm-objcopy}"
+	
+	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
+		echo "- Symlinking ${source} to ${destination}"
+		
+		ln \
+			--symbolic \
+			--force \
+			"${source}" \
+			"${destination}"
+	fi
+	
 	for triplet in "${triplets[@]}"; do
 		declare library="${directory}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${triplet}/libc++_shared.so"
 		

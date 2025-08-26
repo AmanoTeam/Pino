@@ -86,7 +86,7 @@ declare -ra versions=(
 )
 
 declare -r gcc_wrapper='/tmp/gcc-wrapper'
-declare -r strip_wrapper='/tmp/strip-wrapper'
+declare -r binutils_wrapper='/tmp/binutils-wrapper'
 
 declare -ra symlink_tools=(
 	'addr2line'
@@ -1040,7 +1040,8 @@ done
 
 cp "${gcc_wrapper}" "${toolchain_directory}/bin/clang"
 cp "${gcc_wrapper}" "${toolchain_directory}/bin/clang++"
-cp "${strip_wrapper}" "${toolchain_directory}/bin/llvm-strip"
+cp "${binutils_wrapper}" "${toolchain_directory}/bin/llvm-strip"
+cp "${binutils_wrapper}" "${toolchain_directory}/bin/llvm-objcopy"
 
 cp "${workdir}/tools/patch_ndk.sh" "${toolchain_directory}/bin/ndk-patch"
 
