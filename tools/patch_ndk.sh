@@ -178,7 +178,7 @@ for directory in "${directories[@]}"; do
 		
 		if [ -f "${library}" ]; then
 			echo "- Replacing ${library} with a dummy file"
-			echo > "${library}"
+			# echo > "${library}"
 		fi
 		
 		declare original_triplet="${triplet}"
