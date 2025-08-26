@@ -160,6 +160,19 @@ for directory in "${directories[@]}"; do
 			"${destination}"
 	fi
 	
+	source="${source/clang++/llvm-strip}"
+	destination="${destination/clang++/llvm-strip}"
+	
+	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
+		echo "- Symlinking ${source} to ${destination}"
+		
+		ln \
+			--symbolic \
+			--force \
+			"${source}" \
+			"${destination}"
+	fi
+	
 	for triplet in "${triplets[@]}"; do
 		declare library="${directory}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${triplet}/libc++_shared.so"
 		

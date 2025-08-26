@@ -51,13 +51,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	'x86_64-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
-	'mips64el-unknown-linux-android'
-	'mipsel-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'riscv64-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
+	# 'mips64el-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'riscv64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -86,6 +86,7 @@ declare -ra versions=(
 )
 
 declare -r gcc_wrapper='/tmp/gcc-wrapper'
+declare -r strip_wrapper='/tmp/strip-wrapper'
 
 declare -ra symlink_tools=(
 	'addr2line'
@@ -528,14 +529,14 @@ if ! (( is_native )); then
 	cc="${CC}"
 fi
 
-"${cc}" \
-	"${workdir}/submodules/obggcc/tools/gcc-wrapper/"*'/'*'.c' \
-	"${workdir}/submodules/obggcc/tools/gcc-wrapper/"*".c" \
-	-I "${workdir}/submodules/obggcc/tools/gcc-wrapper" \
-	${optflags} \
-	${linkflags} \
-	-D PINO \
-	-o "${gcc_wrapper}"
+make \
+	-C "${workdir}/submodules/obggcc/tools/gcc-wrapper" \
+	PREFIX="$(dirname "${gcc_wrapper}")" \
+	CFLAGS="${ccflags}" \
+	CXXFLAGS="${ccflags}" \
+	LDFLAGS="${linkflags}" \
+	FLAVOR='PINO' \
+	all
 
 # We prefer symbolic links over hard links.
 cp "${workdir}/submodules/obggcc/tools/ln.sh" '/tmp/ln'
@@ -1039,6 +1040,7 @@ done
 
 cp "${gcc_wrapper}" "${toolchain_directory}/bin/clang"
 cp "${gcc_wrapper}" "${toolchain_directory}/bin/clang++"
+cp "${strip_wrapper}" "${toolchain_directory}/bin/llvm-strip"
 
 cp "${workdir}/tools/patch_ndk.sh" "${toolchain_directory}/bin/ndk-patch"
 
