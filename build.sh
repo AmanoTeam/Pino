@@ -811,6 +811,14 @@ for triplet in "${targets[@]}"; do
 	
 	declare subargs=''
 	
+	declare target_cflags="${ccflags} ${linkflags}"
+	
+	if (( is_native )); then
+		target_cflags+=" -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version}"
+	fi
+	
+	declare target_cxxflags="${target_cflags}"
+	
 	if ! (( is_native )); then
 		subargs+="GCC_FOR_TARGET=${triplet}${base_version}-gcc "
 		subargs+="CC_FOR_TARGET=${triplet}${base_version}-gcc "
@@ -819,8 +827,8 @@ for triplet in "${targets[@]}"; do
 	
 	env ${args} make \
 		${subargs} \
-		CFLAGS_FOR_TARGET="-D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${ccflags} ${linkflags}" \
-		CXXFLAGS_FOR_TARGET="-D __BUILDING_GCC_TARGET_LIBRARIES__ -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version} ${ccflags} ${linkflags}" \
+		CFLAGS_FOR_TARGET="${target_cflags}" \
+		CXXFLAGS_FOR_TARGET="${target_cxxflags}" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
 		all --jobs="${max_jobs}"
 	make install
