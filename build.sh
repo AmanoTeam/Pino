@@ -51,13 +51,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'mips64el-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv7-unknown-linux-androideabi'
-	# 'riscv64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'mips64el-unknown-linux-android'
+	'mipsel-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv7-unknown-linux-androideabi'
+	'riscv64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -689,7 +689,7 @@ for triplet in "${targets[@]}"; do
 	
 	rm --force --recursive ./*
 	
-	declare specs='-ftrivial-auto-var-init=zero'
+	declare specs='%{!ftrivial-auto-var-init*:-ftrivial-auto-var-init=zero}'
 	
 	specs+=' %{!Wno-complain-wrong-lang:%{!Wcomplain-wrong-lang:-Wno-complain-wrong-lang}}'
 	
