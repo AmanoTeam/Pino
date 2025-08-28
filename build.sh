@@ -942,13 +942,15 @@ for triplet in "${targets[@]}"; do
 			if [[ "${name}" == *'.a' ]]; then
 				libname="$(basename "${name}" '.a')"
 				
-				declare static="./${libname}_static.a"
+				declare static="./${libname}-static.a"
 				declare shared="./${libname}.so"
 				
 				if [ -f "${shared}" ] && ! [ -f "${static}" ]; then
 					ln --symbolic "${library}" "${static}"
 				fi
 				
+				ln --symbolic --relative "${library}" './static'
+			elif [[ "${name}" == 'libgcc_s.so'* ]] || [[ "${name}" == 'libegcc.so'* ]]; then
 				ln --symbolic --relative "${library}" './static'
 			fi
 			
