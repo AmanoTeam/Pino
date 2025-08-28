@@ -51,13 +51,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	'x86_64-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
-	'mips64el-unknown-linux-android'
-	'mipsel-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'riscv64-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
+	# 'mips64el-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'riscv64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -691,6 +691,7 @@ for triplet in "${targets[@]}"; do
 	rm --force --recursive ./*
 	
 	declare specs='%{!ftrivial-auto-var-init*:-ftrivial-auto-var-init=zero}'
+	declare link_specs=''
 	
 	specs+=' %{!Wno-complain-wrong-lang:%{!Wcomplain-wrong-lang:-Wno-complain-wrong-lang}}'
 	
@@ -699,10 +700,10 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	if (( is_native )); then
-		specs+=' -l pino-math'
+		link_specs+=' -l pino-math'
 		
 		if (( base_version < 21 )); then
-			specs+=' -l pino-mman'
+			link_specs+=' -l pino-mman'
 		fi
 	fi
 	
@@ -711,16 +712,18 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	if [[ "${triplet}" = 'arm'*'-unknown-linux-androideabi' ]] || [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
-		specs+=' -Xlinker -z -Xlinker max-page-size=4096'
+		link_specs+=' -Xlinker -z -Xlinker max-page-size=4096'
 	fi
 	
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'x86_64-unknown-linux-android' ]; then
-		specs+=' -Xlinker -z -Xlinker max-page-size=16384'
+		link_specs+=' -Xlinker -z -Xlinker max-page-size=16384'
 	fi
 	
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
 		specs+=' -ffixed-x18'
 	fi
+	
+	specs+=" %{!fsyntax-only:%{!c:%{!M:%{!MM:%{!E:%{!S: ${link_specs}}}}}}}"
 	
 	specs="$(xargs <<< "${specs}")"
 	
