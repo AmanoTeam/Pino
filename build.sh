@@ -823,7 +823,7 @@ for triplet in "${targets[@]}"; do
 		subargs+="GCC_FOR_TARGET=${triplet}${base_version}-gcc "
 		subargs+="CC_FOR_TARGET=${triplet}${base_version}-gcc "
 		subargs+="CXX_FOR_TARGET=${triplet}${base_version}-g++ "
-		subargs+="CXX_FOR_BUILD=${triplet}${base_version}-g++ "
+		subargs+="CXX=${triplet}${base_version}-g++ "
 	fi
 	
 	env ${args} make \
