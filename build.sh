@@ -50,11 +50,11 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'aarch64-unknown-linux-android'
+	# 'aarch64-unknown-linux-android'
 	# 'x86_64-unknown-linux-android'
 	# 'armv5-unknown-linux-androideabi'
 	# 'mips64el-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
+	'mipsel-unknown-linux-android'
 	# 'i686-unknown-linux-android'
 	# 'armv7-unknown-linux-androideabi'
 	# 'riscv64-unknown-linux-android'
@@ -685,9 +685,6 @@ for triplet in "${targets[@]}"; do
 	
 	cp "${workdir}/submodules/libpino/complex.h" "${sysroot_directory}/include/pino_complex.h"
 	cp "${workdir}/submodules/libpino/math.h" "${sysroot_directory}/include/pino_math.h"
-	
-	rm "${sysroot_directory}/include/stdatomic.h"
-	rm "${sysroot_directory}/include/bits/stdatomic.h"
 	
 	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
 	
