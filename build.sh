@@ -50,14 +50,14 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	# 'aarch64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'mips64el-unknown-linux-android'
+	'aarch64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'mips64el-unknown-linux-android'
 	'mipsel-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv7-unknown-linux-androideabi'
-	# 'riscv64-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv7-unknown-linux-androideabi'
+	'riscv64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -346,6 +346,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Ignore-pragma-weak-when-the-declaration-is-private-o.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-AArch64-enable-libquadmath.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-configure-Add-enable-autolink-libatomic-use-in-LINK_.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-On-linux-targets-pass-as-needed-by-default-to-the-li.patch"
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-libgcc-build-on-arm.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Change-the-default-language-version-for-C-compilatio.patch"
@@ -691,7 +692,7 @@ for triplet in "${targets[@]}"; do
 	rm --force --recursive ./*
 	
 	declare specs='%{!ftrivial-auto-var-init*:-ftrivial-auto-var-init=zero}'
-	declare link_specs='%{!fsanitize*:-Xlinker --as-needed}'
+	declare link_specs=''
 	
 	specs+=' %{!Wno-complain-wrong-lang:%{!Wcomplain-wrong-lang:-Wno-complain-wrong-lang}}'
 	
@@ -755,7 +756,7 @@ for triplet in "${targets[@]}"; do
 		--with-system-zlib \
 		--with-bugurl='https://github.com/AmanoTeam/Pino/issues' \
 		--with-gcc-major-version-only \
-		--with-pkgversion="Pino v0.4-${revision}" \
+		--with-pkgversion="Pino v0.5-${revision}" \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-native-system-header-dir='/include' \
 		--with-default-libstdcxx-abi='new' \
