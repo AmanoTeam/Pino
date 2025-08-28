@@ -51,13 +51,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	# 'x86_64-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'mips64el-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv7-unknown-linux-androideabi'
-	# 'riscv64-unknown-linux-android'
+	'x86_64-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'mips64el-unknown-linux-android'
+	'mipsel-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv7-unknown-linux-androideabi'
+	'riscv64-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -722,7 +722,7 @@ for triplet in "${targets[@]}"; do
 		specs+=' -ffixed-x18'
 	fi
 	
-	specs+=" %{!fsyntax-only:%{!c:%{!M:%{!MM:%{!E:%{!S: ${link_specs}}}}}}}"
+	specs+=" %{!fsyntax-only:%{!c:%{!M:%{!MM:%{!E:%{!S:${link_specs}}}}}}}"
 	
 	specs="$(xargs <<< "${specs}")"
 	
