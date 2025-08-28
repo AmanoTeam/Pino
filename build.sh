@@ -691,7 +691,7 @@ for triplet in "${targets[@]}"; do
 	rm --force --recursive ./*
 	
 	declare specs='%{!ftrivial-auto-var-init*:-ftrivial-auto-var-init=zero}'
-	declare link_specs=''
+	declare link_specs='%{!fsanitize*:-Xlinker --as-needed}'
 	
 	specs+=' %{!Wno-complain-wrong-lang:%{!Wcomplain-wrong-lang:-Wno-complain-wrong-lang}}'
 	
