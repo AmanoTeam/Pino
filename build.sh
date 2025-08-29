@@ -589,6 +589,10 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=' --with-arch=rv64gc --with-abi=lp64d'
 	elif [ "${triplet}" = 'mipsel-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=mips32r2 --with-abi=32 --with-float=hard --with-llsc --without-synci --with-nan=legacy'
+		
+		if ! (( is_native )): then
+			extra_configure_flags+=' --enable-autolink-libatomic'
+		fi
 	elif [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=mips64r6 --with-abi=64 --with-float=hard --with-llsc --with-synci --with-nan=2008'
 	fi
