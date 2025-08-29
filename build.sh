@@ -50,10 +50,10 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'mipsel-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
 	# 'i686-unknown-linux-android'
 	# 'armv7-unknown-linux-androideabi'
-	# 'riscv64-unknown-linux-android'
 	# 'aarch64-unknown-linux-android'
 	# 'x86_64-unknown-linux-android'
 	# 'armv5-unknown-linux-androideabi'
