@@ -935,8 +935,6 @@ for triplet in "${targets[@]}"; do
 		fi
 	done
 	
-	ln --symbolic --relative "${include_unified_directory}/"* "${toolchain_directory}/${triplet}/include"
-	
 	for version in "${versions[@]}"; do
 		declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${target}${version}.tar.xz"
 		declare sysroot_directory="${toolchain_directory}/${target}${version}"
