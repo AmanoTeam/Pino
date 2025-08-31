@@ -903,7 +903,7 @@ for triplet in "${targets[@]}"; do
 		cp --recursive "${include_unified_directory}" '/tmp/pino-toolchain/include'
 	fi
 	
-	declare cxx_directory='${toolchain_directory}/${triplet}/include/c++/${gcc_major}'
+	declare cxx_directory="${toolchain_directory}/${triplet}/include/c++/${gcc_major}"
 	
 	rm --force --recursive "${cxx_bits}"
 	mv "${cxx_directory}/${triplet}" "${cxx_bits}"
