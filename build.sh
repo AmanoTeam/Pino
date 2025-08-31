@@ -921,7 +921,7 @@ for triplet in "${targets[@]}"; do
 			mkdir --parent "${cxx_directory}"
 			mv "${cxx_bits}/"* "${cxx_directory}"
 			
-			for subname in "${name}/"*; do
+			for subname in "${name}/${gcc_major}/"*; do
 				if [[ "${subname}" == *'/ext' ]]; then
 					ln --symbolic --relative "${subname}/"* "${cxx_directory}/ext"
 				elif [[ "${subname}" == *'/bits' ]]; then
