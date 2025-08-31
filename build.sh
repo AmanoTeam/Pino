@@ -56,13 +56,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv7-unknown-linux-androideabi'
-	# 'x86_64-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'mips64el-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	'mipsel-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv7-unknown-linux-androideabi'
+	'x86_64-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -699,7 +699,7 @@ for triplet in "${targets[@]}"; do
 	
 	rm --force --recursive ./*
 	
-	declare specs="%{!D__ANDROID_API__*:-D __ANDROID_API__=${base_version} -D __ANDROID_MIN_SDK_VERSION__=${base_version}} %{!ftrivial-auto-var-init*:-ftrivial-auto-var-init=zero}"
+	declare specs="%{!D__ANDROID_API__*:-D __ANDROID_API__=${base_version} -D __ANDROID_MIN_SDK_VERSION__=${base_version}} -D __BIONIC__ %{!ftrivial-auto-var-init*:-ftrivial-auto-var-init=zero}"
 	declare link_specs=''
 	
 	specs+=' %{!Wno-complain-wrong-lang:%{!Wcomplain-wrong-lang:-Wno-complain-wrong-lang}}'
@@ -821,7 +821,7 @@ for triplet in "${targets[@]}"; do
 	
 	declare subargs=''
 	
-	declare target_cflags="${ccflags} ${linkflags} -D __ANDROID_MIN_SDK_VERSION__=${base_version} -D __ANDROID_API__=${base_version}"
+	declare target_cflags="${ccflags} ${linkflags}"
 	declare target_cxxflags="${target_cflags}"
 	
 	if ! (( is_native )); then
@@ -897,10 +897,6 @@ for triplet in "${targets[@]}"; do
 		cp --recursive "${toolchain_directory}/${triplet}/include" "${include_unified_directory}"
 		rm --force --recursive "${include_unified_directory}/asm"*
 		rm --force --recursive "${include_unified_directory}/c++/${gcc_major}/${triplet}"*
-	fi
-	
-	if ! (( is_native )); then
-		cp --recursive "${include_unified_directory}" '/tmp/pino-toolchain/include'
 	fi
 	
 	declare cxx_directory="${toolchain_directory}/${triplet}/include/c++/${gcc_major}"
