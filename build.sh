@@ -44,7 +44,7 @@ declare -r nz_tarball='/tmp/nz.tar.xz'
 declare -r nz_directory='/tmp/nouzen'
 
 declare -r cxx_bits='/tmp/cxx-bits'
-declare -r include_unified_directory="${toolchain_directory}/include/android-unified"
+declare -r include_unified_directory="${toolchain_directory}/include/bionic"
 
 declare nz='1'
 
@@ -918,7 +918,7 @@ for triplet in "${targets[@]}"; do
 	
 	for name in "${include_unified_directory}/"*; do
 		if [[ "${name}" == *'/c++' ]]; then
-			mkdir "${cxx_directory}"
+			mkdir --parent "${cxx_directory}"
 			mv "${cxx_bits}/"* "${cxx_directory}"
 			
 			for subname in "${name}/"*; do
