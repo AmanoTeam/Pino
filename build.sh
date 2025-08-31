@@ -733,10 +733,6 @@ for triplet in "${targets[@]}"; do
 	
 	specs="$(xargs <<< "${specs}")"
 	
-	if (( is_native )) && [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
-		patch --directory="${toolchain_directory}/${triplet}" --strip='1' --input="${workdir}/patches/0001-Match-the-NDK-sigcontext-struct-with-glibc-s.patch"
-	fi
-	
 	if ! (( is_native )); then
 		extra_configure_flags+=" --with-cross-host=${CROSS_COMPILE_TRIPLET}"
 		extra_configure_flags+=" --with-toolexeclibdir=${toolchain_directory}/${triplet}/lib/"
@@ -897,6 +893,10 @@ for triplet in "${targets[@]}"; do
 	if ! [ -d "${include_unified_directory}" ]; then
 		cp --recursive "${toolchain_directory}/${triplet}/include" "${include_unified_directory}"
 		rm --force --recursive "${include_unified_directory}/asm"*
+	fi
+	
+	if ! (( is_native )); then
+		cp --recursive "${include_unified_directory}" '/tmp/pino-toolchain/include'
 	fi
 	
 	for name in "${toolchain_directory}/${triplet}/include/"*; do
