@@ -26,8 +26,10 @@ declare -r isl_directory='/tmp/isl-0.27'
 declare -r binutils_tarball='/tmp/binutils.tar.xz'
 declare -r binutils_directory='/tmp/binutils-2.45'
 
+declare -r gcc_major='15'
+
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
-declare -r gcc_directory='/tmp/gcc-releases-gcc-15'
+declare -r gcc_directory="/tmp/gcc-releases-gcc-${gcc_major}"
 
 declare -r libsanitizer_tarball='/tmp/libsanitizer.tar.xz'
 declare -r libsanitizer_directory='/tmp/libsanitizer'
@@ -41,6 +43,7 @@ declare -r zstd_directory='/tmp/zstd-dev'
 declare -r nz_tarball='/tmp/nz.tar.xz'
 declare -r nz_directory='/tmp/nouzen'
 
+declare -r cxx_bits='/tmp/cxx-bits'
 declare -r include_unified_directory="${toolchain_directory}/include/android-unified"
 
 declare nz='1'
@@ -53,13 +56,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	'riscv64-unknown-linux-android'
-	'mipsel-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'x86_64-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
-	'mips64el-unknown-linux-android'
+	# 'riscv64-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'x86_64-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
+	# 'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -696,7 +699,7 @@ for triplet in "${targets[@]}"; do
 	
 	rm --force --recursive ./*
 	
-	declare specs='%{!ftrivial-auto-var-init*:-ftrivial-auto-var-init=zero}'
+	declare specs="%{!D__ANDROID_API__*:-D __ANDROID_API__=${base_version} -D __ANDROID_MIN_SDK_VERSION__=${base_version}} %{!ftrivial-auto-var-init*:-ftrivial-auto-var-init=zero}"
 	declare link_specs=''
 	
 	specs+=' %{!Wno-complain-wrong-lang:%{!Wcomplain-wrong-lang:-Wno-complain-wrong-lang}}'
@@ -893,11 +896,17 @@ for triplet in "${targets[@]}"; do
 	if ! [ -d "${include_unified_directory}" ]; then
 		cp --recursive "${toolchain_directory}/${triplet}/include" "${include_unified_directory}"
 		rm --force --recursive "${include_unified_directory}/asm"*
+		rm --force --recursive "${include_unified_directory}/c++/${gcc_major}/${triplet}"*
 	fi
 	
 	if ! (( is_native )); then
 		cp --recursive "${include_unified_directory}" '/tmp/pino-toolchain/include'
 	fi
+	
+	declare cxx_directory='${toolchain_directory}/${triplet}/include/c++/${gcc_major}'
+	
+	rm --force --recursive "${cxx_bits}"
+	mv "${cxx_directory}/${triplet}" "${cxx_bits}"
 	
 	for name in "${toolchain_directory}/${triplet}/include/"*; do
 		if [[ "${name}" == *'/asm'* ]]; then
@@ -905,6 +914,25 @@ for triplet in "${targets[@]}"; do
 		fi
 		
 		rm --force --recursive "${name}"
+	done
+	
+	for name in "${include_unified_directory}/"*; do
+		if [[ "${name}" == *'/c++' ]]; then
+			mkdir "${cxx_directory}"
+			mv "${cxx_bits}/"* "${cxx_directory}"
+			
+			for subname in "${name}/"*; do
+				if [[ "${subname}" == *'/ext' ]]; then
+					ln --symbolic --relative "${subname}/"* "${cxx_directory}/ext"
+				elif [[ "${subname}" == *'/bits' ]]; then
+					ln --symbolic --relative "${subname}/"* "${cxx_directory}/bits"
+				else
+					ln --symbolic --relative "${subname}" "${cxx_directory}"
+				fi
+			done
+		else
+			ln --symbolic --relative "${name}" "${toolchain_directory}/${triplet}/include"
+		fi
 	done
 	
 	ln --symbolic --relative "${include_unified_directory}/"* "${toolchain_directory}/${triplet}/include"
