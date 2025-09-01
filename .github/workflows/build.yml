@@ -224,8 +224,8 @@ jobs:
             rm \
                 "${PINO_HOME}/include/bionic/"{zconf,zlib}'.h' \
                 "${PINO_HOME}/"*'-unknown-linux-'{androideabi,android}'/include/'{zconf,zlib}'.h' \
-                "${PINO_HOME}/"*'-unknown-linux-'{androideabi,android}*'/lib/libz.'{a,so} \
-                "${PINO_HOME}/"*'-unknown-linux-'{androideabi,android}*'/lib/static/libz.'{a,so}
+                "${PINO_HOME}/"*'-unknown-linux-android'*'/lib/libz.'{a,so} \
+                "${PINO_HOME}/"*'-unknown-linux-android'*'/lib/static/libz.'{a,so}
         fi
         
         echo "CROSS_COMPILE_TRIPLET=${CROSS_COMPILE_TRIPLET}" >> "${GITHUB_ENV}"
