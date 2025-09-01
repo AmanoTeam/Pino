@@ -56,13 +56,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	'riscv64-unknown-linux-android'
-	'mipsel-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'x86_64-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
-	'mips64el-unknown-linux-android'
+	# 'riscv64-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'x86_64-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
+	# 'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -289,6 +289,7 @@ if ! [ -f "${binutils_tarball}" ]; then
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-binutils-host-tools.patch"
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Don-t-warn-about-local-symbols-within-the-globals.patch"
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-assertion-failure-when-linking-code-with-STT_GNU.patch"
+	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/patches/0001-Decrease-buffer-size-for-the-GNU-assembler.patch"
 fi
 
 if ! [ -f "${zlib_tarball}" ]; then
