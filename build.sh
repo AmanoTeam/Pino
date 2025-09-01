@@ -537,6 +537,13 @@ if ! (( is_native )); then
 	cc="${CC}"
 fi
 
+if ! (( is_native )); then
+	cp "${workdir}/submodules/obggcc/tools/update-gcc-wrapper.sh" "/tmp/pino-toolchain/bin/update-wrapper"
+	sed --in-place 's/OBGGCC/PINO/g' "/tmp/pino-toolchain/bin/update-wrapper"
+fi
+
+CC=gcc "/tmp/pino-toolchain/bin/update-wrapper"
+
 make \
 	-C "${workdir}/submodules/obggcc/tools/gcc-wrapper" \
 	PREFIX="$(dirname "${gcc_wrapper}")" \
@@ -545,13 +552,6 @@ make \
 	LDFLAGS="${linkflags}" \
 	FLAVOR='PINO' \
 	all
-
-if ! (( is_native )); then
-	cp "${workdir}/submodules/obggcc/tools/update-gcc-wrapper.sh" "/tmp/pino-toolchain/bin/update-wrapper"
-	sed --in-place 's/OBGGCC/PINO/g' "/tmp/pino-toolchain/bin/update-wrapper"
-fi
-
-CC=gcc "/tmp/pino-toolchain/bin/update-wrapper"
 
 # We prefer symbolic links over hard links.
 cp "${workdir}/submodules/obggcc/tools/ln.sh" '/tmp/ln'
