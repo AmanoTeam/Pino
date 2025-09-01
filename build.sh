@@ -55,14 +55,14 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'aarch64-unknown-linux-android'
-	'riscv64-unknown-linux-android'
-	'mipsel-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'x86_64-unknown-linux-android'
+	# 'aarch64-unknown-linux-android'
+	# 'riscv64-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'x86_64-unknown-linux-android'
 	'armv5-unknown-linux-androideabi'
-	'mips64el-unknown-linux-android'
+	# 'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -567,13 +567,8 @@ for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	declare extra_binutils_flags=''
 	declare base_version='14'
-	declare target="${triplet}"
 	
 	declare hash_style='both'
-	
-	if [[ "${target}" = 'arm'*'-unknown-linux-androideabi' ]]; then
-		target='arm-unknown-linux-androideabi'
-	fi
 	
 	if [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		base_version='35'
@@ -650,13 +645,9 @@ for triplet in "${targets[@]}"; do
 	cd "$(mktemp --directory)"
 	
 	declare libpino_url="https://github.com/AmanoTeam/libpino/releases/latest/download/${triplet}.tar.xz"
-	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${target}${base_version}.tar.xz"
-	declare tarball="${PWD}/${target}.tar.xz"
-	declare sysroot_directory="${PWD}/${target}"
-	
-	if [ "${target}" != "${triplet}" ]; then
-		sysroot_directory="${PWD}/${triplet}"
-	fi
+	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${base_version}.tar.xz"
+	declare tarball="${PWD}/${triplet}.tar.xz"
+	declare sysroot_directory="${PWD}/${triplet}"
 	
 	echo "Fetching system root from '${sysroot_url}'"
 	
@@ -690,7 +681,7 @@ for triplet in "${targets[@]}"; do
 		--extract \
 		--file="${tarball}"
 	
-	mv "${PWD}/${target}${base_version}" "${sysroot_directory}"
+	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
 	
 	unlink './libpino-math.so'
 	
@@ -940,8 +931,8 @@ for triplet in "${targets[@]}"; do
 	done
 	
 	for version in "${versions[@]}"; do
-		declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${target}${version}.tar.xz"
-		declare sysroot_directory="${toolchain_directory}/${target}${version}"
+		declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${version}.tar.xz"
+		declare sysroot_directory="${toolchain_directory}/${triplet}${version}"
 		
 		echo "Fetching system root from '${sysroot_url}'"
 		
@@ -959,12 +950,6 @@ for triplet in "${targets[@]}"; do
 			--directory="${toolchain_directory}" \
 			--extract \
 			--file="${tarball}" 2>/dev/null || continue
-		
-		if [ "${target}" != "${triplet}" ]; then
-			declare new_sysroot_directory="${toolchain_directory}/${triplet}${version}"
-			mv "${sysroot_directory}" "${new_sysroot_directory}"
-			sysroot_directory="${new_sysroot_directory}"
-		fi
 		
 		cd "${sysroot_directory}"
 		
