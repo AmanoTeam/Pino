@@ -567,8 +567,12 @@ for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	declare extra_binutils_flags=''
 	declare base_version='14'
-	
+	declare abi64='0'
 	declare hash_style='both'
+	
+	if [ "${triplet}" = 'riscv64-unknown-linux-android' ] || [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'x86_64-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
+		abi64='1'
+	fi
 	
 	if [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		base_version='35'
@@ -820,7 +824,7 @@ for triplet in "${targets[@]}"; do
 	
 	declare subargs=''
 	
-	declare target_cflags="${ccflags} ${linkflags}"
+	declare target_cflags="${ccflags} ${linkflags} -Xlinker --no-rosegment"
 	declare target_cxxflags="${target_cflags}"
 	
 	if ! (( is_native )); then
@@ -959,7 +963,7 @@ for triplet in "${targets[@]}"; do
 		
 		cd "${sysroot_directory}/lib"
 		
-		mkdir 'gcc' 'static'
+		mkdir 'gcc' 'static' 'no-lfs'
 		
 		ln --symbolic --relative './lib'*'.'{so,a} './static'
 		ln --symbolic --relative './crt'*'.o' './static'
@@ -993,6 +997,28 @@ for triplet in "${targets[@]}"; do
 			ln --symbolic "${library}" './'
 			ln --symbolic --relative "${library}" './gcc'
 		done
+		
+		if (( ! abi64 && version < 24 )); then
+			ln --symbolic --relative './'*  './no-lfs'
+			
+			unlink './no-lfs/static'
+			mkdir './no-lfs/static'
+			
+			ln --symbolic --relative './static/'* './no-lfs/static'
+			
+			unlink './no-lfs/libc.so'
+			cp './libc.so' './no-lfs'
+			
+			sed \
+				--in-place \
+				--expression 's/fgetpos/ae874db/g' \
+				--expression 's/fsetpos/f94d1c7/g' \
+				--expression 's/fseeko/c690a7/g' \
+				--expression 's/ftello/deb0b1/g' \
+				'./no-lfs/libc.so'
+			
+			ln --symbolic --relative --force './no-lfs/libc.so' './no-lfs/static/libc.so'
+		fi
 		
 		cp "${gcc_wrapper}" "${toolchain_directory}/bin/${triplet}${version}-gcc"
 		cp "${gcc_wrapper}" "${toolchain_directory}/bin/${triplet}${version}-g++"
