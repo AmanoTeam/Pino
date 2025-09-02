@@ -55,14 +55,14 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	# 'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv7-unknown-linux-androideabi'
-	# 'x86_64-unknown-linux-android'
+	'aarch64-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	'mipsel-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv7-unknown-linux-androideabi'
+	'x86_64-unknown-linux-android'
 	'armv5-unknown-linux-androideabi'
-	# 'mips64el-unknown-linux-android'
+	'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -558,9 +558,10 @@ cp "${workdir}/submodules/obggcc/tools/ln.sh" '/tmp/ln'
 
 export PATH="/tmp:${PATH}"
 
-# The gold linker build incorrectly detects ffsll() as unsupported.
-if [[ "${CROSS_COMPILE_TRIPLET}" == *'-android'* ]]; then
-	export ac_cv_func_ffsll=yes
+if [[ "${CROSS_COMPILE_TRIPLET}" == 'arm'*'-android'* ]]; then
+	export \
+		ac_cv_func_fseeko='no' \
+		ac_cv_func_ftello='no'
 fi
 
 for triplet in "${targets[@]}"; do
@@ -1001,6 +1002,7 @@ for triplet in "${targets[@]}"; do
 		if (( ! abi64 && version < 24 )); then
 			ln --symbolic --relative './'*  './no-lfs'
 			
+			unlink './no-lfs/no-lfs'
 			unlink './no-lfs/static'
 			mkdir './no-lfs/static'
 			
