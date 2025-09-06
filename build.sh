@@ -24,7 +24,7 @@ declare -r isl_tarball='/tmp/isl.tar.xz'
 declare -r isl_directory='/tmp/isl-0.27'
 
 declare -r binutils_tarball='/tmp/binutils.tar.xz'
-declare -r binutils_directory='/tmp/binutils' #-2.45'
+declare -r binutils_directory='/tmp/binutils'
 
 declare -r gcc_major='15'
 
@@ -696,7 +696,7 @@ for triplet in "${targets[@]}"; do
 	
 	rm --force --recursive ./*
 	
-	declare specs="%{!D__ANDROID_API__*:-D __ANDROID_API__=${base_version} -D __ANDROID_MIN_SDK_VERSION__=${base_version}} -D __BIONIC__ %{!ftrivial-auto-var-init*:-ftrivial-auto-var-init=zero}"
+	declare specs="%{!D__ANDROID_API__*:-D __ANDROID_API__=${base_version} -D __ANDROID_MIN_SDK_VERSION__=${base_version}} -D __BIONIC__"
 	declare link_specs=''
 	
 	specs+=' %{!Wno-complain-wrong-lang:%{!Wcomplain-wrong-lang:-Wno-complain-wrong-lang}}'
@@ -757,7 +757,7 @@ for triplet in "${targets[@]}"; do
 		--with-system-zlib \
 		--with-bugurl='https://github.com/AmanoTeam/Pino/issues' \
 		--with-gcc-major-version-only \
-		--with-pkgversion="Pino v0.5-${revision}" \
+		--with-pkgversion="Pino v0.6-${revision}" \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-native-system-header-dir='/include' \
 		--with-default-libstdcxx-abi='new' \
