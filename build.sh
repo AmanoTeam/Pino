@@ -561,10 +561,6 @@ if [[ "${CROSS_COMPILE_TRIPLET}" == 'armv5'*'-android'* ]]; then
 	export PINO_ARM_MODE=true
 fi
 
-if ! (( is_native )); then
-	/tmp/pino-toolchain/bin/update-wrapper
-fi
-
 if [[ "${CROSS_COMPILE_TRIPLET}" == *'-haiku' ]]; then
 	export ac_cv_c_bigendian='no'
 fi
