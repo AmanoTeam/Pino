@@ -557,6 +557,14 @@ if [[ "${CROSS_COMPILE_TRIPLET}" == 'arm'*'-android'* ]]; then
 		ac_cv_func_ftello='no'
 fi
 
+if ! (( is_native )): then
+	/tmp/pino-toolchain/bin/update-wrapper
+fi
+
+if [[ "${CROSS_COMPILE_TRIPLET}" == *'-haiku' ]]; then
+	export ac_cv_c_bigendian='no'
+fi
+
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	declare extra_binutils_flags=''
@@ -795,6 +803,7 @@ for triplet in "${targets[@]}"; do
 		--enable-frame-pointer \
 		--with-pic \
 		--with-specs="${specs}" \
+		--disable-c++-tools \
 		--disable-libsanitizer \
 		--disable-tls \
 		--disable-fixincludes \
