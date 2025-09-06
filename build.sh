@@ -557,6 +557,10 @@ if [[ "${CROSS_COMPILE_TRIPLET}" == 'arm'*'-android'* ]]; then
 		ac_cv_func_ftello='no'
 fi
 
+if [[ "${CROSS_COMPILE_TRIPLET}" == 'armv5'*'-android'* ]]; then
+	export PINO_ARM_MODE=true
+fi
+
 if ! (( is_native )): then
 	/tmp/pino-toolchain/bin/update-wrapper
 fi
