@@ -69,7 +69,7 @@ Changing the build workflow further (i.e., Gradle, CMake, ndk-build) is usually 
 
 ### CMake
 
-The Clang NDK provides a single, unified CMake toolchain for cross-compilation, typically located at `<ndk-prefix>/build/cmake/android.toolchain.cmake`. In contrast, Pino provides a separate toolchain for each architecture/API level supported by the NDK. These toolchains can be found in `<pino-prefix>/build/cmake`:
+The NDK provides a single, unified CMake toolchain for cross-compilation, typically located at `<ndk-prefix>/build/cmake/android.toolchain.cmake`. In contrast, Pino provides a separate toolchain for each supported architecture/API level. These toolchains can be found in `<pino-prefix>/build/cmake`:
 
 ```bash
 $ ls <pino-prefix>/build/cmake
@@ -171,19 +171,13 @@ $ aarch64-unknown-linux-android21-apt install \
     zstd
 ```
 
-To enable Pino to use libraries from `nz`'s system root during the build, set the `PINO_NZ` environment variable:
+To enable Pino to use libraries installed through `nz` during the build, set the `PINO_NZ` environment variable:
 
-```bash
-# Enable using libraries from nz's system root
-export PINO_NZ=1
+```
+PINO_NZ: bool = [true/false]
 ```
 
-To revert the change, set:
-
-```bash
-# Disable using libraries from nz's system root (default behavior)
-export PINO_NZ=0
-```
+Setting `PINO_NZ = true` is equivalent to adding the library (`-L`) and include (`-I`) directories of the `nz` system root (`<pino-prefix>/<triplet><api-level>/lib/nouzen/sysroot`) to the compiler command invocation.
 
 #### Limitations
 
@@ -230,7 +224,7 @@ For some time, it was the only supported architecture in the Android ecosystem. 
 
 ### `mips`
 
-This refers to the MIPS32r2 system architecture. It uses `hard` hardware floating-point and generates code targeting the 32-bit ABI by default, optionally supporting the o32 ABI as well. This matches the Clang NDK.
+This refers to the MIPS32r2 system architecture. It uses `hard` hardware floating-point and generates code targeting the 32-bit ABI by default, optionally supporting the o32 ABI as well. This matches Clang.
 
 This architecture is no longer supported by the Android NDK, but it is available in Pino for anyone interested.
 
@@ -238,23 +232,26 @@ There were very few devices using this CPU. Android supported it until Android 8
 
 ### `mips64`
 
-This refers to the MIPS64r6 system architecture. It uses `hard` hardware floating-point and generates code targeting the 64-bit ABI by default. This matches the Clang NDK.
+This refers to the MIPS64r6 system architecture. It uses `hard` hardware floating-point and generates code targeting the 64-bit ABI by default. This matches Clang.
 
 This architecture is no longer supported by the Android NDK, but it is available in Pino for anyone interested.
 
 ### Static vs dynamic linking
 
-Pino provides a flag switch whose functionality is similar to the NDK's [ANDROID_STL/APP_STL](https://developer.android.com/ndk/guides/cpp-support#selecting_a_c_runtime) flag. It allows you to choose between static and shared runtimes when linking C/C++ code:
+Pino provides a flag switch with functionality similar to the NDK's [ANDROID_STL/APP_STL](https://developer.android.com/ndk/guides/cpp-support#selecting_a_c_runtime) flag. It allows you to choose between static and shared runtimes when linking C/C++ code:
 
 ```
 PINO_STATIC: bool = [true/false]
 ```
 
-Setting `PINO_STATIC=true` would be equivalent to setting `ANDROID_STL=c++_static`, while setting `PINO_STATIC=false` would be equivalent to setting `ANDROID_STL=c++_shared`. By default, `PINO_STATIC` assumes no specific behavior and will use whatever was passed to `ANDROID_STL`.
+* Setting `PINO_STATIC = true` is equivalent to setting `ANDROID_STL = c++_static`.
+* Setting `PINO_STATIC = false` is equivalent to setting `ANDROID_STL = c++_shared`.
 
-Note that this setting only affects linking with the GCC support libraries (e.g., `libatomic`, `libstdc++`, `libgcc`, and others). Linking with the Bionic and Termux libraries will follow the standard GCC behavior, which uses dynamic linking.
+By default, `PINO_STATIC` assumes no specific behavior and will use whatever value was passed to `ANDROID_STL` in CMake/ndk-build.
 
-While `PINO_STATIC` works similarly to the NDK's `ANDROID_STL`/`APP_STL`, it is not the same. While `ANDROID_STL` and `APP_STL` only allow you to switch between static and shared runtimes for Clang's `libc++` library, `PINO_STATIC` lets you toggle between static and shared runtimes for all GCC support libraries at once. This means that you can even dynamically link with libraries that Clang would otherwise force you to statically link with (e.g., `libatomic`).
+Note that this setting only affects linking with the GCC support libraries (e.g., `libatomic`, `libstdc++`, `libgcc`, and others). Linking with the Bionic and Termux libraries follows the standard GCC behavior, which uses dynamic linking.
+
+Also, while `PINO_STATIC` works similarly to the NDK's `ANDROID_STL`/`APP_STL`, it is not the same. Whereas `ANDROID_STL` and `APP_STL` only allow you to switch between static and shared runtimes for Clang's `libc++` library, `PINO_STATIC` lets you toggle between static and shared runtimes for all GCC support libraries at once. This means you can even dynamically link libraries that Clang would otherwise force you to statically link (e.g., `libatomic`).
 
 ### NEON Intrinsics
 

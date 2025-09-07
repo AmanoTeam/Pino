@@ -17,7 +17,7 @@ jobs:
       id: check-cache
       uses: actions/cache@main
       with:
-        key:  gcc-15.2.0-21
+        key:  gcc-15.2.0-22
         lookup-only: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -54,7 +54,7 @@ jobs:
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       uses: actions/cache@main
       with:
-        key:  gcc-15.2.0-21
+        key:  gcc-15.2.0-22
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
           /tmp/x86_64-linux-gnu.tar.xz.sha256
@@ -127,7 +127,7 @@ jobs:
     - name: Restore from cache
       uses: actions/cache@main
       with:
-        key:  gcc-15.2.0-21
+        key:  gcc-15.2.0-22
         fail-on-cache-miss: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
