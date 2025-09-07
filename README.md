@@ -244,43 +244,29 @@ This architecture is no longer supported by the Android NDK, but it is available
 
 ### Static vs dynamic linking
 
-To match the behavior of the Clang NDK, Pino prefers static linking by default. However, this is entirely optional—you can switch to dynamic linking by setting the `PINO_STATIC` environment variable:
+Pino provides a flag switch whose functionality is similar to the NDK's [ANDROID_STL/APP_STL](https://developer.android.com/ndk/guides/cpp-support#selecting_a_c_runtime) flag. It allows you to choose between static and shared runtimes when linking C/C++ code:
 
-```bash
-# Disable static linking (use dynamic linking)
-export PINO_STATIC=0
+```
+PINO_STATIC: bool = [true/false]
 ```
 
-To revert to the default static linking behavior, set:
-
-```bash
-# Enable static linking (default behavior)
-export PINO_STATIC=1
-```
+Setting `PINO_STATIC=true` would be equivalent to setting `ANDROID_STL=c++_static`, while setting `PINO_STATIC=false` would be equivalent to setting `ANDROID_STL=c++_shared`. By default, `PINO_STATIC` assumes no specific behavior and will use whatever was passed to `ANDROID_STL`.
 
 Note that this setting only affects linking with the GCC support libraries (e.g., `libatomic`, `libstdc++`, `libgcc`, and others). Linking with the Bionic and Termux libraries will follow the standard GCC behavior, which uses dynamic linking.
 
-`PINO_STATIC` works similarly to the Clang NDK's `ANDROID_STL`/`APP_STL`, but they are not quite the same. While `ANDROID_STL` and `APP_STL` only allow you to switch between static and shared runtimes for the libc++ library, `PINO_STATIC` lets you toggle between static and shared runtimes for all GCC support libraries. This means that you can even dynamically link with libraries that the Clang NDK would otherwise force you to statically link with.
+While `PINO_STATIC` works similarly to the NDK's `ANDROID_STL`/`APP_STL`, it is not the same. While `ANDROID_STL` and `APP_STL` only allow you to switch between static and shared runtimes for Clang's `libc++` library, `PINO_STATIC` lets you toggle between static and shared runtimes for all GCC support libraries at once. This means that you can even dynamically link with libraries that Clang would otherwise force you to statically link with (e.g., `libatomic`).
 
 ### NEON Intrinsics
 
-Unlike the Clang NDK, Pino disables NEON by default for the ARMv7-A target. The reasoning behind this is explained [here](#armeabi-v7a).
+Unlike Clang, Pino disables NEON by default for the `armeabi-v7a` target. The reasoning behind this is explained [here](#armeabi-v7a).
 
-However, if you want to enable NEON intrinsics, you can do so by setting the `PINO_NEON` environment variable:
+If you want to enable NEON intrinsics, you can set the `PINO_NEON` environment variable:
 
-```bash
-# Enable NEON (also enables VFPv3-D32)
-export PINO_NEON=1
+```
+PINO_NEON: bool = [true/false]
 ```
 
-To revert to the default behavior, set:
-
-```bash
-# Disable NEON (default behavior)
-export PINO_NEON=0
-```
-
-Note that this flag has no effect on the ARMv5TE target.
+Setting `PINO_NEON=true` is equivalent to adding `-mfpu=neon-vfpv3` to the compiler command invocation.
 
 ## Releases
 
