@@ -709,6 +709,7 @@ for triplet in "${targets[@]}"; do
 	declare link_specs=''
 	
 	specs+=' %{!Wno-complain-wrong-lang:%{!Wcomplain-wrong-lang:-Wno-complain-wrong-lang}}'
+	specs+=' %{!Wno-psabi:%{!Wpsabi:-Wno-psabi}}'
 	
 	if [ "${triplet}" = 'x86_64-unknown-linux-android' ] || [ "${triplet}" = 'i686-unknown-linux-android' ]; then
 		specs+=' %{!fno-plt:%{!fplt:-fno-plt}}'
