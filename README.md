@@ -177,7 +177,7 @@ To enable Pino to use libraries installed through `nz` during the build, set the
 PINO_NZ: bool = [true/false]
 ```
 
-Setting `PINO_NZ = true` is equivalent to adding the library (`-L`) and include (`-I`) directories of the `nz` system root (`<pino-prefix>/<triplet><api-level>/lib/nouzen/sysroot`) to the compiler command invocation.
+Setting `PINO_NZ = true` is equivalent to adding the library (`-L`) and include (`-I`) directories of the `nz` system root (which lives in `<pino-prefix>/<triplet><api-level>/lib/nouzen/sysroot`) to the compiler command invocation.
 
 #### Limitations
 
@@ -188,7 +188,7 @@ Setting `PINO_NZ = true` is equivalent to adding the library (`-L`) and include 
 
 ## ABIs
 
-The NDK has its own page explaining its supported architectures and ABIs (see [Android ABIs](https://developer.android.com/ndk/guides/abis)), but since Pino differs from the Clang NDK in some aspects, this section covers the specifics of Pino and compares the behavior of both:
+The NDK has its own page explaining its supported architectures and ABIs (see [Android ABIs](https://developer.android.com/ndk/guides/abis)), but since Pino differs from the upstream NDK in some aspects, this section covers the specifics of Pino and compares the behavior of both:
 
 ### `armeabi-v7a`
 
