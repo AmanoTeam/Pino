@@ -55,14 +55,14 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'aarch64-unknown-linux-android'
-	'riscv64-unknown-linux-android'
+	# 'aarch64-unknown-linux-android'
+	# 'riscv64-unknown-linux-android'
 	'mipsel-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'x86_64-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
-	'mips64el-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'x86_64-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
+	# 'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -170,6 +170,31 @@ export \
 	ac_cv_header_sys_statvfs_h='no'
 	libat_cv_have_ifunc='no'
 	gcc_cv_as_mips_no_shared='no'
+
+function merge_libraries() {
+	
+	local cwd="${PWD}"
+	
+	cd "${1}"
+	
+	mkdir 'tmp'
+	cd 'tmp'
+	
+	ar x '../libpino-math.a'
+	ar rcs '../libm.a' *'.o'
+	
+	rm --force --recursive ./*
+	
+	if [ -f '../libpino-mman.a' ]; then
+		ar x '../libpino-mman.a'
+		ar rcs '../libc.a' *'.o'
+	fi
+	
+	rm --force --recursive "${PWD}"
+	
+	cd "${cwd}"
+	
+}
 
 declare build_type="${1}"
 
@@ -687,6 +712,8 @@ for triplet in "${targets[@]}"; do
 	
 	mv './libpino-'* "${sysroot_directory}/lib"
 	
+	merge_libraries "${sysroot_directory}/lib"
+	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	
 	cp "${workdir}/submodules/libpino/complex.h" "${sysroot_directory}/include/pino_complex.h"
@@ -937,6 +964,8 @@ for triplet in "${targets[@]}"; do
 		ln --symbolic "../${triplet}/include" './'
 		
 		cd "${sysroot_directory}/lib"
+		
+		merge_libraries "${PWD}"
 		
 		mkdir 'gcc' 'static' 'no-lfs'
 		

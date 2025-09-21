@@ -12,9 +12,9 @@ This version of GCC uses the patchset from the [TUR](https://github.com/termux-u
 
 Using Pino in Gradle projects is a bit tricky. Both CMake and ndk-build are heavily tied to the NDK's internal structure, which makes it difficult to completely replace Clang with GCC without risking breaking something in the build process.
 
-For this to work, you will need to have both Pino (GCC) and Google's NDK (Clang) installed.
+For this to work, you will need to have both Pino (GCC) and the upstream NDK (Clang) installed.
 
-First, ensure that the Clang NDK is already installed. If you are using ndk-build or CMake with Gradle and have built your project at least once on your machine, it is very likely that the NDK is already installed. If you're unsure, go to the root directory of your project and run `./gradlew clean`:
+First, ensure that the upstream NDK is already installed. If you are using ndk-build or CMake with Gradle and have built your project at least once on your machine, it is very likely that the NDK is already installed. If you're unsure, go to the root directory of your project and run `./gradlew clean`:
 
 ```
 $ ./gradlew clean
