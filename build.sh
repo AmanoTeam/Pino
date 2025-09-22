@@ -965,8 +965,6 @@ for triplet in "${targets[@]}"; do
 		
 		cd "${sysroot_directory}/lib"
 		
-		merge_libraries "${PWD}"
-		
 		mkdir 'gcc' 'static' 'no-lfs'
 		
 		ln --symbolic --relative './lib'*'.'{so,a} './static'
@@ -1001,6 +999,8 @@ for triplet in "${targets[@]}"; do
 			ln --symbolic "${library}" './'
 			ln --symbolic --relative "${library}" './gcc'
 		done
+		
+		merge_libraries "${PWD}"
 		
 		if (( ! abi64 && version < 24 )); then
 			ln --symbolic --relative './'*  './no-lfs'
