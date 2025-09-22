@@ -912,13 +912,18 @@ for triplet in "${targets[@]}"; do
 		rm --force --recursive './include'
 		
 		ln --symbolic "../${triplet}/include" './'
+		ln --symbolic "../${triplet}/lib/ldscripts" './lib'
 		
 		cd "${sysroot_directory}/lib"
+		
+		echo 'GROUP ( ../libm.so ) AS_NEEDED ( ../libm.a ) )' > './ldscripts/libm.so'
+		echo 'GROUP ( ../libc.so ) AS_NEEDED ( ../libc.a ) )' > './ldscripts/libc.so'
 		
 		mkdir 'gcc' 'static' 'no-lfs'
 		
 		ln --symbolic --relative './lib'*'.'{so,a} './static'
 		ln --symbolic --relative './crt'*'.o' './static'
+		ln --symbolic --relative './ldscripts' './static'
 		
 		for library in "../../${triplet}/lib/lib"*.{so,a,1,spec}; do
 			declare name="$(basename "${library}")"
