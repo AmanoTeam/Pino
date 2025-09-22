@@ -55,14 +55,14 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	# 'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
+	'aarch64-unknown-linux-android'
+	'riscv64-unknown-linux-android'
 	'mipsel-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv7-unknown-linux-androideabi'
-	# 'x86_64-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'mips64el-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv7-unknown-linux-androideabi'
+	'x86_64-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -916,8 +916,8 @@ for triplet in "${targets[@]}"; do
 		
 		cd "${sysroot_directory}/lib"
 		
-		echo 'GROUP ( ../libm.so ) AS_NEEDED ( ../libm.a ) )' > './ldscripts/libm.so'
-		echo 'GROUP ( ../libc.so ) AS_NEEDED ( ../libc.a ) )' > './ldscripts/libc.so'
+		echo 'GROUP ( ../libm.so AS_NEEDED ( ../libm.a ) )' > './ldscripts/libm.so'
+		echo 'GROUP ( ../libc.so AS_NEEDED ( ../libc.a ) )' > './ldscripts/libc.so'
 		
 		mkdir 'gcc' 'static' 'no-lfs'
 		
