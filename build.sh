@@ -55,14 +55,14 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'aarch64-unknown-linux-android'
-	'riscv64-unknown-linux-android'
-	'mipsel-unknown-linux-android'
-	'i686-unknown-linux-android'
+	# 'aarch64-unknown-linux-android'
+	# 'riscv64-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
+	# 'i686-unknown-linux-android'
 	'armv7-unknown-linux-androideabi'
-	'x86_64-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
-	'mips64el-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
+	# 'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -911,12 +911,17 @@ for triplet in "${targets[@]}"; do
 		
 		rm --force --recursive './include'
 		
-		ln --symbolic "../${triplet}/include" './'
-		ln --symbolic "../${triplet}/lib/ldscripts" './lib'
+		mkdir './lib/ldscripts'
+		
+		ln --symbolic --relative "${toolchain_directory}/${triplet}/include" './'
+		ln --symbolic --relative "${toolchain_directory}/${triplet}/lib/ldscripts/"* './lib/ldscripts'
 		
 		cd "${sysroot_directory}/lib"
 		
+		rm --force './ldscripts/libm.so'
 		echo 'GROUP ( ../libm.so AS_NEEDED ( ../libm.a ) )' > './ldscripts/libm.so'
+		
+		rm --force './ldscripts/libc.so'
 		
 		if [ -f './libc.a' ]; then
 			echo 'GROUP ( ../libc.so AS_NEEDED ( ../libc.a ) )' > './ldscripts/libc.so'
