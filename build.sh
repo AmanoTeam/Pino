@@ -171,31 +171,6 @@ export \
 	libat_cv_have_ifunc='no'
 	gcc_cv_as_mips_no_shared='no'
 
-function merge_libraries() {
-	
-	local cwd="${PWD}"
-	
-	cd "${1}"
-	
-	mkdir 'tmp'
-	cd 'tmp'
-	
-	ar x '../libpino-math.a'
-	ar rcs '../libm.a' *'.o'
-	
-	rm --force --recursive ./*
-	
-	if [ -f '../libpino-mman.a' ]; then
-		ar x '../libpino-mman.a'
-		ar rcs '../libc.a' *'.o'
-	fi
-	
-	rm --force --recursive "${PWD}"
-	
-	cd "${cwd}"
-	
-}
-
 declare build_type="${1}"
 
 if [ -z "${build_type}" ]; then
@@ -667,7 +642,6 @@ for triplet in "${targets[@]}"; do
 	
 	cd "$(mktemp --directory)"
 	
-	declare libpino_url="https://github.com/AmanoTeam/libpino/releases/latest/download/${triplet}.tar.xz"
 	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${base_version}.tar.xz"
 	declare tarball="${PWD}/${triplet}.tar.xz"
 	declare sysroot_directory="${PWD}/${triplet}"
@@ -688,31 +662,7 @@ for triplet in "${targets[@]}"; do
 		--extract \
 		--file="${tarball}"
 	
-	echo "Fetching prebuilts from '${libpino_url}'"
-	
-	curl \
-		--url "${libpino_url}" \
-		--retry '30' \
-		--retry-delay '0' \
-		--retry-all-errors \
-		--retry-max-time '0' \
-		--location \
-		--silent \
-		--output "${tarball}"
-	
-	tar \
-		--extract \
-		--file="${tarball}"
-	
 	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
-	
-	unlink './libpino-math.so'
-	
-	[ -f './libpino-mman.so' ] && unlink './libpino-mman.so'
-	
-	mv './libpino-'* "${sysroot_directory}/lib"
-	
-	merge_libraries "${sysroot_directory}/lib"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	
@@ -999,8 +949,6 @@ for triplet in "${targets[@]}"; do
 			ln --symbolic "${library}" './'
 			ln --symbolic --relative "${library}" './gcc'
 		done
-		
-		merge_libraries "${PWD}"
 		
 		if (( ! abi64 && version < 24 )); then
 			ln --symbolic --relative './'*  './no-lfs'
