@@ -665,6 +665,9 @@ for triplet in "${targets[@]}"; do
 	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
+	
+	mkdir --parent "${sysroot_directory}/lib/ldscripts"
+	
 	echo 'GROUP ( ../libm.so AS_NEEDED ( ../libm.a ) )' > "${sysroot_directory}/lib/ldscripts/libm.so"
 	[ -f "${sysroot_directory}/lib/libc.a" ] && echo 'GROUP ( ../libc.so AS_NEEDED ( ../libc.a ) )' > "${sysroot_directory}/lib/ldscripts/libc.so"
 		
