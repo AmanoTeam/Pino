@@ -665,7 +665,9 @@ for triplet in "${targets[@]}"; do
 	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
-	
+	echo 'GROUP ( ../libm.so AS_NEEDED ( ../libm.a ) )' > "${sysroot_directory}/lib/ldscripts/libm.so"
+	[ -f "${sysroot_directory}/lib/libc.a" ] && echo 'GROUP ( ../libc.so AS_NEEDED ( ../libc.a ) )' > "${sysroot_directory}/lib/ldscripts/libc.so"
+		
 	cp "${workdir}/submodules/libpino/complex.h" "${sysroot_directory}/include/pino_complex.h"
 	cp "${workdir}/submodules/libpino/math.h" "${sysroot_directory}/include/pino_math.h"
 	
@@ -674,19 +676,10 @@ for triplet in "${targets[@]}"; do
 	rm --force --recursive ./*
 	
 	declare specs=''
-	declare link_specs=''
 	
 	specs+=' %{!Wno-complain-wrong-lang:%{!Wcomplain-wrong-lang:-Wno-complain-wrong-lang}}'
 	specs+=' %{!Wno-psabi:%{!Wpsabi:-Wno-psabi}}'
 	specs+=' %{!Qy:-Qn}'
-	
-	if (( is_native )); then
-		link_specs+=' -l pino-math'
-		
-		if (( base_version < 21 )); then
-			link_specs+=' -l pino-mman'
-		fi
-	fi
 	
 	specs="$(xargs <<< "${specs}")"
 	
@@ -922,10 +915,7 @@ for triplet in "${targets[@]}"; do
 		echo 'GROUP ( ../libm.so AS_NEEDED ( ../libm.a ) )' > './ldscripts/libm.so'
 		
 		rm --force './ldscripts/libc.so'
-		
-		if [ -f './libc.a' ]; then
-			echo 'GROUP ( ../libc.so AS_NEEDED ( ../libc.a ) )' > './ldscripts/libc.so'
-		fi
+		[ -f './libc.a' ] && echo 'GROUP ( ../libc.so AS_NEEDED ( ../libc.a ) )' > './ldscripts/libc.so'
 		
 		mkdir 'gcc' 'static'
 		
