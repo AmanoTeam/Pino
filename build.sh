@@ -47,6 +47,7 @@ declare -r cxx_bits='/tmp/cxx-bits'
 declare -r include_unified_directory="${toolchain_directory}/include/bionic"
 
 declare nz='1'
+declare cmake_flags=''
 
 declare -r max_jobs='30'
 
@@ -286,6 +287,13 @@ if ! [ -f "${binutils_tarball}" ]; then
 		--directory="$(dirname "${binutils_directory}")" \
 		--extract \
 		--file="${binutils_tarball}"
+		
+	if [[ "${CROSS_COMPILE_TRIPLET}" == *'-darwin'* ]]; then
+		sed \
+			--in-place \
+			's/$$ORIGIN/@loader_path/g' \
+			"${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-binutils-host-tools.patch"
+	fi
 	
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-binutils-host-tools.patch"
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Don-t-warn-about-local-symbols-within-the-globals.patch"
@@ -344,6 +352,13 @@ if ! [ -f "${gcc_tarball}" ]; then
 		--directory="$(dirname "${gcc_directory}")" \
 		--extract \
 		--file="${gcc_tarball}"
+	
+	if [[ "${CROSS_COMPILE_TRIPLET}" == *'-darwin'* ]]; then
+		sed \
+			--in-place \
+			's/$$ORIGIN/@loader_path/g' \
+			"${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-GCC-host-tools.patch"
+	fi
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-GCC-15.patch"
 	
@@ -493,7 +508,7 @@ rm --force --recursive ./*
 	--disable-static \
 	CFLAGS="${pieflags} ${ccflags}" \
 	CXXFLAGS="${pieflags} ${ccflags}" \
-	LDFLAGS="-Xlinker -rpath-link -Xlinker ${toolchain_directory}/lib ${linkflags}"
+	LDFLAGS="${linkflags}"
 
 make all --jobs
 make install
@@ -520,9 +535,14 @@ unlink "${toolchain_directory}/lib/libz.a"
 cd "${zstd_directory}/.build"
 rm --force --recursive ./*
 
+if [[ "${CROSS_COMPILE_TRIPLET}" = *'-darwin'* ]]; then
+	cmake_flags+=' -DCMAKE_SYSTEM_NAME=Darwin'
+fi
+
 cmake \
 	-S "${zstd_directory}/build/cmake" \
 	-B "${PWD}" \
+	${cmake_flags} \
 	-DCMAKE_C_FLAGS="-DZDICT_QSORT=ZDICT_QSORT_MIN ${ccflags}" \
 	-DCMAKE_INSTALL_PREFIX="${toolchain_directory}" \
 	-DBUILD_SHARED_LIBS=ON \
@@ -691,6 +711,11 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=" --with-toolexeclibdir=${toolchain_directory}/${triplet}/lib/"
 	fi
 	
+	if [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
+		extra_configure_flags+=' --enable-host-bind-now'
+	fi
+	
+	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
 	cd "${gcc_directory}/build"
@@ -741,7 +766,6 @@ for triplet in "${targets[@]}"; do
 		--enable-cxx-flags="${linkflags}" \
 		--enable-host-pie \
 		--enable-host-shared \
-		--enable-host-bind-now \
 		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
 		--enable-libgomp \
