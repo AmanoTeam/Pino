@@ -490,7 +490,7 @@ cd "${mpc_directory}/build"
 	--disable-static \
 	CFLAGS="${ccflags}" \
 	CXXFLAGS="${ccflags}" \
-	LDFLAGS="${linkflags} ${isl_extra_ldflags}"
+	LDFLAGS="${linkflags}"
 
 make all --jobs
 make install
