@@ -288,7 +288,7 @@ if ! [ -f "${binutils_tarball}" ]; then
 		--extract \
 		--file="${binutils_tarball}"
 		
-	if [[ "${CROSS_COMPILE_TRIPLET}" == *'-darwin'* ]]; then
+	if [[ "${CROSS_COMPILE_TRIPLET}" = *'-darwin'* ]]; then
 		sed \
 			--in-place \
 			's/$$ORIGIN/@loader_path/g' \
@@ -353,7 +353,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 		--extract \
 		--file="${gcc_tarball}"
 	
-	if [[ "${CROSS_COMPILE_TRIPLET}" == *'-darwin'* ]]; then
+	if [[ "${CROSS_COMPILE_TRIPLET}" = *'-darwin'* ]]; then
 		sed \
 			--in-place \
 			's/$$ORIGIN/@loader_path/g' \
@@ -482,12 +482,6 @@ make install
 
 cd "${mpc_directory}/build"
 
-declare isl_extra_ldflags=''
-
-if [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
-	isl_extra_ldflags+=" -Xlinker -rpath-link -Xlinker ${toolchain_directory}/lib"
-fi
-
 ../configure \
 	--host="${CROSS_COMPILE_TRIPLET}" \
 	--prefix="${toolchain_directory}" \
@@ -506,6 +500,12 @@ make install
 cd "${isl_directory}/build"
 rm --force --recursive ./*
 
+declare isl_extra_ldflags=''
+
+if [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
+	isl_extra_ldflags+=" -Xlinker -rpath-link -Xlinker ${toolchain_directory}/lib"
+fi
+
 ../configure \
 	--host="${CROSS_COMPILE_TRIPLET}" \
 	--prefix="${toolchain_directory}" \
@@ -514,7 +514,7 @@ rm --force --recursive ./*
 	--disable-static \
 	CFLAGS="${pieflags} ${ccflags}" \
 	CXXFLAGS="${pieflags} ${ccflags}" \
-	LDFLAGS="${linkflags}"
+	LDFLAGS="${linkflags} ${isl_extra_ldflags}"
 
 make all --jobs
 make install
@@ -580,17 +580,17 @@ cp "${workdir}/submodules/obggcc/tools/ln.sh" '/tmp/ln'
 
 export PATH="/tmp:${PATH}"
 
-if [[ "${CROSS_COMPILE_TRIPLET}" == 'arm'*'-android'* ]] || [[ "${CROSS_COMPILE_TRIPLET}" == 'i686-'*'-android'* ]] || [[ "${CROSS_COMPILE_TRIPLET}" == 'mipsel-'*'-android'* ]]; then
+if [[ "${CROSS_COMPILE_TRIPLET}" = 'arm'*'-android'* ]] || [[ "${CROSS_COMPILE_TRIPLET}" = 'i686-'*'-android'* ]] || [[ "${CROSS_COMPILE_TRIPLET}" = 'mipsel-'*'-android'* ]]; then
 	export \
 		ac_cv_func_fseeko='no' \
 		ac_cv_func_ftello='no'
 fi
 
-if [[ "${CROSS_COMPILE_TRIPLET}" == 'armv5'*'-android'* ]]; then
+if [[ "${CROSS_COMPILE_TRIPLET}" = 'armv5'*'-android'* ]]; then
 	export PINO_ARM_MODE='true'
 fi
 
-if [[ "${CROSS_COMPILE_TRIPLET}" == *'-haiku' ]]; then
+if [[ "${CROSS_COMPILE_TRIPLET}" = *'-haiku' ]]; then
 	export ac_cv_c_bigendian='no'
 fi
 
@@ -885,7 +885,7 @@ for triplet in "${targets[@]}"; do
 	mv "${cxx_directory}/${triplet}" "${cxx_bits}"
 	
 	for name in "${toolchain_directory}/${triplet}/include/"*; do
-		if [[ "${name}" == *'/asm'* ]]; then
+		if [[ "${name}" = *'/asm'* ]]; then
 			continue
 		fi
 		
@@ -893,14 +893,14 @@ for triplet in "${targets[@]}"; do
 	done
 	
 	for name in "${include_unified_directory}/"*; do
-		if [[ "${name}" == *'/c++' ]]; then
+		if [[ "${name}" = *'/c++' ]]; then
 			mkdir --parent "${cxx_directory}"
 			mv "${cxx_bits}/"* "${cxx_directory}"
 			
 			for subname in "${name}/${gcc_major}/"*; do
-				if [[ "${subname}" == *'/ext' ]]; then
+				if [[ "${subname}" = *'/ext' ]]; then
 					ln --symbolic --relative "${subname}/"* "${cxx_directory}/ext"
-				elif [[ "${subname}" == *'/bits' ]]; then
+				elif [[ "${subname}" = *'/bits' ]]; then
 					ln --symbolic --relative "${subname}/"* "${cxx_directory}/bits"
 				else
 					ln --symbolic --relative "${subname}" "${cxx_directory}"
@@ -958,7 +958,7 @@ for triplet in "${targets[@]}"; do
 		for library in "../../${triplet}/lib/lib"*.{so,a,1,spec}; do
 			declare name="$(basename "${library}")"
 			
-			if [[ "${name}" == *'*'* ]]; then
+			if [[ "${name}" = *'*'* ]]; then
 				continue
 			fi
 			
@@ -966,7 +966,7 @@ for triplet in "${targets[@]}"; do
 				continue
 			fi
 			
-			if [[ "${name}" == *'.a' ]]; then
+			if [[ "${name}" = *'.a' ]]; then
 				libname="$(basename "${name}" '.a')"
 				
 				declare static="./${libname}-static.a"
@@ -977,7 +977,7 @@ for triplet in "${targets[@]}"; do
 				fi
 				
 				ln --symbolic --relative "${library}" './static'
-			elif [[ "${name}" == 'libgcc_s.so'* ]] || [[ "${name}" == 'libegcc.so'* ]]; then
+			elif [[ "${name}" = 'libgcc_s.so'* ]] || [[ "${name}" = 'libegcc.so'* ]]; then
 				ln --symbolic --relative "${library}" './static'
 			fi
 			
