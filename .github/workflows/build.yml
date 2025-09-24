@@ -111,7 +111,13 @@ jobs:
           'armv5-unknown-linux-androideabi21',
           'armv7-unknown-linux-androideabi21',
           'mips64el-unknown-linux-android',
-          'mipsel-unknown-linux-android21'
+          'mipsel-unknown-linux-android21',
+          
+          # macOS
+          'aarch64-apple-darwin',
+          'aarch64e-apple-darwin',
+          'x86_64-apple-darwin',
+          'x86_64h-apple-darwin'
         ]
     steps:
     - uses: actions/checkout@main
@@ -224,6 +230,13 @@ jobs:
             export PATH="${SIL_HOME}/bin:${PATH}"
             
             source "${SIL_HOME}/usr/local/share/sil/autotools/${{ matrix.target }}.sh"
+        elif [[ '${{ matrix.target }}' == *'-darwin' ]]; then
+            curl 'https://raw.githubusercontent.com/AmanoTeam/OSXCross-Builds/refs/heads/master/main.sh' -sSf | bash 
+            
+            export DARWIN_HOME='/tmp/darwin'
+            export PATH="${DARWIN_HOME}/bin:${PATH}"
+            
+            source "${DARWIN_HOME}/usr/local/share/darwin/autotools/${{ matrix.target }}.sh"
         elif [[ '${{ matrix.target }}' == *'-android'* ]]; then
             # declare -r PINO_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/Pino/releases/latest')")"
             # declare -r PINO_TARBALL='/tmp/toolchain.tar.xz'

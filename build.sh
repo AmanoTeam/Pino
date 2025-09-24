@@ -482,6 +482,12 @@ make install
 
 cd "${mpc_directory}/build"
 
+declare isl_extra_ldflags=''
+
+if [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
+	isl_extra_ldflags+=" -Xlinker -rpath-link -Xlinker ${toolchain_directory}/lib"
+fi
+
 ../configure \
 	--host="${CROSS_COMPILE_TRIPLET}" \
 	--prefix="${toolchain_directory}" \
@@ -490,7 +496,7 @@ cd "${mpc_directory}/build"
 	--disable-static \
 	CFLAGS="${ccflags}" \
 	CXXFLAGS="${ccflags}" \
-	LDFLAGS="${linkflags}"
+	LDFLAGS="${linkflags} ${isl_extra_ldflags}"
 
 make all --jobs
 make install
@@ -714,7 +720,6 @@ for triplet in "${targets[@]}"; do
 	if [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
 		extra_configure_flags+=' --enable-host-bind-now'
 	fi
-	
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
