@@ -67,6 +67,12 @@ jobs:
     strategy:
       matrix:
         target: [
+          # macOS
+          'aarch64-apple-darwin',
+          'aarch64e-apple-darwin',
+          'x86_64-apple-darwin',
+          'x86_64h-apple-darwin',
+          
           # Linux (glibc)
           'x86_64-unknown-linux-gnu',
           'i386-unknown-linux-gnu',
@@ -111,13 +117,7 @@ jobs:
           'armv5-unknown-linux-androideabi21',
           'armv7-unknown-linux-androideabi21',
           'mips64el-unknown-linux-android',
-          'mipsel-unknown-linux-android21',
-          
-          # macOS
-          'aarch64-apple-darwin',
-          'aarch64e-apple-darwin',
-          'x86_64-apple-darwin',
-          'x86_64h-apple-darwin'
+          'mipsel-unknown-linux-android21'
         ]
     steps:
     - uses: actions/checkout@main
