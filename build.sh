@@ -401,6 +401,12 @@ if [[ "${CROSS_COMPILE_TRIPLET}" = *'-darwin'* ]]; then
 		"${gcc_directory}/gcc/configure"
 fi
 
+sed -i 's|-install_name \\$rpath/\\$soname||g' \
+	"${isl_directory}/configure" \
+	"${mpc_directory}/configure" \
+	"${mpfr_directory}/configure" \
+	"${gmp_directory}/configure"
+
 # Fix Autotools mistakenly detecting shared libraries as not supported on OpenBSD
 while read file; do
 	sed \
