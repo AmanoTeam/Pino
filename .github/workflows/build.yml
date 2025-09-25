@@ -69,9 +69,7 @@ jobs:
         target: [
           # macOS
           'aarch64-apple-darwin',
-          'aarch64e-apple-darwin',
           'x86_64-apple-darwin',
-          'x86_64h-apple-darwin',
           
           # Linux (glibc)
           'x86_64-unknown-linux-gnu',
