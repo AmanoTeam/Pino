@@ -70,6 +70,14 @@ declare -ra triplets=(
 
 declare -r os="$(uname -o)"
 
+declare symlink_options='--symbolic --force'
+declare slug='linux-x86_64'
+
+if [ "${os}" = 'Darwin' ]; then
+	slug='darwin-x86_64'
+	symlink_options='-s -f'
+fi
+
 set +u
 
 declare sdk_root=''
@@ -135,18 +143,13 @@ fi
 
 for directory in "${directories[@]}"; do
 	declare source="${app_directory}/clang"
-	declare destination="${directory}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang"
+	declare destination="${directory}/toolchains/llvm/prebuilt/${slug}/bin/clang"
 	
 	declare toolchains_directory="${directory}/toolchains"
 	
 	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
 		echo "- Symlinking ${source} to ${destination}"
-		
-		ln \
-			--symbolic \
-			--force \
-			"${source}" \
-			"${destination}"
+		ln ${symlink_options} "${source}" "${destination}"
 	fi
 	
 	source+='++'
@@ -154,12 +157,7 @@ for directory in "${directories[@]}"; do
 	
 	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
 		echo "- Symlinking ${source} to ${destination}"
-		
-		ln \
-			--symbolic \
-			--force \
-			"${source}" \
-			"${destination}"
+		ln ${symlink_options} "${source}" "${destination}"
 	fi
 	
 	source="${source/clang++/llvm-strip}"
@@ -167,12 +165,7 @@ for directory in "${directories[@]}"; do
 	
 	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
 		echo "- Symlinking ${source} to ${destination}"
-		
-		ln \
-			--symbolic \
-			--force \
-			"${source}" \
-			"${destination}"
+		ln ${symlink_options} "${source}" "${destination}"
 	fi
 	
 	source="${source/llvm-strip/llvm-objcopy}"
@@ -180,12 +173,7 @@ for directory in "${directories[@]}"; do
 	
 	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
 		echo "- Symlinking ${source} to ${destination}"
-		
-		ln \
-			--symbolic \
-			--force \
-			"${source}" \
-			"${destination}"
+		ln ${symlink_options} "${source}" "${destination}"
 	fi
 	
 	for triplet in "${triplets[@]}"; do
@@ -200,7 +188,7 @@ for directory in "${directories[@]}"; do
 		
 		for name in "${binutils[@]}"; do
 			declare source="${app_directory}/${canonical_triplet}-${name}"
-			declare destination="${directory}/toolchains/llvm/prebuilt/linux-x86_64/bin/${triplet}-${name}"
+			declare destination="${directory}/toolchains/llvm/prebuilt/${slug}/bin/${triplet}-${name}"
 			
 			if ! [ -f "${source}" ]; then
 				continue
@@ -208,12 +196,7 @@ for directory in "${directories[@]}"; do
 			
 			if [[ "$(readlink "${destination}")" != "${source}" ]]; then
 				echo "- Symlinking ${source} to ${destination}"
-				
-				ln \
-					--symbolic \
-					--force \
-					"${source}" \
-					"${destination}"
+				ln ${symlink_options} "${source}" "${destination}"
 			fi
 			
 			declare subdirectory=''
@@ -229,17 +212,12 @@ for directory in "${directories[@]}"; do
 			fi
 			
 			if [ -d "${subdirectory}" ]; then
-				subdirectory+="/prebuilt/linux-x86_64/bin"
+				subdirectory+="/prebuilt/${slug}/bin"
 				destination="${subdirectory}/${original_triplet}-${name}"
 				
 				if [[ "$(readlink "${destination}")" != "${source}" ]]; then
 					echo "- Symlinking ${source} to ${destination}"
-					
-					ln \
-						--symbolic \
-						--force \
-						"${source}" \
-						"${destination}"
+					ln ${symlink_options} "${source}" "${destination}"
 				fi
 			fi
 			
@@ -247,22 +225,17 @@ for directory in "${directories[@]}"; do
 				continue
 			fi
 			
-			destination="${directory}/toolchains/llvm/prebuilt/linux-x86_64/bin/${original_triplet}-${name}"
+			destination="${directory}/toolchains/llvm/prebuilt/${slug}/bin/${original_triplet}-${name}"
 			
 			if [[ "$(readlink "${destination}")" != "${source}" ]]; then
 				echo "- Symlinking ${source} to ${destination}"
-				
-				ln \
-					--symbolic \
-					--force \
-					"${source}" \
-					"${destination}"
+				ln ${symlink_options} "${source}" "${destination}"
 			fi
 		done
 		
 		for version in "${versions[@]}"; do
 			declare source="${app_directory}/${canonical_triplet}${version}-clang"
-			declare destination="${directory}/toolchains/llvm/prebuilt/linux-x86_64/bin/${triplet}${version}-clang"
+			declare destination="${directory}/toolchains/llvm/prebuilt/${slug}/bin/${triplet}${version}-clang"
 			
 			if ! [ -f "${source}" ]; then
 				continue
@@ -270,12 +243,7 @@ for directory in "${directories[@]}"; do
 			
 			if [[ "$(readlink "${destination}")" != "${source}" ]]; then
 				echo "- Symlinking ${source} to ${destination}"
-				
-				ln \
-					--symbolic \
-					--force \
-					"${source}" \
-					"${destination}"
+				ln ${symlink_options} "${source}" "${destination}"
 			fi
 			
 			source+='++'
@@ -283,12 +251,7 @@ for directory in "${directories[@]}"; do
 			
 			if [[ "$(readlink "${destination}")" != "${source}" ]]; then
 				echo "- Symlinking ${source} to ${destination}"
-				
-				ln \
-					--symbolic \
-					--force \
-					"${source}" \
-					"${destination}"
+				ln ${symlink_options} "${source}" "${destination}"
 			fi
 		done
 	done

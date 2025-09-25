@@ -57,13 +57,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv7-unknown-linux-androideabi'
-	# 'x86_64-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'mips64el-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	'mipsel-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv7-unknown-linux-androideabi'
+	'x86_64-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -381,7 +381,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Fix-missing-stdint.h-include-when-compiling-host-tools-on-OpenBSD.patch"
 fi
 
-# Follow Debian's approach for removing hardcoded RPATH from binaries
+# Follow Debian's approach to remove hardcoded RPATHs from binaries
 # https://wiki.debian.org/RpathIssue
 sed \
 	--in-place \
@@ -393,17 +393,10 @@ sed \
 	"${gmp_directory}/configure" \
 	"${gcc_directory}/libsanitizer/configure"
 
-if [[ "${CROSS_COMPILE_TRIPLET}" = *'-darwin'* ]]; then
-	sed \
-		--in-place \
-		--regexp-extended \
-		's/(gcc_cv_ld_soname)=.*$/\1=no/' \
-		"${gcc_directory}/gcc/configure"
-fi
-
-
-
-sed -i 's|-install_name \\$rpath/\\$soname|-install_name @rpath/\\$soname|g' \
+# Avoid using absolute hardcoded install_name values on macOS
+sed \
+	--in-place \
+	's|-install_name \\$rpath/\\$soname|-install_name @rpath/\\$soname|g' \
 	"${isl_directory}/configure" \
 	"${mpc_directory}/configure" \
 	"${mpfr_directory}/configure" \
