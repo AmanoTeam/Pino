@@ -393,6 +393,14 @@ sed \
 	"${gmp_directory}/configure" \
 	"${gcc_directory}/libsanitizer/configure"
 
+if [[ "${CROSS_COMPILE_TRIPLET}" = *'-darwin'* ]]; then
+	sed \
+		--in-place \
+		--regexp-extended \
+		's/(gcc_cv_ld_soname)=.*$/\1=no/' \
+		"${gcc_directory}/gcc/configure"
+fi
+
 # Fix Autotools mistakenly detecting shared libraries as not supported on OpenBSD
 while read file; do
 	sed \

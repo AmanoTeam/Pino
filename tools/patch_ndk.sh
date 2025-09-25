@@ -68,6 +68,8 @@ declare -ra triplets=(
 	'riscv64-linux-android'
 )
 
+declare -r os="$(uname -o)"
+
 set +u
 
 declare sdk_root=''
