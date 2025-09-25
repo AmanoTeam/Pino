@@ -401,7 +401,9 @@ if [[ "${CROSS_COMPILE_TRIPLET}" = *'-darwin'* ]]; then
 		"${gcc_directory}/gcc/configure"
 fi
 
-sed -i 's|-install_name \\$rpath/\\$soname||g' \
+
+
+sed -i 's|-install_name \\$rpath/\\$soname|-install_name @rpath/\\$soname|g' \
 	"${isl_directory}/configure" \
 	"${mpc_directory}/configure" \
 	"${mpfr_directory}/configure" \
