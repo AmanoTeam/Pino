@@ -749,7 +749,7 @@ for triplet in "${targets[@]}"; do
 		--with-system-zlib \
 		--with-bugurl='https://github.com/AmanoTeam/Pino/issues' \
 		--with-gcc-major-version-only \
-		--with-pkgversion="Pino v0.9-${revision}" \
+		--with-pkgversion="Pino v1.0-${revision}" \
 		--with-sysroot="${toolchain_directory}/${triplet}" \
 		--with-android-version-min="${base_version}" \
 		--with-native-system-header-dir='/include' \

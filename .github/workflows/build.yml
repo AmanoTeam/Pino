@@ -68,8 +68,8 @@ jobs:
       matrix:
         target: [
           # macOS
-          'aarch64-apple-darwin',
-          'x86_64-apple-darwin',
+          'aarch64-unknown-apple-darwin',
+          'x86_64-unknown-apple-darwin',
           
           # Linux (glibc)
           'x86_64-unknown-linux-gnu',
@@ -158,7 +158,7 @@ jobs:
             
             source "${RAIDEN_HOME}/usr/local/share/raiden/autotools/${{ matrix.target }}.sh"
         elif [[ '${{ matrix.target }}' == *'-linux-gnu'* ]]; then
-            declare -r OBGGCC_TAG=3.6 #"$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/obggcc/releases/latest')")"
+            declare -r OBGGCC_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/obggcc/releases/latest')")"
             declare -r OBGGCC_TARBALL='/tmp/toolchain.tar.xz'
             declare -r OBGGCC_URL="https://github.com/AmanoTeam/obggcc/releases/download/${OBGGCC_TAG}/x86_64-unknown-linux-gnu.tar.xz"
             
