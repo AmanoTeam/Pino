@@ -26,10 +26,10 @@ declare -r isl_directory='/tmp/isl-0.27'
 declare -r binutils_tarball='/tmp/binutils.tar.xz'
 declare -r binutils_directory='/tmp/binutils'
 
-declare -r gcc_major='15'
+declare -r gcc_major='16'
 
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
-declare -r gcc_directory="/tmp/gcc-releases-gcc-${gcc_major}"
+declare -r gcc_directory="/tmp/gcc-master"
 
 declare -r libsanitizer_tarball='/tmp/libsanitizer.tar.xz'
 declare -r libsanitizer_directory='/tmp/libsanitizer'
