@@ -24,7 +24,7 @@ jobs:
       id: check-cache
       uses: actions/cache@main
       with:
-        key:  gcc-16.0.0-5
+        key:  gcc-16.0.0-6
         lookup-only: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -61,7 +61,7 @@ jobs:
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       uses: actions/cache@main
       with:
-        key:  gcc-16.0.0-5
+        key:  gcc-16.0.0-6
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
           /tmp/x86_64-linux-gnu.tar.xz.sha256
@@ -138,7 +138,7 @@ jobs:
     - name: Restore from cache
       uses: actions/cache@main
       with:
-        key:  gcc-16.0.0-5
+        key:  gcc-16.0.0-6
         fail-on-cache-miss: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -259,13 +259,6 @@ jobs:
             export PATH="${PINO_HOME}/bin:${PATH}"
             
             source "${PINO_HOME}/usr/local/share/pino/autotools/${{ matrix.target }}.sh"
-            
-            rm \
-                 --force \
-                "${PINO_HOME}/include/bionic/"{zconf,zlib}'.h' \
-                "${PINO_HOME}/"*'-unknown-linux-'{androideabi,android}'/include/'{zconf,zlib}'.h' \
-                "${PINO_HOME}/"*'-unknown-linux-android'*'/lib/libz.so' \
-                "${PINO_HOME}/"*'-unknown-linux-android'*'/lib/static/libz.so'
         fi
         
         echo "CROSS_COMPILE_TRIPLET=${CROSS_COMPILE_TRIPLET}" >> "${GITHUB_ENV}"
