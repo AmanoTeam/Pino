@@ -1,6 +1,6 @@
-From d13ce1d21d6ed9beaf1c767f4871dcaf3af54046 Mon Sep 17 00:00:00 2001
+From ff49e1ff2e2ceedc003bee93a6da03a25e1fe624 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
-Date: Wed, 15 Oct 2025 18:04:39 -0300
+Date: Wed, 15 Oct 2025 20:04:40 -0300
 Subject: [PATCH] a
 
 ---
@@ -8,15 +8,15 @@ Subject: [PATCH] a
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/libstdc++-v3/src/Makefile.in b/libstdc++-v3/src/Makefile.in
-index f0ad019a7..ad48abf80 100644
+index 14bab5470..ac6cc441b 100644
 --- a/libstdc++-v3/src/Makefile.in
 +++ b/libstdc++-v3/src/Makefile.in
-@@ -569,7 +569,8 @@ libstdc___la_DEPENDENCIES = \
+@@ -568,7 +568,8 @@ libstdc___la_DEPENDENCIES = \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@libstdc___darwin_rpath =  \
  @ENABLE_DARWIN_AT_RPATH_TRUE@	-Wc,-nodefaultrpaths \
  @ENABLE_DARWIN_AT_RPATH_TRUE@	-Wl,-rpath,@loader_path
- libstdc___la_LDFLAGS = \
--	-version-info $(libtool_VERSION) ${version_arg} -lm $(libstdc___darwin_rpath)
-+	-version-info $(libtool_VERSION) ${version_arg} -lm $(libstdc___darwin_rpath) \
+-libstdc___la_LDFLAGS = -avoid-version ${version_arg} -lm $(libstdc___darwin_rpath)
++libstdc___la_LDFLAGS = -avoid-version ${version_arg} -lm $(libstdc___darwin_rpath) \
 +	-Xlinker -rpath -Xlinker \$$ORIGIN
  
  libstdc___la_LINK = $(CXXLINK) $(libstdc___la_LDFLAGS) $(lt_host_flags)
