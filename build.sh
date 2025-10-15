@@ -366,7 +366,6 @@ if ! [ -f "${gcc_tarball}" ]; then
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Change-GCC-s-C-standard-library-name-to-libestdc.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Rename-GCC-s-libgcc-library-to-libegcc.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Ignore-pragma-weak-when-the-declaration-is-private-o.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-a.patch"
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Turn-Wimplicit-function-declaration-back-into-an-warning.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0003-Change-the-default-language-version-for-C-compilation-from-std-gnu23-to-std-gnu17.patch"
@@ -379,6 +378,8 @@ if ! [ -f "${gcc_tarball}" ]; then
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0011-Revert-configure-Always-add-pre-installed-header-directories-to-search-path.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Revert-x86-Fixes-for-AMD-znver5-enablement.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-AArch64-enable-libquadmath.patch"
+	
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-a.patch"
 fi
 
 # Follow Debian's approach to remove hardcoded RPATHs from binaries
