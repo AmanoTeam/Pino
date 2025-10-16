@@ -53,13 +53,13 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
+	'armv5-unknown-linux-androideabi'
 	'aarch64-unknown-linux-android'
 	'riscv64-unknown-linux-android'
 	'mipsel-unknown-linux-android'
 	'i686-unknown-linux-android'
 	'armv7-unknown-linux-androideabi'
 	'x86_64-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
 	'mips64el-unknown-linux-android'
 )
 
@@ -724,6 +724,10 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=' --enable-host-bind-now'
 	fi
 	
+	if [[ "${CROSS_COMPILE_TRIPLET}" != 'armv5-'* ]]; then
+		extra_configure_flags+=' --enable-libsanitizer'
+	fi
+	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
 	cd "${gcc_directory}/build"
@@ -778,7 +782,6 @@ for triplet in "${targets[@]}"; do
 		--enable-initfini-array \
 		--enable-libgomp \
 		--enable-frame-pointer \
-		--enable-libsanitizer \
 		--with-pic \
 		--with-specs="${specs}" \
 		--disable-c++-tools \
