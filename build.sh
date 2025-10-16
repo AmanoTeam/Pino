@@ -31,9 +31,6 @@ declare -r gcc_major='16'
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
 declare -r gcc_directory='/tmp/gcc-master'
 
-declare -r libsanitizer_tarball='/tmp/libsanitizer.tar.xz'
-declare -r libsanitizer_directory='/tmp/libsanitizer'
-
 declare -r zlib_tarball='/tmp/zlib.tar.gz'
 declare -r zlib_directory='/tmp/zlib-develop'
 
@@ -362,12 +359,14 @@ if ! [ -f "${gcc_tarball}" ]; then
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-GCC-15.patch"
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Avoid-relying-on-dynamic-shadow-when-building-libsan.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Skip-FILE64_FLAGS-for-Android-MIPS-targets.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Disable-SONAME-versioning-for-all-target-libraries.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Change-GCC-s-C-standard-library-name-to-libestdc.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Rename-GCC-s-libgcc-library-to-libegcc.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Ignore-pragma-weak-when-the-declaration-is-private-o.patch"
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Turn-Wimplicit-function-declaration-back-into-an-warning.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0002-Fix-libsanitizer-build-on-older-platforms.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0003-Change-the-default-language-version-for-C-compilation-from-std-gnu23-to-std-gnu17.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0004-Turn-Wimplicit-int-back-into-an-warning.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0005-Turn-Wint-conversion-back-into-an-warning.patch"
@@ -781,10 +780,10 @@ for triplet in "${targets[@]}"; do
 		--enable-initfini-array \
 		--enable-libgomp \
 		--enable-frame-pointer \
+		--enable-libsanitizer \
 		--with-pic \
 		--with-specs="${specs}" \
 		--disable-c++-tools \
-		--disable-libsanitizer \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
@@ -840,34 +839,6 @@ for triplet in "${targets[@]}"; do
 		ln --symbolic './libestdc++.so' './libstdc++.so'
 		ln --symbolic './libestdc++.a' './libstdc++.a'
 		ln --symbolic './libegcc.so' './libgcc_s.so.1'
-	fi
-	
-	declare index="$(jq ". | index( "\""${triplet}"\"" )" "${workdir}/submodules/libsanitizer/triplets.json")"
-	
-	if [ "${index}" != 'null' ]; then
-		declare url="https://github.com/AmanoTeam/libsanitizer/releases/latest/download/${triplet}.tar.xz"
-		
-		echo "- Fetching data from '${url}'"
-		
-		curl \
-			--url "${url}" \
-			--retry '30' \
-			--retry-all-errors \
-			--retry-delay '0' \
-			--retry-max-time '0' \
-			--location \
-			--silent \
-			--output "${libsanitizer_tarball}"
-		
-		tar \
-			--directory="$(dirname "${libsanitizer_directory}")" \
-			--extract \
-			--file="${libsanitizer_tarball}"
-		
-		cp --recursive "${libsanitizer_directory}/lib/gcc" "${toolchain_directory}/lib"
-		cp --recursive "${libsanitizer_directory}/lib/lib"* "${toolchain_directory}/${triplet}/lib"
-		
-		rm --recursive "${libsanitizer_directory}"
 	fi
 	
 	if ! [ -d "${include_unified_directory}" ]; then
