@@ -724,7 +724,7 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=' --enable-host-bind-now'
 	fi
 	
-	if [[ "${CROSS_COMPILE_TRIPLET}" = 'armv5-'* ]]; then
+	if [[ "${triplet}" = 'armv5-'* ]]; then
 		extra_configure_flags+=' --disable-libsanitizer'
 	else
 		extra_configure_flags+=' --enable-libsanitizer'
