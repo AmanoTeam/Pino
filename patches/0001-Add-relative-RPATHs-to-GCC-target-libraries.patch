@@ -1,0 +1,101 @@
+From 732b6292cbe41c36d4f7fcd67ee0f5b96185b5bf Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Thu, 16 Oct 2025 03:21:15 -0300
+Subject: [PATCH] Add relative RPATHs to GCC target libraries
+
+---
+ libsanitizer/asan/Makefile.in   | 3 ++-
+ libsanitizer/hwasan/Makefile.in | 3 ++-
+ libsanitizer/lsan/Makefile.in   | 3 ++-
+ libsanitizer/tsan/Makefile.in   | 3 ++-
+ libsanitizer/ubsan/Makefile.in  | 3 ++-
+ libstdc++-v3/src/Makefile.in    | 3 ++-
+ 6 files changed, 12 insertions(+), 6 deletions(-)
+
+diff --git a/libsanitizer/asan/Makefile.in b/libsanitizer/asan/Makefile.in
+index 7c1548335..c951292c4 100644
+--- a/libsanitizer/asan/Makefile.in
++++ b/libsanitizer/asan/Makefile.in
+@@ -470,7 +470,8 @@ libasan_la_LIBADD =  \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@libasan_darwin_rpath =  \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@	-Wc,-nodefaultrpaths \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@	-Wl,-rpath,@loader_path
+-libasan_la_LDFLAGS = -avoid-version $(link_libasan) $(libasan_darwin_rpath)
++libasan_la_LDFLAGS = -avoid-version $(link_libasan) $(libasan_darwin_rpath) \
++	-Xlinker -rpath -Xlinker \$$ORIGIN
+ 
+ 
+ # Work around what appears to be a GNU make bug handling MAKEFLAGS
+diff --git a/libsanitizer/hwasan/Makefile.in b/libsanitizer/hwasan/Makefile.in
+index cf382254a..925fb52d9 100644
+--- a/libsanitizer/hwasan/Makefile.in
++++ b/libsanitizer/hwasan/Makefile.in
+@@ -452,7 +452,8 @@ libhwasan_la_LIBADD =  \
+ 	$(top_builddir)/lsan/libsanitizer_lsan.la $(am__append_1) \
+ 	$(am__append_2) $(LIBSTDCXX_RAW_CXX_LDFLAGS)
+ @ENABLE_DARWIN_AT_RPATH_TRUE@libhwasan_darwin_rpath = -nodefaultrpaths -Wl,-rpath,@loader_path/
+-libhwasan_la_LDFLAGS = -avoid-version $(link_libhwasan) $(libhwasan_darwin_rpath)
++libhwasan_la_LDFLAGS = -avoid-version $(link_libhwasan) $(libhwasan_darwin_rpath) \
++	-Xlinker -rpath -Xlinker \$$ORIGIN
+ 
+ 
+ # Work around what appears to be a GNU make bug handling MAKEFLAGS
+diff --git a/libsanitizer/lsan/Makefile.in b/libsanitizer/lsan/Makefile.in
+index da20150e7..3b1420e7b 100644
+--- a/libsanitizer/lsan/Makefile.in
++++ b/libsanitizer/lsan/Makefile.in
+@@ -420,7 +420,8 @@ liblsan_la_LIBADD =  \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@liblsan_darwin_rpath =  \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@	-Wc,-nodefaultrpaths \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@	-Wl,-rpath,@loader_path
+-liblsan_la_LDFLAGS = -avoid-version $(link_liblsan) $(liblsan_darwin_rpath)
++liblsan_la_LDFLAGS = -avoid-version $(link_liblsan) $(liblsan_darwin_rpath) \
++	-Xlinker -rpath -Xlinker \$$ORIGIN
+ 
+ 
+ # Work around what appears to be a GNU make bug handling MAKEFLAGS
+diff --git a/libsanitizer/tsan/Makefile.in b/libsanitizer/tsan/Makefile.in
+index a7a3eec6d..03b4de01d 100644
+--- a/libsanitizer/tsan/Makefile.in
++++ b/libsanitizer/tsan/Makefile.in
+@@ -470,7 +470,8 @@ libtsan_la_DEPENDENCIES =  \
+ 	$(top_builddir)/interception/libinterception.la \
+ 	$(TSAN_TARGET_DEPENDENT_OBJECTS) $(am__append_2)
+ @ENABLE_DARWIN_AT_RPATH_TRUE@libtsan_darwin_rpath = -nodefaultrpaths -Wl,-rpath,@loader_path/
+-libtsan_la_LDFLAGS = -avoid-version $(link_libtsan) $(libtsan_darwin_rpath)
++libtsan_la_LDFLAGS = -avoid-version $(link_libtsan) $(libtsan_darwin_rpath) \
++	-Xlinker -rpath -Xlinker \$$ORIGIN
+ 
+ 
+ # Work around what appears to be a GNU make bug handling MAKEFLAGS
+diff --git a/libsanitizer/ubsan/Makefile.in b/libsanitizer/ubsan/Makefile.in
+index 8694e4fd3..9736a40e7 100644
+--- a/libsanitizer/ubsan/Makefile.in
++++ b/libsanitizer/ubsan/Makefile.in
+@@ -407,7 +407,8 @@ libubsan_la_LIBADD =  \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@libubsan_darwin_rpath =  \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@	-Wc,-nodefaultrpaths \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@	-Wl,-rpath,@loader_path
+-libubsan_la_LDFLAGS = -avoid-version $(link_libubsan) $(libubsan_darwin_rpath)
++libubsan_la_LDFLAGS = -avoid-version $(link_libubsan) $(libubsan_darwin_rpath) \
++	-Xlinker -rpath -Xlinker \$$ORIGIN
+ 
+ 
+ # Work around what appears to be a GNU make bug handling MAKEFLAGS
+diff --git a/libstdc++-v3/src/Makefile.in b/libstdc++-v3/src/Makefile.in
+index 14bab5470..ac6cc441b 100644
+--- a/libstdc++-v3/src/Makefile.in
++++ b/libstdc++-v3/src/Makefile.in
+@@ -568,7 +568,8 @@ libstdc___la_DEPENDENCIES = \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@libstdc___darwin_rpath =  \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@	-Wc,-nodefaultrpaths \
+ @ENABLE_DARWIN_AT_RPATH_TRUE@	-Wl,-rpath,@loader_path
+-libstdc___la_LDFLAGS = -avoid-version ${version_arg} -lm $(libstdc___darwin_rpath)
++libstdc___la_LDFLAGS = -avoid-version ${version_arg} -lm $(libstdc___darwin_rpath) \
++	-Xlinker -rpath -Xlinker \$$ORIGIN
+ 
+ libstdc___la_LINK = $(CXXLINK) $(libstdc___la_LDFLAGS) $(lt_host_flags)
+ @GLIBCXX_LDBL_ALT128_COMPAT_FALSE@@GLIBCXX_LDBL_COMPAT_TRUE@LTCXXCOMPILE64 = $(LTCXXCOMPILE)
+-- 
+2.50.1
+
