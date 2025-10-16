@@ -53,9 +53,9 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'aarch64-unknown-linux-android'
+	# 'aarch64-unknown-linux-android'
 	# 'riscv64-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
+	'mipsel-unknown-linux-android'
 	# 'i686-unknown-linux-android'
 	# 'armv7-unknown-linux-androideabi'
 	# 'x86_64-unknown-linux-android'
@@ -793,7 +793,7 @@ for triplet in "${targets[@]}"; do
 		--without-static-standard-libraries \
 		${extra_configure_flags} \
 		CFLAGS="${ccflags}" \
-		CXXFLAGS="${ccflags}" \
+		CXXFLAGS="${ccflags} -D_ABIN32=2" \
 		LDFLAGS="-L${toolchain_directory}/lib ${linkflags}"
 	
 	declare args=''
