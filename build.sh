@@ -53,14 +53,14 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	# 'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
+	'aarch64-unknown-linux-android'
+	'riscv64-unknown-linux-android'
 	'mipsel-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv7-unknown-linux-androideabi'
-	# 'x86_64-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'mips64el-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv7-unknown-linux-androideabi'
+	'x86_64-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -793,7 +793,7 @@ for triplet in "${targets[@]}"; do
 		--without-static-standard-libraries \
 		${extra_configure_flags} \
 		CFLAGS="${ccflags}" \
-		CXXFLAGS="${ccflags} -D_ABIN32=2" \
+		CXXFLAGS="${ccflags}" \
 		LDFLAGS="-L${toolchain_directory}/lib ${linkflags}"
 	
 	declare args=''
@@ -803,7 +803,7 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	declare target_cflags="${ccflags} ${linkflags}"
-	declare target_cxxflags="${target_cflags}"
+	declare target_cxxflags="${target_cflags} -D_ABIN32=2"
 	
 	env ${args} make \
 		CFLAGS_FOR_TARGET="${target_cflags}" \
