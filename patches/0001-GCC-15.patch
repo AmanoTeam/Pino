@@ -1,7 +1,7 @@
-From d83304d98be2faaae9874c675e2a571fa7ea4db0 Mon Sep 17 00:00:00 2001
+From 1b32cab54cdd7bc44e462807bb1aca5485baf9d3 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Mon, 13 Oct 2025 02:18:35 -0300
-Subject: [PATCH 3/5] GCC 15
+Subject: [PATCH] GCC 15
 
 ---
  gcc/config.gcc                                |  17 ++-
@@ -15,7 +15,7 @@ Subject: [PATCH 3/5] GCC 15
  gcc/config/i386/i386.cc                       |   4 +-
  gcc/config/i386/linux-common.h                |   8 +-
  gcc/config/i386/pmm_malloc.h                  |   2 +-
- gcc/config/linux-android.h                    |  99 ++++++++++++++-
+ gcc/config/linux-android.h                    | 105 ++++++++++++++-
  gcc/config/linux-android.opt                  |  12 ++
  gcc/config/mips/gnu-user.h                    |   6 -
  gcc/config/riscv/linux.h                      |  34 ++++-
@@ -30,7 +30,7 @@ Subject: [PATCH 3/5] GCC 15
  libstdc++-v3/include/c_global/cwchar          |   6 +-
  libstdc++-v3/include/c_global/cwctype         |   4 +-
  libstdc++-v3/include/c_std/cwchar             |   2 +-
- 26 files changed, 489 insertions(+), 30 deletions(-)
+ 26 files changed, 495 insertions(+), 30 deletions(-)
  create mode 100644 gcc/config/aarch64/aarch64-linux-android.h
  create mode 100644 gcc/config/android-driver.cc
  create mode 100644 gcc/config/t-android
@@ -419,10 +419,10 @@ index d1d79a32f..d66dcdd68 100644
  
  static __inline void *
 diff --git a/gcc/config/linux-android.h b/gcc/config/linux-android.h
-index ecdc1da23..2343514cf 100644
+index ecdc1da23..9f2467199 100644
 --- a/gcc/config/linux-android.h
 +++ b/gcc/config/linux-android.h
-@@ -19,10 +19,39 @@
+@@ -19,10 +19,43 @@
     along with GCC; see the file COPYING3.  If not see
     <http://www.gnu.org/licenses/>.  */
  
@@ -452,6 +452,10 @@ index ecdc1da23..2343514cf 100644
 +#define BIONIC_FIXED_XREG ""
 +#endif
 +
++#if defined(ENABLE_DEFAULT_PIE)
++#define ANDROID_PIE_SPEC ""
++#endif
++
  #define ANDROID_TARGET_OS_CPP_BUILTINS()			\
      do {							\
 -	if (TARGET_ANDROID)					\
@@ -464,7 +468,7 @@ index ecdc1da23..2343514cf 100644
      } while (0)
  
  #if ANDROID_DEFAULT
-@@ -37,16 +66,72 @@
+@@ -37,16 +70,74 @@
  #define LINUX_OR_ANDROID_LD(LINUX_SPEC, ANDROID_SPEC) \
    "%{" NOANDROID "|tno-android-ld:" LINUX_SPEC ";:" ANDROID_SPEC "}"
  
@@ -492,9 +496,11 @@ index ecdc1da23..2343514cf 100644
 +- Android 4.1 (API level 16) to Android 4.4W (API level 20): PIE supported, but not mandatory.
 +- Android 5.0 (API level 21) and above: PIE supported and mandatory.
 +*/
++#if !defined(ANDROID_PIE_SPEC)
 +#define ANDROID_PIE_SPEC \
 +    ANDROID_IF_NOT_PIE("%:version-compare(!> 15 mandroid-version-min= -no-pie)") \
 +    ANDROID_IF_NOT_PIE("%:version-compare(>= 16 mandroid-version-min= -pie)")
++#endif
 +
 +/*
 +DT_RELR (relative relocation format) on Android

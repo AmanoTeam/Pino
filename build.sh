@@ -761,7 +761,6 @@ for triplet in "${targets[@]}"; do
 		--enable-cet='auto' \
 		--enable-checking='release' \
 		--enable-default-ssp \
-		--enable-default-pie \
 		--enable-gnu-indirect-function \
 		--disable-gnu-unique-object \
 		--enable-languages='c,c++' \
