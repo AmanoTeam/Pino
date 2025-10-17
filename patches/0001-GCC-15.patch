@@ -1,4 +1,4 @@
-From 1b32cab54cdd7bc44e462807bb1aca5485baf9d3 Mon Sep 17 00:00:00 2001
+From e9027283240ad2c4d61333fa4b1337cb31f17071 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Mon, 13 Oct 2025 02:18:35 -0300
 Subject: [PATCH] GCC 15
@@ -15,8 +15,8 @@ Subject: [PATCH] GCC 15
  gcc/config/i386/i386.cc                       |   4 +-
  gcc/config/i386/linux-common.h                |   8 +-
  gcc/config/i386/pmm_malloc.h                  |   2 +-
- gcc/config/linux-android.h                    | 105 ++++++++++++++-
- gcc/config/linux-android.opt                  |  12 ++
+ gcc/config/linux-android.h                    | 107 +++++++++++++++-
+ gcc/config/linux-android.opt                  |  16 +++
  gcc/config/mips/gnu-user.h                    |   6 -
  gcc/config/riscv/linux.h                      |  34 ++++-
  gcc/config/t-android                          |  21 +++
@@ -30,7 +30,7 @@ Subject: [PATCH] GCC 15
  libstdc++-v3/include/c_global/cwchar          |   6 +-
  libstdc++-v3/include/c_global/cwctype         |   4 +-
  libstdc++-v3/include/c_std/cwchar             |   2 +-
- 26 files changed, 495 insertions(+), 30 deletions(-)
+ 26 files changed, 501 insertions(+), 30 deletions(-)
  create mode 100644 gcc/config/aarch64/aarch64-linux-android.h
  create mode 100644 gcc/config/android-driver.cc
  create mode 100644 gcc/config/t-android
@@ -419,7 +419,7 @@ index d1d79a32f..d66dcdd68 100644
  
  static __inline void *
 diff --git a/gcc/config/linux-android.h b/gcc/config/linux-android.h
-index ecdc1da23..9f2467199 100644
+index ecdc1da23..2363396f8 100644
 --- a/gcc/config/linux-android.h
 +++ b/gcc/config/linux-android.h
 @@ -19,10 +19,43 @@
@@ -468,7 +468,7 @@ index ecdc1da23..9f2467199 100644
      } while (0)
  
  #if ANDROID_DEFAULT
-@@ -37,16 +70,74 @@
+@@ -37,16 +70,76 @@
  #define LINUX_OR_ANDROID_LD(LINUX_SPEC, ANDROID_SPEC) \
    "%{" NOANDROID "|tno-android-ld:" LINUX_SPEC ";:" ANDROID_SPEC "}"
  
@@ -533,8 +533,10 @@ index ecdc1da23..9f2467199 100644
 -  "%{!fno-pic:%{!fno-PIC:%{!fpic:%{!fPIC: -fPIC}}}}"
 +  "%{!fno-pic:%{!fno-PIC:%{!fpic:%{!fPIC: -fPIC}}}} "			\
 +  "%{!fno-common:%{!fcommon: -fcommon}} "			\
-+  "%{D__ANDROID_API__*|D__ANDROID_MIN_SDK_VERSION__*: %esetting the platform version using the '__ANDROID_API__' or '__ANDROID_MIN_SDK_VERSION__' macros is not supported} " \
++  "%{D__ANDROID_API__*|D__ANDROID_MIN_SDK_VERSION__*: %esetting the platform version using the '__ANDROID_API__' or '__ANDROID_MIN_SDK_VERSION__' macros is not supported; use '-mandroid-version-min=<value>' instead} " \
++  "%{D__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__*: %eEnabling support for weak symbols using the '__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__' macro is not supported; use '-mandroid-weak-symbols' instead} " \
 +  "%{mandroid-version-min=*: -D __ANDROID_MIN_SDK_VERSION__=%* -D __ANDROID_API__=__ANDROID_MIN_SDK_VERSION__} " \
++  "%{mandroid-weak-symbols: -D __ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__} " \
 +  BIONIC_FIXED_XREG
  
  #define ANDROID_CC1PLUS_SPEC						\
@@ -549,16 +551,20 @@ index ecdc1da23..9f2467199 100644
  #define ANDROID_LIB_SPEC \
    "%{!static: -ldl}"
 diff --git a/gcc/config/linux-android.opt b/gcc/config/linux-android.opt
-index fd07eea32..3a5f6e0eb 100644
+index fd07eea32..8afb72542 100644
 --- a/gcc/config/linux-android.opt
 +++ b/gcc/config/linux-android.opt
-@@ -22,6 +22,18 @@ mandroid
+@@ -22,6 +22,22 @@ mandroid
  Target Mask(ANDROID) Var(flag_android) Init(ANDROID_DEFAULT ? OPTION_MASK_ANDROID : 0)
  Generate code for the Android platform.
  
 +mandroid-version-min=
 +Target RejectNegative Joined Var(android_version_min) Init(ANDROID_MIN_SDK_VERSION)
 +The earliest Android version on which this program will run.
++
++mandroid-weak-symbols
++Target
++Enable support for weak API references.
 +
 +mlld
 +Target RejectNegative Negative(mno-lld)

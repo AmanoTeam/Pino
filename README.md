@@ -282,6 +282,11 @@ PINO_NEON: bool = [true/false]
 
 Setting `PINO_NEON = true` is equivalent to adding `-mfpu=neon-vfpv3` to the compiler command invocation.
 
+## Known bugs/limitations
+
+* Setting `-D_FORTIFY_SOURCE` has no effect.
+* The HWAddressSanitizer (`-fsanitize=hwaddress`) is broken at runtime.
+
 ## Releases
 
 The current release is based on GCC 15 and supports cross-compiling software for all major Android architectures: `armv7`, `arm64`, `x86`, and `x86_64`. There is also experimental support for the `riscv64` architecture.

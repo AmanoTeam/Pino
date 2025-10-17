@@ -53,14 +53,14 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	'armv5-unknown-linux-androideabi'
+	# 'armv5-unknown-linux-androideabi'
 	'aarch64-unknown-linux-android'
-	'riscv64-unknown-linux-android'
-	'mipsel-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'x86_64-unknown-linux-android'
-	'mips64el-unknown-linux-android'
+	# 'riscv64-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'x86_64-unknown-linux-android'
+	# 'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
