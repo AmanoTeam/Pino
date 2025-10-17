@@ -608,6 +608,8 @@ for triplet in "${targets[@]}"; do
 	declare abi64='0'
 	declare hash_style='both'
 	
+	enable_libsanitizer='--enable-libsanitizer'
+	
 	if [ "${triplet}" = 'riscv64-unknown-linux-android' ] || [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'x86_64-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		abi64='1'
 	fi
@@ -709,9 +711,9 @@ for triplet in "${targets[@]}"; do
 	
 	declare specs=''
 	
-	specs+=' %{!Wno-complain-wrong-lang:%{!Wcomplain-wrong-lang:-Wno-complain-wrong-lang}}'
-	specs+=' %{!Wno-psabi:%{!Wpsabi:-Wno-psabi}}'
-	specs+=' %{!Qy:-Qn}'
+	specs+=' %{!Wno-complain-wrong-lang: %{!Wcomplain-wrong-lang: -Wno-complain-wrong-lang}}'
+	specs+=' %{!Wno-psabi: %{!Wpsabi: -Wno-psabi}}'
+	specs+=' %{!Qy: -Qn}'
 	
 	specs="$(xargs <<< "${specs}")"
 	
@@ -725,9 +727,7 @@ for triplet in "${targets[@]}"; do
 	fi
 	
 	if [[ "${triplet}" = 'armv5-'* ]]; then
-		extra_configure_flags+=' --disable-libsanitizer'
-	else
-		extra_configure_flags+=' --enable-libsanitizer'
+		enable_libsanitizer='--disable-libsanitizer'
 	fi
 	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
@@ -754,11 +754,14 @@ for triplet in "${targets[@]}"; do
 		--with-android-version-min="${base_version}" \
 		--with-native-system-header-dir='/include' \
 		--with-default-libstdcxx-abi='new' \
+		--with-pic \
+		--with-specs="${specs}" \
 		--includedir="${toolchain_directory}/${triplet}/include" \
 		--enable-__cxa_atexit \
 		--enable-cet='auto' \
 		--enable-checking='release' \
 		--enable-default-ssp \
+		--enable-default-pie \
 		--enable-gnu-indirect-function \
 		--disable-gnu-unique-object \
 		--enable-languages='c,c++' \
@@ -784,8 +787,7 @@ for triplet in "${targets[@]}"; do
 		--enable-initfini-array \
 		--enable-libgomp \
 		--enable-frame-pointer \
-		--with-pic \
-		--with-specs="${specs}" \
+		${enable_libsanitizer} \
 		--disable-c++-tools \
 		--disable-tls \
 		--disable-fixincludes \
