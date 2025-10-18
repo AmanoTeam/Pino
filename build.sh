@@ -29,11 +29,8 @@ declare -r binutils_directory='/tmp/binutils'
 declare -r gcc_major='15'
 
 declare gcc_url='https://github.com/gcc-mirror/gcc/archive/master.tar.gz'
-declare -r gcc_tarball="${build_directory}/gcc.tar.xz"
-declare gcc_directory="${build_directory}/gcc-master"
-
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
-declare -r gcc_directory='/tmp/gcc-master'
+declare gcc_directory='/tmp/gcc-master'
 
 declare -r zlib_tarball='/tmp/zlib.tar.gz'
 declare -r zlib_directory='/tmp/zlib-develop'
