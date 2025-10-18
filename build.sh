@@ -54,14 +54,14 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
-	# 'armv5-unknown-linux-androideabi'
+	'armv5-unknown-linux-androideabi'
 	'aarch64-unknown-linux-android'
-	# 'riscv64-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv7-unknown-linux-androideabi'
-	# 'x86_64-unknown-linux-android'
-	# 'mips64el-unknown-linux-android'
+	'riscv64-unknown-linux-android'
+	'mipsel-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv7-unknown-linux-androideabi'
+	'x86_64-unknown-linux-android'
+	'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -336,7 +336,7 @@ fi
 if ! [ -f "${gcc_tarball}" ]; then
 	if [ "${gcc_major}" != '16' ]; then
 		gcc_url='https://github.com/gcc-mirror/gcc/archive/releases/gcc-15.tar.gz'
-		gcc_directory="${build_directory}/gcc-releases-gcc-${gcc_major}"
+		gcc_directory="/tmp/gcc-releases-gcc-${gcc_major}"
 	fi
 	
 	curl \

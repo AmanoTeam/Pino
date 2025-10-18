@@ -307,7 +307,7 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@master
         with:
-          tag_name: 1.1
+          tag_name: gcc-15
           name: Pino v1.1
           files: ./*/*-unknown-*.tar.xz*
           draft: false
