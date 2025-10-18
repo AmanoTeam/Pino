@@ -785,8 +785,8 @@ for triplet in "${targets[@]}"; do
 		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
 		--enable-libgomp \
-		--enable-frame-pointer \
 		${enable_libsanitizer} \
+		--disable-frame-pointer \
 		--disable-c++-tools \
 		--disable-tls \
 		--disable-fixincludes \
