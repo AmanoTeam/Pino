@@ -26,7 +26,7 @@ declare -r isl_directory='/tmp/isl-0.27'
 declare -r binutils_tarball='/tmp/binutils.tar.xz'
 declare -r binutils_directory='/tmp/binutils'
 
-declare -r gcc_major='15'
+declare -r gcc_major='16'
 
 declare gcc_url='https://github.com/gcc-mirror/gcc/archive/master.tar.gz'
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
@@ -292,6 +292,13 @@ if ! [ -f "${binutils_tarball}" ]; then
 			"${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-binutils-host-tools.patch"
 	fi
 	
+	if [[ "${CROSS_COMPILE_TRIPLET}" = *'bsd'* ]]; then
+		sed \
+			--in-place \
+			's/-Xlinker -rpath/-Xlinker -z -Xlinker origin -Xlinker -rpath/g' \
+			"${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-binutils-host-tools.patch"
+	fi
+	
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-binutils-host-tools.patch"
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Don-t-warn-about-local-symbols-within-the-globals.patch"
 	patch --directory="${binutils_directory}" --strip='1' --input="${workdir}/patches/0001-Fix-assertion-failure-when-linking-code-with-STT_GNU.patch"
@@ -358,6 +365,13 @@ if ! [ -f "${gcc_tarball}" ]; then
 		sed \
 			--in-place \
 			's/$$ORIGIN/@loader_path/g' \
+			"${workdir}/submodules/obggcc/patches/0007-Add-relative-RPATHs-to-GCC-host-tools.patch"
+	fi
+	
+	if [[ "${CROSS_COMPILE_TRIPLET}" = *'bsd'* ]]; then
+		sed \
+			--in-place \
+			's/-Xlinker -rpath/-Xlinker -z -Xlinker origin -Xlinker -rpath/g' \
 			"${workdir}/submodules/obggcc/patches/0007-Add-relative-RPATHs-to-GCC-host-tools.patch"
 	fi
 	

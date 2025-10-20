@@ -24,7 +24,7 @@ jobs:
       id: check-cache
       uses: actions/cache@main
       with:
-        key:  gcc-15.0.0
+        key:  gcc-16.0.0-git
         lookup-only: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -61,7 +61,7 @@ jobs:
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       uses: actions/cache@main
       with:
-        key:  gcc-15.0.0
+        key:  gcc-16.0.0-git
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
           /tmp/x86_64-linux-gnu.tar.xz.sha256
@@ -139,7 +139,7 @@ jobs:
     - name: Restore from cache
       uses: actions/cache@main
       with:
-        key:  gcc-15.0.0
+        key:  gcc-16.0.0-git
         fail-on-cache-miss: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -307,8 +307,8 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@master
         with:
-          tag_name: gcc-15
-          name: Pino v1.1
+          tag_name: gcc-16
+          name: GCC 16.0
           files: ./*/*-unknown-*.tar.xz*
           draft: false
           prerelease: true
