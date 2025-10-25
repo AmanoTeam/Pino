@@ -678,8 +678,10 @@ if [[ "${CROSS_COMPILE_TRIPLET}" = *'-haiku' ]]; then
 	export ac_cv_c_bigendian='no'
 fi
 
-if (( is_native )) || [[ "${CROSS_COMPILE_TRIPLET}" = *'-linux'* ]] || [[ "${CROSS_COMPILE_TRIPLET}" = *'-freebsd' ]]; then
-	languages+=',cobol'
+if [ "${gcc_major}" = '15' ]; then
+	if (( is_native )) || [[ "${CROSS_COMPILE_TRIPLET}" = *'-linux'* ]] || [[ "${CROSS_COMPILE_TRIPLET}" = *'-freebsd' ]]; then
+		languages+=',cobol'
+	fi
 fi
 
 for triplet in "${targets[@]}"; do
