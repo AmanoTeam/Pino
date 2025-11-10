@@ -961,14 +961,13 @@ for triplet in "${targets[@]}"; do
 		--enable-threads='posix' \
 		--enable-libstdcxx-threads \
 		--enable-libssp \
-		--enable-standard-branch-protection \
 		--enable-cxx-flags="${linkflags}" \
 		--enable-host-pie \
 		--enable-host-shared \
-		--enable-eh-frame-hdr-for-static \
 		--enable-initfini-array \
 		--enable-libgomp \
 		--enable-autolink-libiconv \
+		--enable-target-optspace \
 		${enable_libsanitizer} \
 		${enable_libgcobol} \
 		--disable-gnu-unique-object \
@@ -993,7 +992,7 @@ for triplet in "${targets[@]}"; do
 		args+="${environment}"
 	fi
 	
-	declare target_cflags="${ccflags} ${linkflags} -L${toolchain_directory}/${triplet}/lib/ldscripts"
+	declare target_cflags="${ccflags/-O2/} ${linkflags} -L${toolchain_directory}/${triplet}/lib/ldscripts"
 	declare target_cxxflags="${target_cflags} -D_ABIN32=2"
 	
 	env ${args} make \
