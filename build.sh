@@ -56,7 +56,7 @@ declare -r include_unified_directory="${toolchain_directory}/include/bionic"
 declare nz='1'
 declare cmake_flags=''
 
-declare -r max_jobs='30'
+declare -r max_jobs='20'
 
 declare -r pieflags='-fPIE'
 declare -r ccflags='-w -O2'
@@ -967,7 +967,6 @@ for triplet in "${targets[@]}"; do
 		--enable-initfini-array \
 		--enable-libgomp \
 		--enable-autolink-libiconv \
-		--enable-target-optspace \
 		${enable_libsanitizer} \
 		${enable_libgcobol} \
 		--disable-gnu-unique-object \
