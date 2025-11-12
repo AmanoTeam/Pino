@@ -25,7 +25,7 @@ declare wrapper="$(
 		
 		export LD_LIBRARY_PATH=\"%s:\${LD_LIBRARY_PATH}\"
 		
-		eval '%s' \${@}
+		exec '%s' \"\${@}\"
 	text
 )"
 
