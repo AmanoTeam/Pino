@@ -119,6 +119,8 @@ if [ -z "${ndk_root}" ]; then
 	declare ndk_root="${NDK}"
 fi
 
+declare -r cmake_directory="${sdk_root}/cmake"
+
 set -u
 
 if [ -n "${sdk_root}" ] && [ -d "${sdk_root}" ]; then
@@ -214,10 +216,11 @@ for directory in "${directories[@]}"; do
 		ln ${symlink_options} "${source}" "${destination}"
 	fi
 	
+	# ninja
 	source="${app_directory}/ninja"
 	
-	if [ -f "${source}" ] && [ -d "${sdk_root}" ]; then
-		for cmake_directory in "${sdk_root}/cmake/"*; do
+	if [ -f "${source}" ] && [ -d "${cmake_directory}" ]; then
+		for cmake_directory in "${cmake_directory}/"*; do
 			destination="${cmake_directory}/bin/ninja"
 			
 			if [[ "$(readlink "${destination}")" != "${source}" ]]; then
