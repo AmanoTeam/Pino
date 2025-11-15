@@ -220,8 +220,8 @@ for directory in "${directories[@]}"; do
 	source="${app_directory}/ninja"
 	
 	if [ -f "${source}" ] && [ -d "${cmake_directory}" ]; then
-		for cmake_directory in "${cmake_directory}/"*; do
-			destination="${cmake_directory}/bin/ninja"
+		for subdirectory in "${cmake_directory}/"*; do
+			destination="${subdirectory}/bin/ninja"
 			
 			if [[ "$(readlink "${destination}")" != "${source}" ]]; then
 				echo "- Symlinking ${source} to ${destination}"
