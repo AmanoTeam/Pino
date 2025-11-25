@@ -7,6 +7,8 @@ on:
   push:
     branches:
         - '**'
+schedule:
+    - cron: '0 9 * * *'
 
 permissions: write-all
 
