@@ -1,11 +1,11 @@
-From 2426637949c81751aaea462f8465e5dc9bf8b5f2 Mon Sep 17 00:00:00 2001
+From 9b8b6d7fd484ba4b7b4f238d646b728c8abafd88 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
-Date: Mon, 13 Oct 2025 02:18:35 -0300
+Date: Thu, 27 Nov 2025 02:04:32 -0300
 Subject: [PATCH] GCC 15
 
 ---
  gcc/config.gcc                                |  17 ++-
- gcc/config/aarch64/aarch64-linux-android.h    |  63 +++++++++
+ gcc/config/aarch64/aarch64-linux-android.h    |  66 ++++++++++
  gcc/config/aarch64/aarch64-linux.h            |   3 +
  gcc/config/android-driver.cc                  | 120 ++++++++++++++++++
  gcc/config/arm/elf.h                          |   5 +-
@@ -30,16 +30,16 @@ Subject: [PATCH] GCC 15
  libstdc++-v3/include/c_global/cwchar          |   6 +-
  libstdc++-v3/include/c_global/cwctype         |   4 +-
  libstdc++-v3/include/c_std/cwchar             |   2 +-
- 26 files changed, 501 insertions(+), 30 deletions(-)
+ 26 files changed, 504 insertions(+), 30 deletions(-)
  create mode 100644 gcc/config/aarch64/aarch64-linux-android.h
  create mode 100644 gcc/config/android-driver.cc
  create mode 100644 gcc/config/t-android
 
 diff --git a/gcc/config.gcc b/gcc/config.gcc
-index 2f478e2a4..d008589ad 100644
+index 087aaa7be..3f83c76a5 100644
 --- a/gcc/config.gcc
 +++ b/gcc/config.gcc
-@@ -926,7 +926,13 @@ case ${target} in
+@@ -912,7 +912,13 @@ case ${target} in
    esac
    case $target in
      *-*-*android*)
@@ -54,7 +54,7 @@ index 2f478e2a4..d008589ad 100644
        ;;
      *-*-*uclibc* | *-*-uclinuxfdpiceabi)
        tm_defines="$tm_defines DEFAULT_LIBC=LIBC_UCLIBC"
-@@ -1251,14 +1257,18 @@ aarch64*-*-netbsd*)
+@@ -1237,14 +1243,18 @@ aarch64*-*-netbsd*)
  	extra_options="${extra_options} netbsd.opt netbsd-elf.opt"
  	;;
  aarch64*-*-linux*)
@@ -74,7 +74,7 @@ index 2f478e2a4..d008589ad 100644
  	esac
  	aarch64_multilibs="${with_multilib_list}"
  	if test "$aarch64_multilibs" = "default"; then
-@@ -2534,7 +2544,8 @@ microblaze*-*-elf)
+@@ -2520,7 +2530,8 @@ microblaze*-*-elf)
  	tmake_file="${tmake_file} microblaze/t-microblaze"
          ;;
  riscv*-*-linux*)
@@ -86,10 +86,10 @@ index 2f478e2a4..d008589ad 100644
  	xyes) tmake_file="${tmake_file} riscv/t-linux-multilib" ;;
 diff --git a/gcc/config/aarch64/aarch64-linux-android.h b/gcc/config/aarch64/aarch64-linux-android.h
 new file mode 100644
-index 000000000..24d34b082
+index 000000000..ca0d5cfae
 --- /dev/null
 +++ b/gcc/config/aarch64/aarch64-linux-android.h
-@@ -0,0 +1,63 @@
+@@ -0,0 +1,66 @@
 +/* Machine description for AArch64 architecture.
 +   Copyright (C) 2014 Free Software Foundation, Inc.
 +
@@ -122,7 +122,10 @@ index 000000000..24d34b082
 +    }						\
 +  while (0)
 +
++#undef BIONIC_PAGE_SIZE
 +#define BIONIC_PAGE_SIZE BIONIC_PAGE_SIZE_16K
++
++#undef BIONIC_FIXED_XREG
 +#define BIONIC_FIXED_XREG "-ffixed-x18"
 +
 +#undef  LINK_SPEC
@@ -169,7 +172,7 @@ index 116bb4e69..b5a7556b4 100644
  
 diff --git a/gcc/config/android-driver.cc b/gcc/config/android-driver.cc
 new file mode 100644
-index 000000000..fd2a71246
+index 000000000..307e5d8cb
 --- /dev/null
 +++ b/gcc/config/android-driver.cc
 @@ -0,0 +1,120 @@
@@ -259,12 +262,12 @@ index 000000000..fd2a71246
 +	
 +	if (android_min_sdk_version == NULL) {
 +		#if !defined(CROSS_DIRECTORY_STRUCTURE)
-+			if (__system_property_get(RO_BUILD_VERSION_SDK, system_property) < 1) {
-+				error("cannot read system property from %qs", RO_BUILD_VERSION_SDK);
-+				goto end;
++			if (__system_property_get(RO_BUILD_VERSION_SDK, system_property) >= 1) {
++				android_min_sdk_version = system_property;
++			} else {
++				/* __system_property_get() may not work in isolated environments like termux-docker. */
++				android_min_sdk_version = ANDROID_MIN_SDK_VERSION;
 +			}
-+			
-+			android_min_sdk_version = system_property;
 +		#else
 +			android_min_sdk_version = ANDROID_MIN_SDK_VERSION;
 +		#endif
@@ -372,10 +375,10 @@ index abe714711..db85fb54e 100644
  #define ASM_SPEC "%{" SPEC_32 ":--32} \
   %{" SPEC_64 ":--64} \
 diff --git a/gcc/config/i386/i386.cc b/gcc/config/i386/i386.cc
-index 587b2bd0c..3a8a474d9 100644
+index b481f0161..996f4f834 100644
 --- a/gcc/config/i386/i386.cc
 +++ b/gcc/config/i386/i386.cc
-@@ -25236,9 +25236,7 @@ ix86_stack_protect_runtime_enabled_p (void)
+@@ -24655,9 +24655,7 @@ ix86_stack_protect_runtime_enabled_p (void)
  static tree ATTRIBUTE_UNUSED
  ix86_stack_protect_fail (void)
  {
@@ -788,10 +791,10 @@ index 830e4ba2d..98b4c6b4b 100644
  #endif
 +
 diff --git a/libstdc++-v3/include/bits/basic_string.h b/libstdc++-v3/include/bits/basic_string.h
-index 8ae6569f5..ae694b8f7 100644
+index c90bd099b..9df1b4fd1 100644
 --- a/libstdc++-v3/include/bits/basic_string.h
 +++ b/libstdc++-v3/include/bits/basic_string.h
-@@ -4728,10 +4728,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
+@@ -4726,10 +4726,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
    { return __gnu_cxx::__stoa<long, int>(&std::wcstol, "stoi", __str.c_str(),
  					__idx, __base); }
  
@@ -804,7 +807,7 @@ index 8ae6569f5..ae694b8f7 100644
  
    inline unsigned long
    stoul(const wstring& __str, size_t* __idx = 0, int __base = 10)
-@@ -4748,10 +4750,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
+@@ -4746,10 +4748,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
    { return __gnu_cxx::__stoa(&std::wcstoull, "stoull", __str.c_str(),
  			     __idx, __base); }
  
@@ -976,5 +979,5 @@ index dbb08ea3d..5762c8582 100644
  #endif
    using ::wcstok;
 -- 
-2.50.1
+2.51.2
 
