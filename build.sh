@@ -29,7 +29,7 @@ declare -r iconv_directory='/tmp/libiconv-1.18'
 declare -r binutils_tarball='/tmp/binutils.tar.xz'
 declare -r binutils_directory='/tmp/binutils'
 
-declare -r gcc_major='15'
+declare -r gcc_major='16'
 
 declare gcc_url='https://github.com/gcc-mirror/gcc/archive/master.tar.gz'
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
