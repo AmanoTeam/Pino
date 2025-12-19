@@ -377,7 +377,7 @@ fi
 
 if ! [ -f "${yasm_tarball}" ]; then
 	curl \
-		--url 'http://deb.debian.org/debian/pool/main/y/yasm/yasm_1.3.0.orig.tar.gz' \
+		--url 'https://deb.debian.org/debian/pool/main/y/yasm/yasm_1.3.0.orig.tar.gz' \
 		--retry '30' \
 		--retry-delay '0' \
 		--retry-all-errors \
@@ -397,7 +397,7 @@ fi
 
 if ! [ -f "${ninja_tarball}" ]; then
 	curl \
-		--url 'http://deb.debian.org/debian/pool/main/n/ninja-build/ninja-build_1.12.1.orig.tar.gz' \
+		--url 'https://deb.debian.org/debian/pool/main/n/ninja-build/ninja-build_1.12.1.orig.tar.gz' \
 		--retry '30' \
 		--retry-delay '0' \
 		--retry-all-errors \
@@ -492,6 +492,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Enable-automatic-linking-of-libiconv.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Disable-FDSan-File-Descriptor-Sanitizer-for-the-GCOBOL-compiler-on-Android.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Prevent-libstdc-from-trying-to-implement-math-stubs.patch"
 fi
 
 # Follow Debian's approach to remove hardcoded RPATHs from binaries
@@ -1001,6 +1002,9 @@ for triplet in "${targets[@]}"; do
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
 		all --jobs="${max_jobs}"
 	env ${args} make install
+	
+	echo >> "${toolchain_directory}/${triplet}/include/c++/${gcc_major}/${triplet}/bits/c++config.h"
+	cat "${workdir}/submodules/obggcc/patches/c++config.h" >> "${toolchain_directory}/${triplet}/include/c++/${gcc_major}/${triplet}/bits/c++config.h"
 	
 	if [[ "${languages}" = *'cobol'* ]]; then
 		sed \
