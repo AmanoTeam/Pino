@@ -61,13 +61,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'riscv64-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv7-unknown-linux-androideabi'
-	# 'x86_64-unknown-linux-android'
-	# 'mips64el-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'riscv64-unknown-linux-android'
+	'mipsel-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv7-unknown-linux-androideabi'
+	'x86_64-unknown-linux-android'
+	'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -1209,15 +1209,17 @@ for triplet in "${targets[@]}"; do
 				mkdir 'nouzen'
 				
 				cp --recursive "${nz_directory}/"* "${PWD}/nouzen"
-				mkdir "${PWD}/nouzen/lib"
+				
+				mkdir \
+					--parent \
+					"${PWD}/nouzen/lib" \
+					"${PWD}/nouzen/etc/nouzen/sources.list"
 				
 				ln \
 					--symbolic \
 					--relative \
 					"${toolchain_directory}/lib/nouzen/lib"* \
 					"${PWD}/nouzen/lib"
-			
-				mkdir --parent './nouzen/etc/nouzen/sources.list'
 				
 				declare repository='https://packages.termux.dev/apt/termux-main/'
 				declare release='stable'
@@ -1240,12 +1242,14 @@ for triplet in "${targets[@]}"; do
 					architecture='none'
 				fi
 				
+				cp "${nz_directory}/options.conf" "${PWD}/nouzen/etc/nouzen"
+				
 				echo -e "repository = ${repository}\nrelease = ${release}\nresource = ${resource}\narchitecture = ${architecture}" > './nouzen/etc/nouzen/sources.list/pino.conf'
 				
 				sed \
 					--in-place \
 					's|symlink-prefix = none|symlink-prefix = data/data/com.termux/files|g' \
-					'./nouzen/etc/nouzen/options.conf'
+					"${PWD}/nouzen/etc/nouzen/options.conf"
 			fi
 		fi
 		
