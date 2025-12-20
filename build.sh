@@ -327,7 +327,7 @@ if ! [ -f "${binutils_tarball}" ]; then
 			"${workdir}/submodules/obggcc/patches/0001-Add-relative-RPATHs-to-binutils-host-tools.patch"
 	fi
 	
-	if [[ "${CROSS_COMPILE_TRIPLET}" = *'bsd'* ]]; then
+	if [[ "${CROSS_COMPILE_TRIPLET}" = *'bsd'* ]] || [[ "${CROSS_COMPILE_TRIPLET}" = *'dragonfly' ]] then
 		sed \
 			--in-place \
 			's/-Xlinker -rpath/-Xlinker -z -Xlinker origin -Xlinker -rpath/g' \
@@ -440,7 +440,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 			"${workdir}/submodules/obggcc/patches/0007-Add-relative-RPATHs-to-GCC-host-tools.patch"
 	fi
 	
-	if [[ "${CROSS_COMPILE_TRIPLET}" = *'bsd'* ]]; then
+	if [[ "${CROSS_COMPILE_TRIPLET}" = *'bsd'* ]] || [[ "${CROSS_COMPILE_TRIPLET}" = *'dragonfly' ]] then
 		sed \
 			--in-place \
 			's/-Xlinker -rpath/-Xlinker -z -Xlinker origin -Xlinker -rpath/g' \
@@ -741,7 +741,18 @@ sed \
 	--in-place \
 	--regexp-extended \
 	"s/(GCC_MAJOR_VERSION\[\] = )\"[0-9]+\"/\1\"${gcc_major}\"/g" \
-	"${workdir}/submodules/obggcc/tools/gcc-wrapper/gcc.c" \
+	"${workdir}/submodules/obggcc/tools/gcc-wrapper/gcc.c"
+
+sed \
+	--in-place \
+	--regexp-extended \
+	's/description = .*/description = "A GCC cross-compiler targeting Android",/' \
+	"${workdir}/submodules/obggcc/tools/program-help.h.py"
+
+sed \
+	--in-place \
+	's/--obggcc/--pino/'
+	"${workdir}/submodules/obggcc/tools/gcc-wrapper/obggcc.h"
 
 make \
 	-C "${workdir}/submodules/obggcc/tools/gcc-wrapper" \
@@ -1002,9 +1013,6 @@ for triplet in "${targets[@]}"; do
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
 		all --jobs="${max_jobs}"
 	env ${args} make install
-	
-	echo >> "${toolchain_directory}/${triplet}/include/c++/${gcc_major}/${triplet}/bits/c++config.h"
-	cat "${workdir}/submodules/obggcc/patches/c++config.h" >> "${toolchain_directory}/${triplet}/include/c++/${gcc_major}/${triplet}/bits/c++config.h"
 	
 	if [[ "${languages}" = *'cobol'* ]]; then
 		sed \

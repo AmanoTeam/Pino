@@ -83,7 +83,16 @@ set +u
 declare sdk_root=''
 declare ndk_root=''
 
-declare directories=()
+declare -i symlinks=0
+
+declare -a directories=()
+
+function symlink() {
+
+	ln ${symlink_options} "${1}" "${2}"
+	(( symlinks += 1 ))
+	
+}
 
 # Android SDK
 if [ -z "${sdk_root}" ]; then
@@ -124,7 +133,7 @@ declare -r cmake_directory="${sdk_root}/cmake"
 set -u
 
 if [ -n "${sdk_root}" ] && [ -d "${sdk_root}" ]; then
-	echo "- Found Android SDK at ${sdk_root}"
+	echo "checking ${sdk_root}"
 	
 	for directory in "${sdk_root}/ndk/"*; do
 		if ! [ -d "${directory}" ]; then
@@ -134,13 +143,18 @@ if [ -n "${sdk_root}" ] && [ -d "${sdk_root}" ]; then
 		directories+=("${directory}")
 	done
 elif [ -n "${ndk_root}" ] && [ -d "${ndk_root}" ]; then
-	echo "- Found Android NDK at ${ndk_root}"
+	echo "checking ${ndk_root}"
 	
 	directories+=("${ndk_root}")
 else
-	echo 'fatal error: unable to find SDK location: please define ANDROID_HOME or ANDROID_SDK_ROOT' 2>&1
-	echo 'fatal error: you can also explicitly set the NDK location with ANDROID_NDK_HOME or ANDROID_NDK_ROOT' 2>&1
+	echo 'fatal error: unable to find SDK location: please define ANDROID_HOME or ANDROID_SDK_ROOT' >&2
+	echo 'fatal error: you can also explicitly set the NDK location with ANDROID_NDK_HOME or ANDROID_NDK_ROOT' >&2
 	exit '1'
+fi
+
+if [ "${#directories[@]}" -eq 0 ]; then
+	echo 'nothing to do!' >&2
+	exit '0'
 fi
 
 for directory in "${directories[@]}"; do
@@ -150,16 +164,16 @@ for directory in "${directories[@]}"; do
 	declare toolchains_directory="${directory}/toolchains"
 	
 	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-		echo "- Symlinking ${source} to ${destination}"
-		ln ${symlink_options} "${source}" "${destination}"
+		echo "symlinking ${source} to ${destination}"
+		symlink "${source}" "${destination}"
 	fi
 	
 	source+='++'
 	destination+='++'
 	
 	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-		echo "- Symlinking ${source} to ${destination}"
-		ln ${symlink_options} "${source}" "${destination}"
+		echo "symlinking ${source} to ${destination}"
+		symlink "${source}" "${destination}"
 	fi
 	
 	# yasm
@@ -167,8 +181,8 @@ for directory in "${directories[@]}"; do
 	destination="${destination/clang++/yasm}"
 	
 	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-		echo "- Symlinking ${source} to ${destination}"
-		ln ${symlink_options} "${source}" "${destination}"
+		echo "symlinking ${source} to ${destination}"
+		symlink "${source}" "${destination}"
 	fi
 	
 	# llvm-strip
@@ -176,8 +190,8 @@ for directory in "${directories[@]}"; do
 	destination="${destination/yasm/llvm-strip}"
 	
 	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-		echo "- Symlinking ${source} to ${destination}"
-		ln ${symlink_options} "${source}" "${destination}"
+		echo "symlinking ${source} to ${destination}"
+		symlink "${source}" "${destination}"
 	fi
 	
 	# llvm-objcopy
@@ -185,8 +199,8 @@ for directory in "${directories[@]}"; do
 	destination="${destination/llvm-strip/llvm-objcopy}"
 	
 	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-		echo "- Symlinking ${source} to ${destination}"
-		ln ${symlink_options} "${source}" "${destination}"
+		echo "symlinking ${source} to ${destination}"
+		symlink "${source}" "${destination}"
 	fi
 	
 	# llvm-ar (architecture-independent)
@@ -194,8 +208,8 @@ for directory in "${directories[@]}"; do
 	destination="${destination/llvm-objcopy/llvm-ar}"
 	
 	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-		echo "- Symlinking ${source} to ${destination}"
-		ln ${symlink_options} "${source}" "${destination}"
+		echo "symlinking ${source} to ${destination}"
+		symlink "${source}" "${destination}"
 	fi
 	
 	# llvm-nm (architecture-independent)
@@ -203,8 +217,8 @@ for directory in "${directories[@]}"; do
 	destination="${destination/-ar/-nm}"
 	
 	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-		echo "- Symlinking ${source} to ${destination}"
-		ln ${symlink_options} "${source}" "${destination}"
+		echo "symlinking ${source} to ${destination}"
+		symlink "${source}" "${destination}"
 	fi
 	
 	# llvm-ranlib (architecture-independent)
@@ -212,8 +226,8 @@ for directory in "${directories[@]}"; do
 	destination="${destination/-nm/-ranlib}"
 	
 	if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-		echo "- Symlinking ${source} to ${destination}"
-		ln ${symlink_options} "${source}" "${destination}"
+		echo "symlinking ${source} to ${destination}"
+		symlink "${source}" "${destination}"
 	fi
 	
 	# ninja
@@ -224,8 +238,8 @@ for directory in "${directories[@]}"; do
 			destination="${subdirectory}/bin/ninja"
 			
 			if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-				echo "- Symlinking ${source} to ${destination}"
-				ln ${symlink_options} "${source}" "${destination}"
+				echo "symlinking ${source} to ${destination}"
+				symlink "${source}" "${destination}"
 			fi
 		done
 	fi
@@ -249,8 +263,8 @@ for directory in "${directories[@]}"; do
 			fi
 			
 			if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-				echo "- Symlinking ${source} to ${destination}"
-				ln ${symlink_options} "${source}" "${destination}"
+				echo "symlinking ${source} to ${destination}"
+				symlink "${source}" "${destination}"
 			fi
 			
 			declare subdirectory=''
@@ -270,8 +284,8 @@ for directory in "${directories[@]}"; do
 				destination="${subdirectory}/${original_triplet}-${name}"
 				
 				if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-					echo "- Symlinking ${source} to ${destination}"
-					ln ${symlink_options} "${source}" "${destination}"
+					echo "symlinking ${source} to ${destination}"
+					symlink "${source}" "${destination}"
 				fi
 			fi
 			
@@ -282,8 +296,8 @@ for directory in "${directories[@]}"; do
 			destination="${directory}/toolchains/llvm/prebuilt/${slug}/bin/${original_triplet}-${name}"
 			
 			if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-				echo "- Symlinking ${source} to ${destination}"
-				ln ${symlink_options} "${source}" "${destination}"
+				echo "symlinking ${source} to ${destination}"
+				symlink "${source}" "${destination}"
 			fi
 		done
 		
@@ -296,21 +310,25 @@ for directory in "${directories[@]}"; do
 			fi
 			
 			if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-				echo "- Symlinking ${source} to ${destination}"
-				ln ${symlink_options} "${source}" "${destination}"
+				echo "symlinking ${source} to ${destination}"
+				symlink "${source}" "${destination}"
 			fi
 			
 			source+='++'
 			destination+='++'
 			
 			if [[ "$(readlink "${destination}")" != "${source}" ]]; then
-				echo "- Symlinking ${source} to ${destination}"
-				ln ${symlink_options} "${source}" "${destination}"
+				echo "symlinking ${source} to ${destination}"
+				symlink "${source}" "${destination}"
 			fi
 		done
 	done
 done
 
-echo -e '+ Done'
+if [ "${symlinks}" -eq 0 ]; then
+	echo 'nothing to do!' >&2
+else
+	echo "${symlinks} files were modified"
+fi
 
 exit '0'
