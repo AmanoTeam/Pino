@@ -29,6 +29,9 @@ declare -r iconv_directory='/tmp/libiconv-1.18'
 declare -r binutils_tarball='/tmp/binutils.tar.xz'
 declare -r binutils_directory='/tmp/binutils'
 
+declare -r nz_directory="${workdir}/submodules/nz"
+declare -r nz_prefix='/tmp/nz'
+
 declare -r gcc_major='15'
 
 declare gcc_url='https://github.com/gcc-mirror/gcc/archive/master.tar.gz'
@@ -53,9 +56,6 @@ declare -r nz_directory='/tmp/nouzen'
 declare -r cxx_bits='/tmp/cxx-bits'
 declare -r include_unified_directory="${toolchain_directory}/include/bionic"
 
-declare nz='1'
-declare cmake_flags=''
-
 declare -r max_jobs='20'
 
 declare -r pieflags='-fPIE'
@@ -64,13 +64,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
-	'riscv64-unknown-linux-android'
-	'mipsel-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'x86_64-unknown-linux-android'
-	'mips64el-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
+	# 'riscv64-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'x86_64-unknown-linux-android'
+	# 'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -532,42 +532,6 @@ sed \
 	"${gcc_directory}/configure" \
 	"${binutils_directory}/configure"
 
-if ! [ -f "${nz_tarball}" ]; then
-	declare target="${build_type}"
-	
-	if [ "${target}" = 'native' ]; then
-		target='x86_64-unknown-linux-gnu'
-	fi
-	
-	declare url="https://github.com/AmanoTeam/Nouzen/releases/latest/download/${target}.tar.xz"
-	declare directory="/tmp/${target}"
-	
-	rm --force --recursive "${directory}"
-	
-	echo "- Fetching data from '${url}'"
-	
-	curl \
-		--url "${url}" \
-		--retry '30' \
-		--retry-all-errors \
-		--retry-delay '0' \
-		--retry-max-time '0' \
-		--location \
-		--silent \
-		--output "${nz_tarball}"
-	
-	tar \
-		--directory="$(dirname "${directory}")" \
-		--extract \
-		--file="${nz_tarball}" 2>/dev/null || nz='0'
-	
-	if (( nz )); then
-		mv "${directory}" "${nz_directory}"
-		mkdir --parent "${toolchain_directory}/lib"
-		mv "${nz_directory}/lib" "${toolchain_directory}/lib/nouzen"
-	fi
-fi
-
 declare gmp_ldflags=''
 declare disable_assembly='--disable-assembly'
 
@@ -693,14 +657,9 @@ unlink "${toolchain_directory}/lib/libz.a"
 cd "${zstd_directory}/.build"
 rm --force --recursive ./*
 
-if [[ "${CROSS_COMPILE_TRIPLET}" = *'-darwin'* ]]; then
-	cmake_flags+=' -DCMAKE_SYSTEM_NAME=Darwin'
-fi
-
 cmake \
 	-S "${zstd_directory}/build/cmake" \
 	-B "${PWD}" \
-	${cmake_flags} \
 	-DCMAKE_C_FLAGS="-DZDICT_QSORT=ZDICT_QSORT_MIN ${ccflags}" \
 	-DCMAKE_INSTALL_PREFIX="${toolchain_directory}" \
 	-DBUILD_SHARED_LIBS=ON \
@@ -720,7 +679,6 @@ rm --force --recursive ./*
 cmake \
 	-S "${ninja_directory}" \
 	-B "${PWD}" \
-	${cmake_flags} \
 	-DBUILD_TESTING='OFF' \
 	-DCMAKE_POLICY_VERSION_MINIMUM='3.5' \
 	-DCMAKE_INSTALL_PREFIX="${toolchain_directory}" \
@@ -730,6 +688,25 @@ if [[ "${CROSS_COMPILE_TRIPLET}" != *'-android'* ]]; then
 	cmake --build "${PWD}"
 	cmake --install "${PWD}" --strip
 fi
+
+[ -d "${nz_directory}/build" ] || mkdir "${nz_directory}/build"
+
+cd "${nz_directory}/build"
+rm --force --recursive ./*
+
+cmake \
+	-S "${nz_directory}" \
+	-B "${PWD}" \
+	-DCMAKE_C_FLAGS="${ccflags}" \
+	-DCMAKE_CXX_FLAGS="${ccflags}" \
+	-DCMAKE_INSTALL_PREFIX="${nz_prefix}"
+
+cmake --build "${PWD}" -- --jobs='1'
+cmake --install "${PWD}" --strip
+
+mkdir --parent "${toolchain_directory}/lib/nouzen"
+mv "${nz_prefix}/lib/"* "${toolchain_directory}/lib/nouzen"
+rmdir "${nz_prefix}/lib"
 
 declare cc='gcc'
 
@@ -1224,7 +1201,7 @@ for triplet in "${targets[@]}"; do
 		
 		status='0'
 		
-		(( nz && termux && version >= 21 )) && status='1'
+		(( termux && version >= 21 )) && status='1'
 		
 		if (( status )); then
 			if (( version > 21 && version < 24 )); then
@@ -1234,12 +1211,13 @@ for triplet in "${targets[@]}"; do
 			else
 				mkdir 'nouzen'
 				
-				cp --recursive "${nz_directory}/"* './nouzen'
+				cp --recursive "${nz_directory}/"* "${PWD}/nouzen"
+				mkdir "${PWD}/nouzen/lib"
 				
 				ln \
 					--symbolic \
 					--relative \
-					"${toolchain_directory}/lib/nouzen" \
+					"${toolchain_directory}/lib/nouzen/lib"* \
 					"${PWD}/nouzen/lib"
 			
 				mkdir --parent './nouzen/etc/nouzen/sources.list'
@@ -1337,10 +1315,16 @@ if ! (( is_native )) && [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
 	if ! [ -f "${name}" ]; then
 		declare name=$(realpath $("${cc}" --print-file-name='libstdc++.so'))
 	fi
-	
+	echo $name
 	declare soname=$("${readelf}" -d "${name}" | grep 'SONAME' | sed --regexp-extended 's/.+\[(.+)\]/\1/g')
 	
 	cp "${name}" "${toolchain_directory}/lib/${soname}"
+	
+	ln \
+		--symbolic \
+		--relative \
+		"${toolchain_directory}/lib/${soname}" \
+		"${toolchain_directory}/lib/nouzen"
 	
 	# libegcc
 	declare name=$(realpath $("${cc}" --print-file-name='libegcc.so'))
@@ -1349,10 +1333,16 @@ if ! (( is_native )) && [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
 		# libgcc_s
 		declare name=$(realpath $("${cc}" --print-file-name='libgcc_s.so.1'))
 	fi
-	
+	echo $name
 	declare soname=$("${readelf}" -d "${name}" | grep 'SONAME' | sed --regexp-extended 's/.+\[(.+)\]/\1/g')
 	
 	cp "${name}" "${toolchain_directory}/lib/${soname}"
+	
+	ln \
+		--symbolic \
+		--relative \
+		"${toolchain_directory}/lib/${soname}" \
+		"${toolchain_directory}/lib/nouzen"
 	
 	# libatomic
 	declare name=$(realpath $("${cc}" --print-file-name='libatomic.so'))
@@ -1361,12 +1351,24 @@ if ! (( is_native )) && [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
 	
 	cp "${name}" "${toolchain_directory}/lib/${soname}"
 	
+	ln \
+		--symbolic \
+		--relative \
+		"${toolchain_directory}/lib/${soname}" \
+		"${toolchain_directory}/lib/nouzen"
+	
 	# libiconv
 	declare name=$(realpath $("${cc}" --print-file-name='libiconv.so'))
 	
 	if [ -f "${name}" ]; then
 		declare soname=$("${readelf}" -d "${name}" | grep 'SONAME' | sed --regexp-extended 's/.+\[(.+)\]/\1/g')
 		cp "${name}" "${toolchain_directory}/lib/${soname}"
+		
+		ln \
+			--symbolic \
+			--relative \
+			"${toolchain_directory}/lib/${soname}" \
+			"${toolchain_directory}/lib/nouzen"
 	fi
 	
 	# libcharset
@@ -1375,6 +1377,12 @@ if ! (( is_native )) && [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
 	if [ -f "${name}" ]; then
 		declare soname=$("${readelf}" -d "${name}" | grep 'SONAME' | sed --regexp-extended 's/.+\[(.+)\]/\1/g')
 		cp "${name}" "${toolchain_directory}/lib/${soname}"
+		
+		ln \
+			--symbolic \
+			--relative \
+			"${toolchain_directory}/lib/${soname}" \
+			"${toolchain_directory}/lib/nouzen"
 	fi
 fi
 
