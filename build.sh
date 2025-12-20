@@ -61,13 +61,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
-	'riscv64-unknown-linux-android'
-	'mipsel-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'x86_64-unknown-linux-android'
-	'mips64el-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
+	# 'riscv64-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'x86_64-unknown-linux-android'
+	# 'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -1208,7 +1208,7 @@ for triplet in "${targets[@]}"; do
 			else
 				mkdir 'nouzen'
 				
-				cp --recursive "${nz_directory}/"* "${PWD}/nouzen"
+				cp --recursive "${nz_prefix}/"* "${PWD}/nouzen"
 				
 				mkdir \
 					--parent \
@@ -1316,7 +1316,7 @@ if ! (( is_native )) && [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
 	if ! [ -f "${name}" ]; then
 		declare name=$(realpath $("${cc}" --print-file-name='libstdc++.so'))
 	fi
-	echo $name
+	
 	declare soname=$("${readelf}" -d "${name}" | grep 'SONAME' | sed --regexp-extended 's/.+\[(.+)\]/\1/g')
 	
 	cp "${name}" "${toolchain_directory}/lib/${soname}"
@@ -1334,7 +1334,7 @@ if ! (( is_native )) && [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
 		# libgcc_s
 		declare name=$(realpath $("${cc}" --print-file-name='libgcc_s.so.1'))
 	fi
-	echo $name
+	
 	declare soname=$("${readelf}" -d "${name}" | grep 'SONAME' | sed --regexp-extended 's/.+\[(.+)\]/\1/g')
 	
 	cp "${name}" "${toolchain_directory}/lib/${soname}"
