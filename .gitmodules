@@ -4,3 +4,6 @@
 [submodule "submodules/libpino"]
 	path = submodules/libpino
 	url = https://github.com/AmanoTeam/libpino
+[submodule "submodules/nz"]
+	path = submodules/nz
+	url = https://github.com/AmanoTeam/Nouzen
