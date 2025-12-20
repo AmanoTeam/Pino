@@ -29,9 +29,6 @@ declare -r iconv_directory='/tmp/libiconv-1.18'
 declare -r binutils_tarball='/tmp/binutils.tar.xz'
 declare -r binutils_directory='/tmp/binutils'
 
-declare -r nz_directory="${workdir}/submodules/nz"
-declare -r nz_prefix='/tmp/nz'
-
 declare -r gcc_major='15'
 
 declare gcc_url='https://github.com/gcc-mirror/gcc/archive/master.tar.gz'
@@ -50,8 +47,8 @@ declare -r yasm_directory='/tmp/yasm-1.3.0'
 declare -r ninja_tarball='/tmp/ninja.tar.gz'
 declare -r ninja_directory='/tmp/ninja-1.12.1'
 
-declare -r nz_tarball='/tmp/nz.tar.xz'
-declare -r nz_directory='/tmp/nouzen'
+declare -r nz_directory="${workdir}/submodules/nz"
+declare -r nz_prefix='/tmp/nz'
 
 declare -r cxx_bits='/tmp/cxx-bits'
 declare -r include_unified_directory="${toolchain_directory}/include/bionic"
@@ -728,7 +725,7 @@ sed \
 
 sed \
 	--in-place \
-	's/--obggcc/--pino/'
+	's/--obggcc/--pino/' \
 	"${workdir}/submodules/obggcc/tools/gcc-wrapper/obggcc.h"
 
 make \
