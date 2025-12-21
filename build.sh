@@ -1398,7 +1398,7 @@ if ! (( is_native )) && [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
 				--symbolic \
 				--relative \
 				"${source}" \
-				"${destination}"
+				"${destination}" || true
 		done
 	done
 fi
