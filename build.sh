@@ -1385,6 +1385,20 @@ if ! (( is_native )) && [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
 			"${toolchain_directory}/lib/${soname}" \
 			"${toolchain_directory}/lib/nouzen"
 	fi
+	
+	for source in "${toolchain_directory}/lib/"{atomic,*gcc*,*stdc++,charset,iconv}.*; do
+		if ! [ -f "${source}" ]; then
+			continue
+		fi
+		
+		for destination in "${toolchain_directory}/"*'-unknown-linux-android'*'/lib/nouzen/bin/lib'; do
+			ln \
+				--symbolic \
+				--relative \
+				"${source}" \
+				"${destination}"
+		done
+	done
 fi
 
 mkdir --parent "${share_directory}"
