@@ -1391,7 +1391,9 @@ if ! (( is_native )) && [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
 			continue
 		fi
 		
-		for destination in "${toolchain_directory}/"*'-unknown-linux-android'*'/lib/nouzen/bin/lib'; do
+		for destination in "${toolchain_directory}/"*'-unknown-linux-android'*'/lib/nouzen/lib'; do
+			echo "- Symlinking '${source}' to '${destination}'"
+		
 			ln \
 				--symbolic \
 				--relative \
