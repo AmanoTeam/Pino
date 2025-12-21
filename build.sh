@@ -61,13 +61,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	# 'armv5-unknown-linux-androideabi'
-	# 'riscv64-unknown-linux-android'
-	# 'mipsel-unknown-linux-android'
-	# 'i686-unknown-linux-android'
-	# 'armv7-unknown-linux-androideabi'
-	# 'x86_64-unknown-linux-android'
-	# 'mips64el-unknown-linux-android'
+	'armv5-unknown-linux-androideabi'
+	'riscv64-unknown-linux-android'
+	'mipsel-unknown-linux-android'
+	'i686-unknown-linux-android'
+	'armv7-unknown-linux-androideabi'
+	'x86_64-unknown-linux-android'
+	'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -1398,7 +1398,7 @@ if ! (( is_native )) && [[ "${CROSS_COMPILE_TRIPLET}" != *'-darwin'* ]]; then
 				--symbolic \
 				--relative \
 				"${source}" \
-				"${destination}" || true
+				"${destination}" 2>/dev/null || true
 		done
 	done
 fi
