@@ -1,50 +1,47 @@
-From 4582f1eec98de5660543e3062bccedf1a8f6cdd7 Mon Sep 17 00:00:00 2001
+From 4f107b183b98ab729f266a7ffe12e8b68e818a0f Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Thu, 16 Oct 2025 03:08:08 -0300
 Subject: [PATCH] Disable SONAME versioning for all target libraries
 
 ---
- gcc/config/mingw/mingw32.h        | 7 +------
- libatomic/Makefile.in             | 2 +-
- libffi/Makefile.in                | 2 +-
- libgcc/config/t-slibgcc           | 2 +-
- libgcobol/Makefile.in             | 2 +-
- libgfortran/Makefile.in           | 3 +--
- libgm2/libm2cor/Makefile.in       | 2 +-
- libgm2/libm2iso/Makefile.in       | 2 +-
- libgm2/libm2log/Makefile.in       | 2 +-
- libgm2/libm2min/Makefile.in       | 2 +-
- libgm2/libm2pim/Makefile.in       | 2 +-
- libgo/Makefile.in                 | 2 +-
- libgomp/Makefile.in               | 6 +++---
- libitm/Makefile.in                | 2 +-
- libobjc/Makefile.in               | 4 ++--
- libphobos/libdruntime/Makefile.in | 2 +-
- libphobos/src/Makefile.in         | 2 +-
- libquadmath/Makefile.in           | 3 +--
- libsanitizer/asan/Makefile.in     | 3 +--
- libsanitizer/hwasan/Makefile.in   | 3 +--
- libsanitizer/lsan/Makefile.in     | 3 +--
- libsanitizer/tsan/Makefile.in     | 3 +--
- libsanitizer/ubsan/Makefile.in    | 3 +--
- libssp/Makefile.in                | 3 +--
- libstdc++-v3/src/Makefile.in      | 3 +--
- 25 files changed, 28 insertions(+), 42 deletions(-)
+ gcc/config/mingw/mingw32.h           | 3 ++-
+ libatomic/Makefile.in                | 2 +-
+ libffi/Makefile.in                   | 2 +-
+ libgcc/config/i386/t-slibgcc-cygming | 4 ++--
+ libgcc/config/t-slibgcc              | 2 +-
+ libgcobol/Makefile.in                | 2 +-
+ libgfortran/Makefile.in              | 3 +--
+ libgm2/libm2cor/Makefile.in          | 2 +-
+ libgm2/libm2iso/Makefile.in          | 2 +-
+ libgm2/libm2log/Makefile.in          | 2 +-
+ libgm2/libm2min/Makefile.in          | 2 +-
+ libgm2/libm2pim/Makefile.in          | 2 +-
+ libgo/Makefile.in                    | 2 +-
+ libgomp/Makefile.in                  | 6 +++---
+ libitm/Makefile.in                   | 2 +-
+ libobjc/Makefile.in                  | 4 ++--
+ libphobos/libdruntime/Makefile.in    | 2 +-
+ libphobos/src/Makefile.in            | 2 +-
+ libquadmath/Makefile.in              | 3 +--
+ libsanitizer/asan/Makefile.in        | 3 +--
+ libsanitizer/hwasan/Makefile.in      | 3 +--
+ libsanitizer/lsan/Makefile.in        | 3 +--
+ libsanitizer/tsan/Makefile.in        | 3 +--
+ libsanitizer/ubsan/Makefile.in       | 3 +--
+ libssp/Makefile.in                   | 3 +--
+ libstdc++-v3/src/Makefile.in         | 3 +--
+ 26 files changed, 31 insertions(+), 39 deletions(-)
 
 diff --git a/gcc/config/mingw/mingw32.h b/gcc/config/mingw/mingw32.h
-index 10bcd2935..73027c4b0 100644
+index 10bcd2935..d14521aad 100644
 --- a/gcc/config/mingw/mingw32.h
 +++ b/gcc/config/mingw/mingw32.h
-@@ -314,10 +314,5 @@ do {						         \
- 
- /* This matches SHLIB_SONAME and SHLIB_SOVERSION in t-cygming. */
- /* This matches SHLIB_SONAME and SHLIB_SOVERSION in t-cygwin. */
--#if DWARF2_UNWIND_INFO
--#define LIBGCC_EH_EXTN "_dw2"
--#else
--#define LIBGCC_EH_EXTN "_sjlj"
--#endif
+@@ -319,5 +319,6 @@ do {						         \
+ #else
+ #define LIBGCC_EH_EXTN "_sjlj"
+ #endif
 -#define LIBGCC_SONAME "libgcc_s" LIBGCC_EH_EXTN "-1.dll"
++#define LIBGCC_SONAME "libgcc_s" LIBGCC_EH_EXTN ".dll"
 +#define LIBGCC_SONAME "libgcc_s.dll"
  
 diff --git a/libatomic/Makefile.in b/libatomic/Makefile.in
@@ -73,6 +70,26 @@ index 1003b58b9..8bfdd95b2 100644
  @ENABLE_DARWIN_AT_RPATH_TRUE@libffi_darwin_rpath = -Wl,-rpath,@loader_path
  libffi_la_LDFLAGS = -no-undefined $(libffi_version_info) \
  	$(libffi_version_script) $(LTLDFLAGS) $(AM_LTLDFLAGS) \
+diff --git a/libgcc/config/i386/t-slibgcc-cygming b/libgcc/config/i386/t-slibgcc-cygming
+index 6871498cf..bf9be3602 100644
+--- a/libgcc/config/i386/t-slibgcc-cygming
++++ b/libgcc/config/i386/t-slibgcc-cygming
+@@ -10,7 +10,7 @@
+ SHLIB_EXT = .dll
+ SHLIB_IMPLIB = @shlib_base_name@.a
+ SHLIB_SOVERSION = 1
+-SHLIB_SONAME = @shlib_base_name@_$(EH_MODEL)-$(SHLIB_SOVERSION)$(SHLIB_EXT)
++SHLIB_SONAME = @shlib_base_name@_$(EH_MODEL)-$(SHLIB_EXT)
+ SHLIB_MAP = @shlib_map_file@
+ SHLIB_OBJS = @shlib_objs@
+ SHLIB_DIR = @multilib_dir@/shlib
+@@ -58,5 +58,5 @@ SHLIB_INSTALL = \
+ SHLIB_MKMAP = $(srcdir)/mkmap-flat.awk
+ # We'd like to use SHLIB_SONAME here too, but shlib_base_name
+ # does not get substituted before mkmap-flat.awk is run.
+-SHLIB_MKMAP_OPTS = -v pe_dll=libgcc_s_$(EH_MODEL)-$(SHLIB_SOVERSION)$(SHLIB_EXT)
++SHLIB_MKMAP_OPTS = -v pe_dll=libgcc_s_$(EH_MODEL)-$(SHLIB_EXT)
+ SHLIB_MAPFILES = libgcc-std.ver $(srcdir)/config/i386/libgcc-cygming.ver
 diff --git a/libgcc/config/t-slibgcc b/libgcc/config/t-slibgcc
 index 68cb3b31e..afa27c53c 100644
 --- a/libgcc/config/t-slibgcc
