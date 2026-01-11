@@ -1,4 +1,4 @@
-From 4f107b183b98ab729f266a7ffe12e8b68e818a0f Mon Sep 17 00:00:00 2001
+From c18bc173e4ca20a827d6b0dc30e61874faaa6b04 Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Thu, 16 Oct 2025 03:08:08 -0300
 Subject: [PATCH] Disable SONAME versioning for all target libraries
@@ -71,7 +71,7 @@ index 1003b58b9..8bfdd95b2 100644
  libffi_la_LDFLAGS = -no-undefined $(libffi_version_info) \
  	$(libffi_version_script) $(LTLDFLAGS) $(AM_LTLDFLAGS) \
 diff --git a/libgcc/config/i386/t-slibgcc-cygming b/libgcc/config/i386/t-slibgcc-cygming
-index 6871498cf..bf9be3602 100644
+index 6871498cf..cc71a2dcb 100644
 --- a/libgcc/config/i386/t-slibgcc-cygming
 +++ b/libgcc/config/i386/t-slibgcc-cygming
 @@ -10,7 +10,7 @@
@@ -79,7 +79,7 @@ index 6871498cf..bf9be3602 100644
  SHLIB_IMPLIB = @shlib_base_name@.a
  SHLIB_SOVERSION = 1
 -SHLIB_SONAME = @shlib_base_name@_$(EH_MODEL)-$(SHLIB_SOVERSION)$(SHLIB_EXT)
-+SHLIB_SONAME = @shlib_base_name@_$(EH_MODEL)-$(SHLIB_EXT)
++SHLIB_SONAME = @shlib_base_name@_$(EH_MODEL)$(SHLIB_EXT)
  SHLIB_MAP = @shlib_map_file@
  SHLIB_OBJS = @shlib_objs@
  SHLIB_DIR = @multilib_dir@/shlib
@@ -88,7 +88,7 @@ index 6871498cf..bf9be3602 100644
  # We'd like to use SHLIB_SONAME here too, but shlib_base_name
  # does not get substituted before mkmap-flat.awk is run.
 -SHLIB_MKMAP_OPTS = -v pe_dll=libgcc_s_$(EH_MODEL)-$(SHLIB_SOVERSION)$(SHLIB_EXT)
-+SHLIB_MKMAP_OPTS = -v pe_dll=libgcc_s_$(EH_MODEL)-$(SHLIB_EXT)
++SHLIB_MKMAP_OPTS = -v pe_dll=libgcc_s_$(EH_MODEL)$(SHLIB_EXT)
  SHLIB_MAPFILES = libgcc-std.ver $(srcdir)/config/i386/libgcc-cygming.ver
 diff --git a/libgcc/config/t-slibgcc b/libgcc/config/t-slibgcc
 index 68cb3b31e..afa27c53c 100644
