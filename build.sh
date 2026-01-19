@@ -473,8 +473,6 @@ if ! [ -f "${gcc_tarball}" ]; then
 	fi
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0007-Add-relative-RPATHs-to-GCC-host-tools.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0008-Add-ARM-and-ARM64-drivers-to-OpenBSD-host-tools.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0009-Fix-missing-stdint.h-include-when-compiling-host-tools-on-OpenBSD.patch"
 	
 	if [ "${gcc_major}" = '16' ]; then
 		patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0011-Revert-configure-Always-add-pre-installed-header-directories-to-search-path.patch"
@@ -485,6 +483,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 	
 	if [ "${gcc_major}" = '15' ]; then
 		patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/gcc-15/0001-Enable-automatic-linking-of-libatomic.patch"
+		patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/gcc-15/0001-Use-latomic_asneeded-or-lgcc_s_asneeded-to-workaround-libtool-issues-PR123396.patch"
 	fi
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Enable-automatic-linking-of-libiconv.patch"
@@ -513,15 +512,6 @@ sed \
 	"${mpfr_directory}/configure" \
 	"${gmp_directory}/configure"
 
-# Fix Autotools mistakenly detecting shared libraries as not supported on OpenBSD
-while read file; do
-	sed \
-		--in-place \
-		--regexp-extended \
-		's|test -f /usr/libexec/ld.so|true|g' \
-		"${file}"
-done <<< "$(find '/tmp' -type 'f' -name 'configure')"
-
 # Force GCC and binutils to prefix host tools with the target triplet even in native builds
 sed \
 	--in-place \
@@ -529,15 +519,10 @@ sed \
 	"${gcc_directory}/configure" \
 	"${binutils_directory}/configure"
 
-declare gmp_ldflags=''
 declare disable_assembly='--disable-assembly'
 
 if [[ "${CROSS_COMPILE_TRIPLET}" != 'mips64el-'* ]]; then
 	disable_assembly=''
-fi
-
-if [[ "${CROSS_COMPILE_TRIPLET}" = *'-openbsd'* ]]; then
-	gmp_ldflags+=' -Xlinker -soname=libgmp.so'
 fi
 
 [ -d "${gmp_directory}/build" ] || mkdir "${gmp_directory}/build"
@@ -552,7 +537,7 @@ cd "${gmp_directory}/build"
 	${disable_assembly} \
 	CFLAGS="${ccflags}" \
 	CXXFLAGS="${ccflags}" \
-	LDFLAGS="${linkflags} ${gmp_ldflags}"
+	LDFLAGS="${linkflags}"
 
 make all --jobs
 make install

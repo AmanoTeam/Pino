@@ -72,18 +72,11 @@ This will download the GCC toolchain and install it to `/data/data/com.termux/fi
 * [x86_64](https://github.com/AmanoTeam/Pino/releases/download/gcc-15/x86_64-unknown-netbsd.tar.xz)
 * [i386](https://github.com/AmanoTeam/Pino/releases/download/gcc-15/i386-unknown-netbsdelf.tar.xz)
 
-## OpenBSD
-
-* [AArch64](https://github.com/AmanoTeam/Pino/releases/download/gcc-15/aarch64-unknown-openbsd.tar.xz)
-* [x86_64](https://github.com/AmanoTeam/Pino/releases/download/gcc-15/x86_64-unknown-openbsd.tar.xz)
-* [i386](https://github.com/AmanoTeam/Pino/releases/download/gcc-15/i386-unknown-openbsd.tar.xz)
-* [ARMv7-A](https://github.com/AmanoTeam/Pino/releases/download/gcc-15/arm-unknown-openbsd.tar.xz)
-
 ## DragonFly BSD
 
 * [x86_64](https://github.com/AmanoTeam/Pino/releases/download/gcc-15/x86_64-unknown-dragonfly.tar.xz)
 
-## DragonFly BSD
+## Haiku
 
 * [x86_64](https://github.com/AmanoTeam/Pino/releases/download/gcc-15/x86_64-unknown-haiku.tar.xz)
 * [i586](https://github.com/AmanoTeam/Pino/releases/download/gcc-15/i586-unknown-haiku.tar.xz)
