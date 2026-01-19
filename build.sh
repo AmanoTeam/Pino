@@ -61,13 +61,13 @@ declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
 	'aarch64-unknown-linux-android'
-	'armv5-unknown-linux-androideabi'
-	'riscv64-unknown-linux-android'
-	'mipsel-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'x86_64-unknown-linux-android'
-	'mips64el-unknown-linux-android'
+	# 'armv5-unknown-linux-androideabi'
+	# 'riscv64-unknown-linux-android'
+	# 'mipsel-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'x86_64-unknown-linux-android'
+	# 'mips64el-unknown-linux-android'
 )
 
 declare -ra versions=(
@@ -784,7 +784,7 @@ for triplet in "${targets[@]}"; do
 	elif [ "${triplet}" = 'armv5-unknown-linux-androideabi' ]; then
 		extra_configure_flags+=' --with-arch=armv5te --with-tune=xscale --with-float=soft --with-fpu=vfpv2 --with-mode=thumb'
 	elif [ "${triplet}" = 'aarch64-unknown-linux-android' ]; then
-		extra_configure_flags+=' --enable-fix-cortex-a53-835769 --enable-fix-cortex-a53-843419'
+		extra_configure_flags+='--with-arch=armv8-a --with-abi=lp64 --enable-fix-cortex-a53-835769 --enable-fix-cortex-a53-843419'
 	elif [ "${triplet}" = 'i686-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=i686 --with-tune=intel --with-fpmath=sse'
 	elif [ "${triplet}" = 'x86_64-unknown-linux-android' ]; then
@@ -950,7 +950,6 @@ for triplet in "${targets[@]}"; do
 		${enable_libgcobol} \
 		--disable-gnu-unique-object \
 		--disable-libstdcxx-verbose \
-		--disable-frame-pointer \
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-libstdcxx-pch \
@@ -992,11 +991,12 @@ for triplet in "${targets[@]}"; do
 	
 	rm "${toolchain_directory}/bin/${triplet}-${triplet}-"* 2>/dev/null || true
 	
-	cd "${toolchain_directory}/lib/bfd-plugins"
-	
-	if ! [ -f './liblto_plugin.so' ]; then
-		ln --symbolic "../../libexec/gcc/${triplet}/"*'/liblto_plugin.so' './'
-	fi
+	ln \
+		--symbolic \
+		--relative \
+		--force \
+		"${toolchain_directory}/libexec/gcc/${triplet}/${gcc_major}/liblto_plugin.so" \
+		"${toolchain_directory}/lib/bfd-plugins"
 	
 	cd "${toolchain_directory}/${triplet}/lib64" 2>/dev/null || cd "${toolchain_directory}/${triplet}/lib"
 	
@@ -1008,12 +1008,12 @@ for triplet in "${targets[@]}"; do
 	
 	[ -f './libiberty.a' ] && unlink './libiberty.a'
 	
-	echo 'INPUT(-lestdc++)' > './libstdc++.so'
-	echo 'INPUT(-lestdc++-static)' > './libstdc++.a'
-	echo 'INPUT(-legcc)' > './libgcc_s.so.1'
+	echo 'INPUT(libestdc++.so)' > './libstdc++.so'
+	echo 'INPUT(libestdc++.a)' > './libstdc++.a'
+	echo 'INPUT(libegcc.so)' > './libgcc_s.so.1'
 	
-	echo 'INPUT (-lgcc -lgcc_eh)' > './libunwind.a'
-	echo 'INPUT (-lgcc_s -lgcc_eh)' > './libunwind.so'
+	echo 'INPUT (libgcc.a libgcc_eh.a)' > './libunwind.a'
+	echo 'INPUT (libegcc.so libgcc_eh.a)' > './libunwind.so'
 	
 	if ! [ -d "${include_unified_directory}" ]; then
 		cp --recursive "${toolchain_directory}/${triplet}/include" "${include_unified_directory}"
@@ -1154,15 +1154,6 @@ for triplet in "${targets[@]}"; do
 			fi
 			
 			if [[ "${name}" = *'.a' ]]; then
-				libname="$(basename "${name}" '.a')"
-				
-				declare static="./${libname}-static.a"
-				declare shared="./${libname}.so"
-				
-				if [ -f "${shared}" ] && ! [ -f "${static}" ]; then
-					ln --symbolic "${library}" "${static}"
-				fi
-				
 				ln --symbolic --relative "${library}" './static'
 			elif [[ "${name}" = 'libgcc_s.so'* ]] || [[ "${name}" = 'libegcc.so'* ]]; then
 				ln --symbolic --relative "${library}" './static'
