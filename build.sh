@@ -485,7 +485,6 @@ if ! [ -f "${gcc_tarball}" ]; then
 	
 	if [ "${gcc_major}" = '15' ]; then
 		patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/gcc-15/0001-Enable-automatic-linking-of-libatomic.patch"
-		patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/gcc-15/0001-Use-latomic_asneeded-or-lgcc_s_asneeded-to-workaround-libtool-issues-PR123396.patch"
 	fi
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Enable-automatic-linking-of-libiconv.patch"
@@ -849,9 +848,20 @@ for triplet in "${targets[@]}"; do
 	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
 	
 	cp "${workdir}/submodules/obggcc/patches/libiconv_asneeded.so" "${sysroot_directory}/lib"
-	cp "${workdir}/submodules/obggcc/patches/libiconv_asneeded.so" "${sysroot_directory}/lib/libiconv_asneeded.a"
+	
+	ln \
+		--symbolic \
+		--relative \
+		"${workdir}/submodules/obggcc/patches/libiconv.a" \
+		"${sysroot_directory}/lib/libiconv_asneeded.a"
+	
 	cp "${workdir}/submodules/obggcc/patches/libcharset_asneeded.so" "${sysroot_directory}/lib"
-	cp "${workdir}/submodules/obggcc/patches/libcharset_asneeded.so" "${sysroot_directory}/lib/libcharset_asneeded.a"
+	
+	ln \
+		--symbolic \
+		--relative \
+		"${workdir}/submodules/obggcc/patches/libcharset.a" \
+		"${sysroot_directory}/lib/libcharset_asneeded.a"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	
