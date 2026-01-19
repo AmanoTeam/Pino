@@ -146,6 +146,8 @@ declare -ra libraries=(
 	'liblsan'
 	'libtsan'
 	'libubsan'
+	'libcharset_asneeded'
+	'libiconv_asneeded'
 )
 
 declare -ra bits=(
@@ -845,6 +847,11 @@ for triplet in "${targets[@]}"; do
 		--file="${tarball}"
 	
 	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
+	
+	cp "${workdir}/submodules/obggcc/patches/libiconv_asneeded.so" "${sysroot_directory}/lib"
+	cp "${workdir}/submodules/obggcc/patches/libiconv_asneeded.so" "${sysroot_directory}/lib/libiconv_asneeded.a"
+	cp "${workdir}/submodules/obggcc/patches/libcharset_asneeded.so" "${sysroot_directory}/lib"
+	cp "${workdir}/submodules/obggcc/patches/libcharset_asneeded.so" "${sysroot_directory}/lib/libcharset_asneeded.a"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
 	
