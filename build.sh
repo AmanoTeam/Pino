@@ -847,12 +847,15 @@ for triplet in "${targets[@]}"; do
 	
 	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
 	
+	touch "${sysroot_directory}/lib/libiconv."{so,a}
+	touch "${sysroot_directory}/lib/libcharset.so."{so,a}
+	
 	cp "${workdir}/submodules/obggcc/patches/libiconv_asneeded.so" "${sysroot_directory}/lib"
 	
 	ln \
 		--symbolic \
 		--relative \
-		"${workdir}/submodules/obggcc/patches/libiconv.a" \
+		"${sysroot_directory}/lib/libiconv.a" \
 		"${sysroot_directory}/lib/libiconv_asneeded.a"
 	
 	cp "${workdir}/submodules/obggcc/patches/libcharset_asneeded.so" "${sysroot_directory}/lib"
@@ -860,7 +863,7 @@ for triplet in "${targets[@]}"; do
 	ln \
 		--symbolic \
 		--relative \
-		"${workdir}/submodules/obggcc/patches/libcharset.a" \
+		"${sysroot_directory}/lib/libcharset.a" \
 		"${sysroot_directory}/lib/libcharset_asneeded.a"
 	
 	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
@@ -870,8 +873,6 @@ for triplet in "${targets[@]}"; do
 	echo 'GROUP ( ../libm.so AS_NEEDED ( ../libm.a ) )' > "${sysroot_directory}/lib/ldscripts/libm.so"
 	echo 'GROUP ( ../libc.so AS_NEEDED ( ../libc.a ) )' > "${sysroot_directory}/lib/ldscripts/libc.so"
 	
-	touch "${sysroot_directory}/lib/libiconv.so"
-	touch "${sysroot_directory}/lib/libcharset.so"
 	touch "${sysroot_directory}/lib/libc.a"
 	
 	cp "${workdir}/submodules/libpino/complex.h" "${sysroot_directory}/include/pino_complex.h"
