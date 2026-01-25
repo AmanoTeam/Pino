@@ -848,7 +848,7 @@ for triplet in "${targets[@]}"; do
 	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
 	
 	touch "${sysroot_directory}/lib/libiconv."{so,a}
-	touch "${sysroot_directory}/lib/libcharset.so."{so,a}
+	touch "${sysroot_directory}/lib/libcharset."{so,a}
 	
 	cp "${workdir}/submodules/obggcc/patches/libiconv_asneeded.so" "${sysroot_directory}/lib"
 	
