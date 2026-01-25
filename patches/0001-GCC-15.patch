@@ -1,4 +1,4 @@
-From 9b8b6d7fd484ba4b7b4f238d646b728c8abafd88 Mon Sep 17 00:00:00 2001
+From 29ac6166e3912e4dcec6bd9cd32782f6963d906f Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Thu, 27 Nov 2025 02:04:32 -0300
 Subject: [PATCH] GCC 15
@@ -15,7 +15,7 @@ Subject: [PATCH] GCC 15
  gcc/config/i386/i386.cc                       |   4 +-
  gcc/config/i386/linux-common.h                |   8 +-
  gcc/config/i386/pmm_malloc.h                  |   2 +-
- gcc/config/linux-android.h                    | 107 +++++++++++++++-
+ gcc/config/linux-android.h                    | 104 +++++++++++++--
  gcc/config/linux-android.opt                  |  16 +++
  gcc/config/mips/gnu-user.h                    |   6 -
  gcc/config/riscv/linux.h                      |  34 ++++-
@@ -30,13 +30,13 @@ Subject: [PATCH] GCC 15
  libstdc++-v3/include/c_global/cwchar          |   6 +-
  libstdc++-v3/include/c_global/cwctype         |   4 +-
  libstdc++-v3/include/c_std/cwchar             |   2 +-
- 26 files changed, 504 insertions(+), 30 deletions(-)
+ 26 files changed, 500 insertions(+), 31 deletions(-)
  create mode 100644 gcc/config/aarch64/aarch64-linux-android.h
  create mode 100644 gcc/config/android-driver.cc
  create mode 100644 gcc/config/t-android
 
 diff --git a/gcc/config.gcc b/gcc/config.gcc
-index 087aaa7be..3f83c76a5 100644
+index 53be4a7cf..f08d547d8 100644
 --- a/gcc/config.gcc
 +++ b/gcc/config.gcc
 @@ -912,7 +912,13 @@ case ${target} in
@@ -422,20 +422,23 @@ index d1d79a32f..d66dcdd68 100644
  
  static __inline void *
 diff --git a/gcc/config/linux-android.h b/gcc/config/linux-android.h
-index ecdc1da23..bb8ebfe74 100644
+index ecdc1da23..560bdd1c0 100644
 --- a/gcc/config/linux-android.h
 +++ b/gcc/config/linux-android.h
-@@ -19,10 +19,43 @@
+@@ -1,5 +1,5 @@
+ /* Configuration file for Linux Android targets.
+-   Copyright (C) 2008-2025 Free Software Foundation, Inc.
++   Copyright (C) 2008-2026 Free Software Foundation, Inc.
+    Contributed by Doug Kwan (dougkwan@google.com)
+    Rewritten by CodeSourcery, Inc.
+ 
+@@ -19,10 +19,39 @@
     along with GCC; see the file COPYING3.  If not see
     <http://www.gnu.org/licenses/>.  */
  
 +#if !defined(USED_FOR_TARGET)
 +	extern void android_driver_init(unsigned int*, struct cl_decoded_option**);
 +	#define GCC_DRIVER_HOST_INITIALIZATION android_driver_init(&decoded_options_count, &decoded_options)
-+#endif
-+
-+#if defined(ENABLE_DEFAULT_PIE)
-+	#error "test"
 +#endif
 +
 +#define BIONIC_PAGE_SIZE_4K "0x1000"
@@ -471,7 +474,7 @@ index ecdc1da23..bb8ebfe74 100644
      } while (0)
  
  #if ANDROID_DEFAULT
-@@ -37,16 +70,76 @@
+@@ -37,16 +66,75 @@
  #define LINUX_OR_ANDROID_LD(LINUX_SPEC, ANDROID_SPEC) \
    "%{" NOANDROID "|tno-android-ld:" LINUX_SPEC ";:" ANDROID_SPEC "}"
  
@@ -535,7 +538,6 @@ index ecdc1da23..bb8ebfe74 100644
    "%{!mglibc:%{!muclibc:%{!mbionic: -mbionic}}} "			\
 -  "%{!fno-pic:%{!fno-PIC:%{!fpic:%{!fPIC: -fPIC}}}}"
 +  "%{!fno-pic:%{!fno-PIC:%{!fpic:%{!fPIC: -fPIC}}}} "			\
-+  "%{!fno-common:%{!fcommon: -fcommon}} "			\
 +  "%{D__ANDROID_API__*|D__ANDROID_MIN_SDK_VERSION__*: %esetting the platform version using the '__ANDROID_API__' or '__ANDROID_MIN_SDK_VERSION__' macros is not supported: use '-mandroid-version-min=<value>' instead} " \
 +  "%{D__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__*: %eenabling support for weak symbols using the '__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__' macro is not supported: use '-mandroid-weak-symbols' instead} " \
 +  "%{mandroid-version-min=*: -D __ANDROID_MIN_SDK_VERSION__=%* -D __ANDROID_API__=__ANDROID_MIN_SDK_VERSION__} " \
@@ -979,5 +981,5 @@ index dbb08ea3d..5762c8582 100644
  #endif
    using ::wcstok;
 -- 
-2.51.2
+2.52.0
 
