@@ -1,4 +1,4 @@
-From 29ac6166e3912e4dcec6bd9cd32782f6963d906f Mon Sep 17 00:00:00 2001
+From d01b0e911e6356eb070f03d57c87a51f383cbfaa Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Thu, 27 Nov 2025 02:04:32 -0300
 Subject: [PATCH] GCC 15
@@ -15,7 +15,7 @@ Subject: [PATCH] GCC 15
  gcc/config/i386/i386.cc                       |   4 +-
  gcc/config/i386/linux-common.h                |   8 +-
  gcc/config/i386/pmm_malloc.h                  |   2 +-
- gcc/config/linux-android.h                    | 104 +++++++++++++--
+ gcc/config/linux-android.h                    | 102 ++++++++++++++-
  gcc/config/linux-android.opt                  |  16 +++
  gcc/config/mips/gnu-user.h                    |   6 -
  gcc/config/riscv/linux.h                      |  34 ++++-
@@ -30,16 +30,16 @@ Subject: [PATCH] GCC 15
  libstdc++-v3/include/c_global/cwchar          |   6 +-
  libstdc++-v3/include/c_global/cwctype         |   4 +-
  libstdc++-v3/include/c_std/cwchar             |   2 +-
- 26 files changed, 500 insertions(+), 31 deletions(-)
+ 26 files changed, 499 insertions(+), 30 deletions(-)
  create mode 100644 gcc/config/aarch64/aarch64-linux-android.h
  create mode 100644 gcc/config/android-driver.cc
  create mode 100644 gcc/config/t-android
 
 diff --git a/gcc/config.gcc b/gcc/config.gcc
-index 53be4a7cf..f08d547d8 100644
+index 35958b170..1271b49a4 100644
 --- a/gcc/config.gcc
 +++ b/gcc/config.gcc
-@@ -912,7 +912,13 @@ case ${target} in
+@@ -963,7 +963,13 @@ case ${target} in
    esac
    case $target in
      *-*-*android*)
@@ -54,7 +54,7 @@ index 53be4a7cf..f08d547d8 100644
        ;;
      *-*-*uclibc* | *-*-uclinuxfdpiceabi)
        tm_defines="$tm_defines DEFAULT_LIBC=LIBC_UCLIBC"
-@@ -1237,14 +1243,18 @@ aarch64*-*-netbsd*)
+@@ -1285,14 +1291,18 @@ aarch64*-*-netbsd*)
  	extra_options="${extra_options} netbsd.opt netbsd-elf.opt"
  	;;
  aarch64*-*-linux*)
@@ -74,7 +74,7 @@ index 53be4a7cf..f08d547d8 100644
  	esac
  	aarch64_multilibs="${with_multilib_list}"
  	if test "$aarch64_multilibs" = "default"; then
-@@ -2520,7 +2530,8 @@ microblaze*-*-elf)
+@@ -2574,7 +2584,8 @@ microblaze*-*-elf)
  	tmake_file="${tmake_file} microblaze/t-microblaze"
          ;;
  riscv*-*-linux*)
@@ -157,7 +157,7 @@ index 000000000..ca0d5cfae
 +
 +#endif  /* GCC_AARCH64_LINUX_ANDROID_H */
 diff --git a/gcc/config/aarch64/aarch64-linux.h b/gcc/config/aarch64/aarch64-linux.h
-index 116bb4e69..b5a7556b4 100644
+index 8f1ecc4e2..0b37dbf94 100644
 --- a/gcc/config/aarch64/aarch64-linux.h
 +++ b/gcc/config/aarch64/aarch64-linux.h
 @@ -26,6 +26,9 @@
@@ -298,7 +298,7 @@ index 000000000..307e5d8cb
 +}
 \ No newline at end of file
 diff --git a/gcc/config/arm/elf.h b/gcc/config/arm/elf.h
-index a271fdbe9..ab1094851 100644
+index fb5ad86a5..5743e5c3f 100644
 --- a/gcc/config/arm/elf.h
 +++ b/gcc/config/arm/elf.h
 @@ -56,8 +56,7 @@
@@ -321,7 +321,7 @@ index a271fdbe9..ab1094851 100644
  
  /* The ARM uses @ are a comment character so we need to redefine
 diff --git a/gcc/config/arm/linux-eabi.h b/gcc/config/arm/linux-eabi.h
-index 8ef5643b5..5a0960ebd 100644
+index 947ffc67c..2c6311bbc 100644
 --- a/gcc/config/arm/linux-eabi.h
 +++ b/gcc/config/arm/linux-eabi.h
 @@ -113,6 +113,11 @@
@@ -337,7 +337,7 @@ index 8ef5643b5..5a0960ebd 100644
  #define LIB_SPEC							\
    LINUX_OR_ANDROID_LD (GNU_USER_TARGET_LIB_SPEC,			\
 diff --git a/gcc/config/i386/gnu-user.h b/gcc/config/i386/gnu-user.h
-index 7abfda530..d85833f6e 100644
+index 66b6f20c6..09de6ac15 100644
 --- a/gcc/config/i386/gnu-user.h
 +++ b/gcc/config/i386/gnu-user.h
 @@ -59,9 +59,13 @@ along with GCC; see the file COPYING3.  If not see
@@ -356,7 +356,7 @@ index 7abfda530..d85833f6e 100644
  #undef  SUBTARGET_EXTRA_SPECS
  #define SUBTARGET_EXTRA_SPECS \
 diff --git a/gcc/config/i386/gnu-user64.h b/gcc/config/i386/gnu-user64.h
-index abe714711..db85fb54e 100644
+index c5267f082..1d0e15742 100644
 --- a/gcc/config/i386/gnu-user64.h
 +++ b/gcc/config/i386/gnu-user64.h
 @@ -46,6 +46,14 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
@@ -375,10 +375,10 @@ index abe714711..db85fb54e 100644
  #define ASM_SPEC "%{" SPEC_32 ":--32} \
   %{" SPEC_64 ":--64} \
 diff --git a/gcc/config/i386/i386.cc b/gcc/config/i386/i386.cc
-index b481f0161..996f4f834 100644
+index 407d652fa..73e6d993d 100644
 --- a/gcc/config/i386/i386.cc
 +++ b/gcc/config/i386/i386.cc
-@@ -24655,9 +24655,7 @@ ix86_stack_protect_runtime_enabled_p (void)
+@@ -25308,9 +25308,7 @@ ix86_stack_protect_runtime_enabled_p (void)
  static tree ATTRIBUTE_UNUSED
  ix86_stack_protect_fail (void)
  {
@@ -390,7 +390,7 @@ index b481f0161..996f4f834 100644
  
  /* Select a format to encode pointers in exception handling data.  CODE
 diff --git a/gcc/config/i386/linux-common.h b/gcc/config/i386/linux-common.h
-index 2737d583f..eb17bf452 100644
+index ab45eda17..555075a7f 100644
 --- a/gcc/config/i386/linux-common.h
 +++ b/gcc/config/i386/linux-common.h
 @@ -30,7 +30,13 @@ along with GCC; see the file COPYING3.  If not see
@@ -409,7 +409,7 @@ index 2737d583f..eb17bf452 100644
  #undef	LINK_SPEC
  #define LINK_SPEC \
 diff --git a/gcc/config/i386/pmm_malloc.h b/gcc/config/i386/pmm_malloc.h
-index d1d79a32f..d66dcdd68 100644
+index abc479c83..ea6186094 100644
 --- a/gcc/config/i386/pmm_malloc.h
 +++ b/gcc/config/i386/pmm_malloc.h
 @@ -31,7 +31,7 @@
@@ -422,16 +422,9 @@ index d1d79a32f..d66dcdd68 100644
  
  static __inline void *
 diff --git a/gcc/config/linux-android.h b/gcc/config/linux-android.h
-index ecdc1da23..560bdd1c0 100644
+index f68acecb8..560bdd1c0 100644
 --- a/gcc/config/linux-android.h
 +++ b/gcc/config/linux-android.h
-@@ -1,5 +1,5 @@
- /* Configuration file for Linux Android targets.
--   Copyright (C) 2008-2025 Free Software Foundation, Inc.
-+   Copyright (C) 2008-2026 Free Software Foundation, Inc.
-    Contributed by Doug Kwan (dougkwan@google.com)
-    Rewritten by CodeSourcery, Inc.
- 
 @@ -19,10 +19,39 @@
     along with GCC; see the file COPYING3.  If not see
     <http://www.gnu.org/licenses/>.  */
@@ -556,7 +549,7 @@ index ecdc1da23..560bdd1c0 100644
  #define ANDROID_LIB_SPEC \
    "%{!static: -ldl}"
 diff --git a/gcc/config/linux-android.opt b/gcc/config/linux-android.opt
-index fd07eea32..8afb72542 100644
+index bd8b96e0a..9a3a9a3fd 100644
 --- a/gcc/config/linux-android.opt
 +++ b/gcc/config/linux-android.opt
 @@ -22,6 +22,22 @@ mandroid
@@ -583,7 +576,7 @@ index fd07eea32..8afb72542 100644
  Driver
  
 diff --git a/gcc/config/mips/gnu-user.h b/gcc/config/mips/gnu-user.h
-index 5a82508c1..f9698cfe2 100644
+index 7cc59b1e6..03a055eb7 100644
 --- a/gcc/config/mips/gnu-user.h
 +++ b/gcc/config/mips/gnu-user.h
 @@ -97,13 +97,7 @@ along with GCC; see the file COPYING3.  If not see
@@ -601,7 +594,7 @@ index 5a82508c1..f9698cfe2 100644
  /* -march=native handling only makes sense with compiler running on
     a MIPS chip.  */
 diff --git a/gcc/config/riscv/linux.h b/gcc/config/riscv/linux.h
-index 9060c940a..6f499a881 100644
+index 38126eff1..68af888fa 100644
 --- a/gcc/config/riscv/linux.h
 +++ b/gcc/config/riscv/linux.h
 @@ -17,9 +17,11 @@ You should have received a copy of the GNU General Public License
@@ -701,7 +694,7 @@ index 000000000..2a27a6e9b
 +	$(COMPILE) $<
 +	$(POSTCOMPILE)
 diff --git a/libstdc++-v3/config/os/bionic/ctype_base.h b/libstdc++-v3/config/os/bionic/ctype_base.h
-index e91a4ac9e..d47dadc79 100644
+index b28d018b6..231c82eec 100644
 --- a/libstdc++-v3/config/os/bionic/ctype_base.h
 +++ b/libstdc++-v3/config/os/bionic/ctype_base.h
 @@ -28,6 +28,20 @@
@@ -726,7 +719,7 @@ index e91a4ac9e..d47dadc79 100644
  {
  _GLIBCXX_BEGIN_NAMESPACE_VERSION
 diff --git a/libstdc++-v3/config/os/bionic/os_defines.h b/libstdc++-v3/config/os/bionic/os_defines.h
-index 830e4ba2d..98b4c6b4b 100644
+index ddb24fbfd..0f46f09e7 100644
 --- a/libstdc++-v3/config/os/bionic/os_defines.h
 +++ b/libstdc++-v3/config/os/bionic/os_defines.h
 @@ -33,4 +33,62 @@
@@ -793,10 +786,10 @@ index 830e4ba2d..98b4c6b4b 100644
  #endif
 +
 diff --git a/libstdc++-v3/include/bits/basic_string.h b/libstdc++-v3/include/bits/basic_string.h
-index c90bd099b..9df1b4fd1 100644
+index 9bbe16507..bf0ac375d 100644
 --- a/libstdc++-v3/include/bits/basic_string.h
 +++ b/libstdc++-v3/include/bits/basic_string.h
-@@ -4726,10 +4726,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
+@@ -4782,10 +4782,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
    { return __gnu_cxx::__stoa<long, int>(&std::wcstol, "stoi", __str.c_str(),
  					__idx, __base); }
  
@@ -809,7 +802,7 @@ index c90bd099b..9df1b4fd1 100644
  
    inline unsigned long
    stoul(const wstring& __str, size_t* __idx = 0, int __base = 10)
-@@ -4746,10 +4748,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
+@@ -4802,10 +4804,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
    { return __gnu_cxx::__stoa(&std::wcstoull, "stoull", __str.c_str(),
  			     __idx, __base); }
  
@@ -823,7 +816,7 @@ index c90bd099b..9df1b4fd1 100644
    inline double
    stod(const wstring& __str, size_t* __idx = 0)
 diff --git a/libstdc++-v3/include/c_compatibility/stdlib.h b/libstdc++-v3/include/c_compatibility/stdlib.h
-index 283496269..e3e430c78 100644
+index b094f2c22..7a0acc6fc 100644
 --- a/libstdc++-v3/include/c_compatibility/stdlib.h
 +++ b/libstdc++-v3/include/c_compatibility/stdlib.h
 @@ -67,9 +67,13 @@ using std::labs;
@@ -851,7 +844,7 @@ index 283496269..e3e430c78 100644
  #endif
  
 diff --git a/libstdc++-v3/include/c_global/clocale b/libstdc++-v3/include/c_global/clocale
-index fd30f1707..bae55aff7 100644
+index 3bd46614f..5de119e9e 100644
 --- a/libstdc++-v3/include/c_global/clocale
 +++ b/libstdc++-v3/include/c_global/clocale
 @@ -54,7 +54,9 @@ namespace std
@@ -865,7 +858,7 @@ index fd30f1707..bae55aff7 100644
  
  #endif
 diff --git a/libstdc++-v3/include/c_global/cstdio b/libstdc++-v3/include/c_global/cstdio
-index 8d4aa8bc7..d79ce87ce 100644
+index 188ddc012..1fe836228 100644
 --- a/libstdc++-v3/include/c_global/cstdio
 +++ b/libstdc++-v3/include/c_global/cstdio
 @@ -106,7 +106,6 @@ namespace std
@@ -888,7 +881,7 @@ index 8d4aa8bc7..d79ce87ce 100644
    using ::fwrite;
    using ::getc;
 diff --git a/libstdc++-v3/include/c_global/cstdlib b/libstdc++-v3/include/c_global/cstdlib
-index ced924793..50b32edc8 100644
+index 1c42f8614..9a841f67f 100644
 --- a/libstdc++-v3/include/c_global/cstdlib
 +++ b/libstdc++-v3/include/c_global/cstdlib
 @@ -160,9 +160,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
@@ -916,7 +909,7 @@ index ced924793..50b32edc8 100644
  
  #ifndef __CORRECT_ISO_CPP_STDLIB_H_PROTO
 diff --git a/libstdc++-v3/include/c_global/cwchar b/libstdc++-v3/include/c_global/cwchar
-index dbcc10464..4a03ce495 100644
+index b6a6f2d03..0f52e9f0b 100644
 --- a/libstdc++-v3/include/c_global/cwchar
 +++ b/libstdc++-v3/include/c_global/cwchar
 @@ -191,7 +191,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
@@ -950,7 +943,7 @@ index dbcc10464..4a03ce495 100644
  #endif
  #if _GLIBCXX_HAVE_VFWSCANF
 diff --git a/libstdc++-v3/include/c_global/cwctype b/libstdc++-v3/include/c_global/cwctype
-index 07471eb00..15e6e1184 100644
+index c52c3d28f..c6b006e38 100644
 --- a/libstdc++-v3/include/c_global/cwctype
 +++ b/libstdc++-v3/include/c_global/cwctype
 @@ -100,10 +100,12 @@ namespace std
@@ -968,7 +961,7 @@ index 07471eb00..15e6e1184 100644
  } // namespace
  
 diff --git a/libstdc++-v3/include/c_std/cwchar b/libstdc++-v3/include/c_std/cwchar
-index dbb08ea3d..5762c8582 100644
+index 7c3a2a4e2..47431bee5 100644
 --- a/libstdc++-v3/include/c_std/cwchar
 +++ b/libstdc++-v3/include/c_std/cwchar
 @@ -185,7 +185,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
