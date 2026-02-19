@@ -29,7 +29,7 @@ declare -r binutils_directory='/tmp/binutils'
 declare -r gold_tarball='/tmp/gold.tar.xz'
 declare -r gold_directory='/tmp/gold'
 
-declare -r gcc_major='15'
+declare -r gcc_major='16'
 
 declare gcc_url='https://github.com/gcc-mirror/gcc/archive/master.tar.gz'
 declare -r gcc_tarball='/tmp/gcc.tar.xz'
