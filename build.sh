@@ -60,9 +60,9 @@ declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
 
 declare -ra targets=(
+	'riscv64-unknown-linux-android'
 	'aarch64-unknown-linux-android'
 	'armv5-unknown-linux-androideabi'
-	'riscv64-unknown-linux-android'
 	'mipsel-unknown-linux-android'
 	'i686-unknown-linux-android'
 	'armv7-unknown-linux-androideabi'
@@ -1050,7 +1050,7 @@ for triplet in "${targets[@]}"; do
 		CXXFLAGS_FOR_TARGET="${target_cxxflags}" \
 		LDFLAGS_FOR_TARGET="${linkflags}" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
-		all --jobs="${max_jobs}"
+		all --jobs=1 #"${max_jobs}"
 	env ${args} make install
 	
 	cp "${workdir}/submodules/obggcc/tools/pkg-config.sh" "${toolchain_directory}/bin/${triplet}-pkg-config"
