@@ -969,10 +969,6 @@ for triplet in "${targets[@]}"; do
 		extra_configure_flags+=' --enable-host-bind-now'
 	fi
 	
-	if [[ "${triplet}" = 'armv5-'* ]]; then
-		enable_libsanitizer='--disable-libsanitizer'
-	fi
-	
 	[ -d "${gcc_directory}/build" ] || mkdir "${gcc_directory}/build"
 	
 	cd "${gcc_directory}/build"
@@ -1025,7 +1021,7 @@ for triplet in "${targets[@]}"; do
 		--enable-host-shared \
 		--enable-initfini-array \
 		--enable-libgomp \
-		${enable_libsanitizer} \
+		--disable-libsanitizer \
 		--disable-gnu-unique-object \
 		--disable-libstdcxx-verbose \
 		--disable-canonical-system-headers \
