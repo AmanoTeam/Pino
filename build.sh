@@ -1050,7 +1050,7 @@ for triplet in "${targets[@]}"; do
 		CXXFLAGS_FOR_TARGET="${target_cxxflags}" \
 		LDFLAGS_FOR_TARGET="${linkflags}" \
 		gcc_cv_objdump="${CROSS_COMPILE_TRIPLET}-objdump" \
-		all --jobs=1 #"${max_jobs}"
+		all --jobs="${max_jobs}"
 	env ${args} make install
 	
 	cp "${workdir}/submodules/obggcc/tools/pkg-config.sh" "${toolchain_directory}/bin/${triplet}-pkg-config"
