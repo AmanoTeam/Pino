@@ -520,7 +520,6 @@ if ! [ -f "${gcc_tarball}" ]; then
 	
 	if [ "${gcc_major}" = '16' ]; then
 		patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0011-Revert-configure-Always-add-pre-installed-header-directories-to-search-path.patch"
-		patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Revert-x86-Fixes-for-AMD-znver5-enablement.patch"
 	fi
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-AArch64-enable-libquadmath.patch"
@@ -807,6 +806,10 @@ fi
 
 if [[ "${CROSS_COMPILE_TRIPLET}" = 'armv5'*'-android'* ]]; then
 	export PINO_ARM_MODE='true'
+fi
+
+if [[ "${CROSS_COMPILE_TRIPLET}" = 'armv7'*'-android'* ]]; then
+	export PINO_NEON='true'
 fi
 
 if [[ "${CROSS_COMPILE_TRIPLET}" = *'-haiku' ]]; then
