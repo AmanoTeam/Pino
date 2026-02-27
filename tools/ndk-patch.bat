@@ -89,6 +89,10 @@ for %%D in (!directories!) do (
     if exist "!ninja_src!" if exist "!cmake_dir!\" (
         for /d %%C in ("!cmake_dir!\*") do (
             call :Symlink "!ninja_src!" "%%~C\bin\ninja!EXT!"
+			:: Link all DLLs from app_directory
+			for %%F in ("!app_directory!\*.dll") do (
+				call :Symlink "%%~F" "%%~C\bin\%%~nxF"
+			)
         )
     )
 
