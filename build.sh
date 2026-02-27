@@ -1316,7 +1316,11 @@ cp "${gcc_wrapper}" "${toolchain_directory}/bin/clang++${exe}"
 cp "${binutils_llvm_wrapper}" "${toolchain_directory}/bin/llvm-strip${exe}"
 cp "${binutils_llvm_wrapper}" "${toolchain_directory}/bin/llvm-objcopy${exe}"
 
-cp "${workdir}/tools/patch_ndk.sh" "${toolchain_directory}/bin/ndk-patch"
+if [[ "${host}" = *'-mingw32' ]]; then
+	cp "${workdir}/tools/ndk-patch.bat" "${toolchain_directory}/bin"
+else
+	cp "${workdir}/tools/ndk-patch.sh" "${toolchain_directory}/bin"
+fi
 
 # Delete libtool files and other unnecessary files GCC installs
 rm \
