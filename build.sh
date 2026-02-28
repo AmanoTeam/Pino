@@ -1062,6 +1062,7 @@ for triplet in "${targets[@]}"; do
 		--disable-bootstrap \
 		--disable-multilib \
 		--disable-symvers \
+		--disable-c++-tools \
 		--without-static-standard-libraries \
 		${extra_configure_flags} \
 		CFLAGS='-D__USE_MINGW_ACCESS' \
