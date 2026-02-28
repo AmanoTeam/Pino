@@ -27,8 +27,11 @@ set "EXT=.exe"
 
 :: 4. Resolve Android SDK root
 set "sdk_root="
+set "fallback_sdk=%LOCALAPPDATA%\Android\Sdk"
 if defined ANDROID_HOME set "sdk_root=!ANDROID_HOME!"
 if not defined sdk_root if defined ANDROID_SDK_ROOT set "sdk_root=!ANDROID_SDK_ROOT!"
+if not defined sdk_root if defined ANDROI set "sdk_root=!ANDROID_SDK_ROOT!"
+if not defined sdk_root if exist "!fallback_sdk!\" set "sdk_root=!fallback_sdk!"
 
 :: 5. Resolve Android NDK root
 set "ndk_root="
