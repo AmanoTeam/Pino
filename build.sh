@@ -1069,8 +1069,6 @@ for triplet in "${targets[@]}"; do
 		--disable-c++-tools \
 		--without-static-standard-libraries \
 		${extra_configure_flags} \
-		CFLAGS='-D__USE_MINGW_ACCESS' \
-		CXXFLAGS='-D__USE_MINGW_ACCESS' \
 		LDFLAGS="-L${toolchain_directory}/lib ${linkflags}"
 	
 	declare args=''

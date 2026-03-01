@@ -29,7 +29,7 @@ jobs:
       id: check-cache
       uses: actions/cache@main
       with:
-        key: 'gcc-${{ env.PINO_RELEASE }}'
+        key: 'cache-${{ env.PINO_RELEASE }}'
         lookup-only: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -66,7 +66,7 @@ jobs:
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       uses: actions/cache@main
       with:
-        key: 'gcc-${{ env.PINO_RELEASE }}'
+        key: 'cache-${{ env.PINO_RELEASE }}'
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
           /tmp/x86_64-linux-gnu.tar.xz.sha256
@@ -144,7 +144,7 @@ jobs:
     - name: Restore from cache
       uses: actions/cache@main
       with:
-        key: 'gcc-${{ env.PINO_RELEASE }}'
+        key: 'cache-${{ env.PINO_RELEASE }}'
         fail-on-cache-miss: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
