@@ -83,11 +83,12 @@ declare exe=''
 declare dll='.so'
 
 declare -ra targets=(
-	'riscv64-unknown-linux-android'
+	# 'riscv64-unknown-linux-android'
 	'aarch64-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'armv7-unknown-linux-androideabi'
-	'x86_64-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'x86_64-unknown-linux-android'
+	
 	# 'armv5-unknown-linux-androideabi'
 	# 'mipsel-unknown-linux-android'
 	# 'mips64el-unknown-linux-android'
@@ -1349,6 +1350,8 @@ if ! (( native )); then
 	cc="${CC}"
 	readelf="${READELF}"
 fi
+
+echo "-> ${cc}"
 
 # Bundle both libstdc++ and libgcc within host tools
 if ! (( native )) && [[ "${host}" != *'-darwin'* ]]; then

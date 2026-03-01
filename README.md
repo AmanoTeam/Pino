@@ -226,8 +226,10 @@ PINO_NZ: bool = [true/false]
 
 The NDK has its own page explaining its supported architectures and ABIs (see [Android ABIs](https://developer.android.com/ndk/guides/abis)), but since Pino differs from the upstream NDK in some aspects, this section covers the specifics of Pino and compares the behavior of both.
 
+<!--
 > [!NOTE]  
 > The ABIs `armeabi`, `mips`, and `mips64` are obsolete in the upstream NDK and are no longer available for cross-compilation in modern versions of the toolchain. Pino, however, has restored support for those architectures.
+-->
 
 ### `armeabi-v7a`
 
@@ -253,6 +255,7 @@ This refers to the x64 system architecture. There are no additional differences 
 
 This refers to the RISC-V system architecture. There is currently no ABI page for this architecture in the Android documentation, so I can't make a proper comparison. Pino emits code for the RV64GC architecture on the LP64D (hardfloat double) ABI by default.
 
+<!--
 ### `armeabi`
 
 This refers to the ARMv5TE system architecture. It uses `softfp` hardware floating-point and generates code in `Thumb-1` mode. The `VFPv2` floating-point unit is the default, without the Neon extension. This matches the upstream NDK.
@@ -264,6 +267,7 @@ This refers to the MIPS32r2 system architecture. It uses `hard` hardware floatin
 ### `mips64`
 
 This refers to the MIPS64r6 system architecture. It uses `hard` hardware floating-point and generates code targeting the 64-bit ABI by default. This matches the upstream NDK.
+-->
 
 ### Static vs dynamic linking
 
@@ -304,7 +308,9 @@ PINO_NEON: bool = [true/false]
 
 The current stable release is based on GCC 15 and supports cross-compiling software for all major Android architectures: `armv7`, `arm64`, `x86`, and `x86_64`. There is also experimental support for the `riscv64` architecture.
 
+<!--
 Additionally, it supports cross-compiling software for architectures whose support has been deprecated in the upstream NDK, including `armv5`, `mips`, and `mips64`.
+-->
 
 The toolchain includes support for the C and C++ frontends.
 
