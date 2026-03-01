@@ -10,6 +10,10 @@ on:
 
 permissions: write-all
 
+env: 
+	PINO_BUILD_PARALLEL_LEVEL: 40
+    PINO_RELEASE: 15
+
 jobs:
   native-build:
     name: 'Native build'
@@ -25,7 +29,7 @@ jobs:
       id: check-cache
       uses: actions/cache@main
       with:
-        key: gcc-15.0.1-1
+        key: 'gcc-${{ env.PINO_RELEASE }}'
         lookup-only: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -62,7 +66,7 @@ jobs:
       if: ${{ steps.check-cache.outputs.cache-hit != 'true' }}
       uses: actions/cache@main
       with:
-        key: gcc-15.0.1-1
+        key: 'gcc-${{ env.PINO_RELEASE }}'
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
           /tmp/x86_64-linux-gnu.tar.xz.sha256
@@ -140,7 +144,7 @@ jobs:
     - name: Restore from cache
       uses: actions/cache@main
       with:
-        key: gcc-15.0.1-1
+        key: 'gcc-${{ env.PINO_RELEASE }}'
         fail-on-cache-miss: true
         path: |
           /tmp/x86_64-linux-gnu.tar.xz
@@ -318,13 +322,13 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@master
         with:
-          tag_name: gcc-15
-          name: GCC 15
+          tag_name: 'gcc-${{ env.PINO_RELEASE }}'
+          name: 'GCC ${{ env.PINO_RELEASE }}'
           files: ./*/*-{unknown,w64,apple}-*.{tar.xz,zip}*
           draft: false
           prerelease: true
           fail_on_unmatched_files: true
-          body: "* Update to GCC 15"
+          body: "* Update to GCC ${{ env.PINO_RELEASE }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
