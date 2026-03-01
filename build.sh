@@ -846,6 +846,14 @@ if [[ "${host}" = *'-haiku' ]]; then
 	export ac_cv_c_bigendian='no'
 fi
 
+declare cc='gcc'
+declare readelf='readelf'
+
+if ! (( native )); then
+	cc="${CC}"
+	readelf="${READELF}"
+fi
+
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	declare extra_binutils_flags=''
@@ -1342,16 +1350,6 @@ find \
 	-name '*.la' -delete -o \
 	-name '*.py' -delete -o \
 	-name '*.json' -delete
-
-declare cc='gcc'
-declare readelf='readelf'
-
-if ! (( native )); then
-	cc="${CC}"
-	readelf="${READELF}"
-fi
-
-echo "-> ${cc}"
 
 # Bundle both libstdc++ and libgcc within host tools
 if ! (( native )) && [[ "${host}" != *'-darwin'* ]]; then
