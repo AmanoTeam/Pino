@@ -11,7 +11,7 @@ on:
 permissions: write-all
 
 env: 
-    PINO_BUILD_PARALLEL_LEVEL: 40
+    PINO_BUILD_PARALLEL_LEVEL: 30
     PINO_RELEASE: 15
 
 jobs:
