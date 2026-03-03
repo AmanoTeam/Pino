@@ -73,7 +73,10 @@ declare -r os="$(uname -o)"
 declare symlink_options='--symbolic --force'
 declare slug='linux-x86_64'
 
+declare fallback_sdk_root="${HOME}/Android/Sdk"
+
 if [ "${os}" = 'Darwin' ]; then
+	fallback_sdk_root="${HOME}/Library/Android/sdk"
 	slug='darwin-x86_64'
 	symlink_options='-s -f'
 fi
@@ -103,15 +106,7 @@ if [ -z "${sdk_root}" ]; then
 	declare sdk_root="${ANDROID_SDK_ROOT}"
 fi
 
-declare fallback_sdk_root="${HOME}/Android/Sdk"
-
-if [ -d "${fallback_sdk_root}" ]; then
-	declare sdk_root="${fallback_sdk_root}"
-fi
-
-declare fallback_sdk_root="${HOME}/Library/Android/sdk"
-
-if [ -d "${fallback_sdk_root}" ]; then
+if [ -z "${sdk_root}" ] && [ -d "${fallback_sdk_root}" ]; then
 	declare sdk_root="${fallback_sdk_root}"
 fi
 
