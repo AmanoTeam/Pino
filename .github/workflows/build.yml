@@ -1,6 +1,8 @@
 name: Build
 
 on:
+  schedule:
+    - cron: '30 5 0 * *'
   workflow_dispatch:
     branches:
         - '**'
