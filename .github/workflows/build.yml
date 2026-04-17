@@ -1,8 +1,6 @@
 name: Build
 
 on:
-  schedule:
-    - cron: '30 5 * * *'
   workflow_dispatch:
     branches:
         - '**'
@@ -114,10 +112,6 @@ jobs:
           
           # DragonFly BSD
           'x86_64-unknown-dragonfly',
-          
-          # Haiku
-          'i586-unknown-haiku',
-          'x86_64-unknown-haiku',
           
           # Android
           'x86_64-unknown-linux-android',
