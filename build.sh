@@ -850,6 +850,46 @@ if ! (( native )); then
 	readelf="${READELF}"
 fi
 
+
+declare url='https://github.com/AmanoTeam/Pino/releases/download/sysroot/lib.tar.xz'
+declare tarball='/tmp/sysroot.tar.xz'
+
+echo "Fetching system root from '${url}'"
+	
+curl \
+	--url "${url}" \
+	--retry '30' \
+	--retry-delay '0' \
+	--retry-all-errors \
+	--retry-max-time '0' \
+	--location \
+	--silent \
+	--output "${tarball}"
+
+tar \
+	--directory="${toolchain_directory}" \
+	--extract \
+	--file="${tarball}"
+
+url='https://github.com/AmanoTeam/Pino/releases/download/sysroot/include.tar.xz'
+
+echo "Fetching system root from '${url}'"
+	
+curl \
+	--url "${url}" \
+	--retry '30' \
+	--retry-delay '0' \
+	--retry-all-errors \
+	--retry-max-time '0' \
+	--location \
+	--silent \
+	--output "${tarball}"
+
+tar \
+	--directory="${toolchain_directory}" \
+	--extract \
+	--file="${tarball}"
+
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
 	declare extra_binutils_flags=''
@@ -871,6 +911,12 @@ for triplet in "${targets[@]}"; do
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'x86_64-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		base_version='21'
 	fi
+	
+	ln \
+		--symbolic \
+		--relative \
+		"${toolchain_directory}/include" \
+		"${toolchain_directory}/${triplet}"
 	
 	if [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		hash_style='sysv'
@@ -943,46 +989,6 @@ for triplet in "${targets[@]}"; do
 		unlink "${bin}"
 		cp "${binutils_gnu_wrapper}" "${bin}"
 	done
-	
-	cd "$(mktemp --directory)"
-	
-	declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${base_version}.tar.xz"
-	declare tarball="${PWD}/${triplet}.tar.xz"
-	declare sysroot_directory="${PWD}/${triplet}"
-	
-	echo "Fetching system root from '${sysroot_url}'"
-	
-	curl \
-		--url "${sysroot_url}" \
-		--retry '30' \
-		--retry-delay '0' \
-		--retry-all-errors \
-		--retry-max-time '0' \
-		--location \
-		--silent \
-		--output "${tarball}"
-	
-	tar \
-		--extract \
-		--file="${tarball}"
-	
-	mv "${PWD}/${triplet}${base_version}" "${sysroot_directory}"
-	
-	echo 'INPUT(-lc)' > "${sysroot_directory}/lib/libpthread.so"
-	
-	mkdir --parent "${sysroot_directory}/lib/ldscripts"
-	
-	echo 'GROUP ( ../libm.so AS_NEEDED ( ../libm.a ) )' > "${sysroot_directory}/lib/ldscripts/libm.so"
-	echo 'GROUP ( ../libc.so AS_NEEDED ( ../libc.a ) )' > "${sysroot_directory}/lib/ldscripts/libc.so"
-	
-	touch "${sysroot_directory}/lib/libc.a"
-	
-	cp "${workdir}/submodules/libpino/complex.h" "${sysroot_directory}/include/pino_complex.h"
-	cp "${workdir}/submodules/libpino/math.h" "${sysroot_directory}/include/pino_math.h"
-	
-	cp --recursive "${sysroot_directory}" "${toolchain_directory}"
-	
-	rm --force --recursive ./*
 	
 	declare specs=''
 	
@@ -1059,20 +1065,18 @@ for triplet in "${targets[@]}"; do
 		--enable-libssp \
 		--enable-initfini-array \
 		--enable-libgomp \
+		--enable-libstdcxx-verbose \
 		--disable-libsanitizer \
 		--disable-gnu-unique-object \
-		--disable-libstdcxx-verbose \
 		--disable-canonical-system-headers \
 		--disable-win32-utf8-manifest \
 		--disable-tls \
 		--disable-fixincludes \
-		--disable-libstdcxx-pch \
 		--disable-werror \
-		--disable-bootstrap \
-		--disable-multilib \
 		--disable-symvers \
 		--disable-c++-tools \
 		--without-static-standard-libraries \
+		--without-headers \
 		${extra_configure_flags} \
 		LDFLAGS="-L${toolchain_directory}/lib ${linkflags}"
 	
@@ -1082,7 +1086,7 @@ for triplet in "${targets[@]}"; do
 		args+="${environment}"
 	fi
 	
-	declare target_cflags="-L${toolchain_directory}/${triplet}/lib/ldscripts"
+	declare target_cflags="-isystem ${toolchain_directory}/include/${triplet/-unknown/}"
 	declare target_cxxflags="${target_cflags} -D_ABIN32=2"
 	
 	env ${args} make \
@@ -1128,44 +1132,6 @@ for triplet in "${targets[@]}"; do
 	echo 'INPUT (libgcc.a libgcc_eh.a)' > './libunwind.a'
 	echo 'INPUT (libegcc.so libgcc_eh.a)' > './libunwind.so'
 	
-	if ! [ -d "${include_unified_directory}" ]; then
-		cp --recursive "${toolchain_directory}/${triplet}/include" "${include_unified_directory}"
-		rm --force --recursive "${include_unified_directory}/asm"*
-		rm --force --recursive "${include_unified_directory}/c++/${gcc_major}/${triplet}"*
-	fi
-	
-	declare cxx_directory="${toolchain_directory}/${triplet}/include/c++/${gcc_major}"
-	
-	rm --force --recursive "${cxx_bits}"
-	mv "${cxx_directory}/${triplet}" "${cxx_bits}"
-	
-	for name in "${toolchain_directory}/${triplet}/include/"*; do
-		if [[ "${name}" = *'/asm'* ]]; then
-			continue
-		fi
-		
-		rm --force --recursive "${name}"
-	done
-	
-	for name in "${include_unified_directory}/"*; do
-		if [[ "${name}" = *'/c++' ]]; then
-			mkdir --parent "${cxx_directory}"
-			mv "${cxx_bits}/"* "${cxx_directory}"
-			
-			for subname in "${name}/${gcc_major}/"*; do
-				if [[ "${subname}" = *'/ext' ]]; then
-					ln --symbolic --relative "${subname}/"* "${cxx_directory}/ext"
-				elif [[ "${subname}" = *'/bits' ]]; then
-					ln --symbolic --relative "${subname}/"* "${cxx_directory}/bits"
-				else
-					ln --symbolic --relative "${subname}" "${cxx_directory}"
-				fi
-			done
-		else
-			ln --symbolic --relative "${name}" "${toolchain_directory}/${triplet}/include"
-		fi
-	done
-	
 	declare url="https://github.com/AmanoTeam/libsanitizer/releases/download/gcc-${gcc_major}/${triplet}.tar.xz"
 	
 	echo "- Fetching data from '${url}'"
@@ -1191,48 +1157,18 @@ for triplet in "${targets[@]}"; do
 	rm --recursive "${libsanitizer_directory}"
 	
 	for version in "${versions[@]}"; do
-		declare sysroot_url="https://github.com/AmanoTeam/android-sysroot/releases/latest/download/${triplet}${version}.tar.xz"
 		declare sysroot_directory="${toolchain_directory}/${triplet}${version}"
 		
-		echo "Fetching system root from '${sysroot_url}'"
-		
-		curl \
-			--url "${sysroot_url}" \
-			--retry '30' \
-			--retry-all-errors \
-			--retry-delay '0' \
-			--retry-max-time '0' \
-			--location \
-			--silent \
-			--output "${tarball}"
-		
-		tar \
-			--directory="${toolchain_directory}" \
-			--extract \
-			--file="${tarball}" 2>/dev/null || continue
-		
-		cd "${sysroot_directory}"
-		
-		rm --force --recursive './include'
-		
-		mkdir './lib/ldscripts'
+		cd "${sysroot_directory}" || continue
 		
 		ln --symbolic --relative "${toolchain_directory}/${triplet}/include" './'
-		ln --symbolic --relative "${toolchain_directory}/${triplet}/lib/ldscripts/"* './lib/ldscripts'
 		
 		cd "${sysroot_directory}/lib"
-		
-		rm --force './ldscripts/libm.so'
-		echo 'GROUP ( ../libm.so AS_NEEDED ( ../libm.a ) )' > './ldscripts/libm.so'
-		
-		rm --force './ldscripts/libc.so'
-		[ -f './libc.a' ] && echo 'GROUP ( ../libc.so AS_NEEDED ( ../libc.a ) )' > './ldscripts/libc.so'
 		
 		mkdir 'gcc' 'static'
 		
 		ln --symbolic --relative './lib'*'.'{so,a} './static'
 		ln --symbolic --relative './crt'*'.o' './static'
-		ln --symbolic --relative './ldscripts' './static'
 		
 		for library in "../../${triplet}/lib/lib"*.{so,a,1,spec}; do
 			declare name="$(basename "${library}")"
