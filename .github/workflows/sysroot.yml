@@ -23,7 +23,7 @@ jobs:
         
         echo '/tmp/pino/bin' >> "${GITHUB_PATH}"
     - name: Generate sysroots
-      run: bash './main.sh'
+      run: bash './sysroot.sh'
     - name: Create release
       uses: softprops/action-gh-release@master
       with:
