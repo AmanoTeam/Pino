@@ -14,7 +14,7 @@ jobs:
         submodules: true
     - name: Install Pino
       run: |
-        declare -r PINO_TAG="$(jq --raw-output '.tag_name' <<< "$(curl --connect-timeout '10' --retry '15' --retry-all-errors --fail --silent --url 'https://api.github.com/repos/AmanoTeam/Pino/releases/latest')")"
+        declare -r PINO_TAG='gcc-15'
         declare -r PINO_TARBALL='/tmp/toolchain.tar.xz'
         declare -r PINO_URL="https://github.com/AmanoTeam/Pino/releases/download/${PINO_TAG}/x86_64-unknown-linux-gnu.tar.xz"
             

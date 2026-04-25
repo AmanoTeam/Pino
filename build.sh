@@ -886,9 +886,11 @@ curl \
 	--output "${tarball}"
 
 tar \
-	--directory="${toolchain_directory}" \
+	--directory="${toolchain_directory}/include" \
 	--extract \
 	--file="${tarball}"
+
+mv "${toolchain_directory}/include/bionic" "${toolchain_directory}/include/bionic"
 
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
@@ -915,7 +917,7 @@ for triplet in "${targets[@]}"; do
 	ln \
 		--symbolic \
 		--relative \
-		"${toolchain_directory}/include" \
+		"${toolchain_directory}/include/bionic" \
 		"${toolchain_directory}/${triplet}"
 	
 	touch "${toolchain_directory}/${triplet}/lib/libc_stb.a"
@@ -1088,7 +1090,7 @@ for triplet in "${targets[@]}"; do
 		args+="${environment}"
 	fi
 	
-	declare target_cflags="-isystem ${toolchain_directory}/include/${triplet/-unknown/}"
+	declare target_cflags="-isystem ${toolchain_directory}/include/bionic/${triplet}"
 	declare target_cxxflags="${target_cflags} -D_ABIN32=2"
 	
 	env ${args} make \
@@ -1162,8 +1164,6 @@ for triplet in "${targets[@]}"; do
 		declare sysroot_directory="${toolchain_directory}/${triplet}${version}"
 		
 		cd "${sysroot_directory}" || continue
-		
-		ln --symbolic --relative "${toolchain_directory}/${triplet}/include" './'
 		
 		cd "${sysroot_directory}/lib"
 		
@@ -1294,6 +1294,8 @@ else
 	cp "${workdir}/tools/ndk-patch.sh" "${toolchain_directory}/bin/ndk-patch"
 fi
 
+mv "${toolchain_directory}/include/bionic" "${toolchain_directory}"
+
 # Delete libtool files and other unnecessary files GCC installs
 rm \
 	--force \
@@ -1301,7 +1303,20 @@ rm \
 	"${toolchain_directory}/share" \
 	"${toolchain_directory}/lib/lib"*'.a' \
 	"${toolchain_directory}/lib/pkgconfig" \
-	"${toolchain_directory}/lib/cmake"
+	"${toolchain_directory}/lib/cmake" \
+	"${toolchain_directory}/include"
+
+mv "${toolchain_directory}/bionic" "${toolchain_directory}/include"
+
+for directory in "${toolchain_directory}/"*'-linux-android'*; do
+	unlink "${directory}/include" || true
+	
+	ln \
+		--symbolic \
+		--relative \
+		"${toolchain_directory}/include" \
+		"${directory}"
+done
 
 find \
 	"${toolchain_directory}" \
