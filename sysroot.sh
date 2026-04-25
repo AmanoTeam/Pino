@@ -239,7 +239,6 @@ ln \
 	"${include_dir}/arm-linux-androideabi" \
 	"${include_dir}/armv7-linux-androideabi"
 
-include/arm-linux-androideabi/
 declare tarball_filename='/tmp/include.tar.xz'
 
 tar \
