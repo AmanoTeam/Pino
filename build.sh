@@ -890,7 +890,7 @@ tar \
 	--extract \
 	--file="${tarball}"
 
-mv "${toolchain_directory}/include/bionic" "${toolchain_directory}/include/bionic"
+mv "${toolchain_directory}/include/include" "${toolchain_directory}/include/bionic"
 
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
@@ -1309,7 +1309,7 @@ rm \
 mv "${toolchain_directory}/bionic" "${toolchain_directory}/include"
 
 for directory in "${toolchain_directory}/"*'-linux-android'*; do
-	unlink "${directory}/include" || true
+	rm --force "${directory}/include"
 	
 	ln \
 		--symbolic \
