@@ -918,6 +918,8 @@ for triplet in "${targets[@]}"; do
 		"${toolchain_directory}/include" \
 		"${toolchain_directory}/${triplet}"
 	
+	touch "${toolchain_directory}/${triplet}/lib/libc_stb.a"
+	
 	if [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		hash_style='sysv'
 	fi
