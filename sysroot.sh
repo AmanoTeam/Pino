@@ -233,11 +233,13 @@ fi
 
 rm --recursive --force "${include_dir}/c++"
 
-ln \
-	--symbolic \
-	--relative \
-	"${include_dir}/arm-linux-androideabi" \
-	"${include_dir}/armv7-linux-androideabi"
+for directory in "${include_dir}/"*'-linux-android'*; do
+	mv "${directory}" "${directory/-linux/-unknown-linux}" 
+done
+
+mv \
+	"${include_dir}/arm-unknown-linux-androideabi" \
+	"${include_dir}/armv7-unknown-linux-androideabi"
 
 declare tarball_filename='/tmp/include.tar.xz'
 
