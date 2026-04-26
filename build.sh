@@ -86,11 +86,11 @@ declare exe=''
 declare dll='.so'
 
 declare -ra targets=(
-	'riscv64-unknown-linux-android'
 	'armv7-unknown-linux-androideabi'
-	'aarch64-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'x86_64-unknown-linux-android'
+	# 'riscv64-unknown-linux-android'
+	# 'aarch64-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
 	# 'armv5-unknown-linux-androideabi'
 	# 'mipsel-unknown-linux-android'
 	# 'mips64el-unknown-linux-android'
@@ -1081,6 +1081,7 @@ for triplet in "${targets[@]}"; do
 		--disable-fixincludes \
 		--disable-symvers \
 		--disable-c++-tools \
+		--disable-libstdcxx-pch \
 		--without-static-standard-libraries \
 		--without-headers \
 		${extra_configure_flags} \
