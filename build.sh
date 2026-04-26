@@ -988,7 +988,7 @@ for triplet in "${targets[@]}"; do
 	done
 	
 	if (( native )); then
-		declare specs="-isystem ${bionic_headers} -isystem ${bionic_headers}/${triplet}"
+		declare specs="-I ${bionic_headers} -I ${bionic_headers}/${triplet}"
 	else
 		declare specs=''
 	fi
