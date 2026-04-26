@@ -1092,7 +1092,7 @@ for triplet in "${targets[@]}"; do
 		args+="${environment}"
 	fi
 	
-	declare target_cflags="-isystem ${toolchain_directory}/include/bionic/${triplet}"
+	declare target_cflags="-isystem ${toolchain_directory}/${triplet}/include/${triplet}"
 	declare target_cxxflags="${target_cflags} -D_ABIN32=2"
 	
 	env ${args} make \
