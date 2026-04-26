@@ -921,7 +921,7 @@ for triplet in "${targets[@]}"; do
 		base_version='21'
 	fi
 	
-	touch "${toolchain_directory}/${triplet}/lib/liba_stb.a"
+	touch "${toolchain_directory}/${triplet}/lib/libandroid-stb.a"
 	
 	if [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		hash_style='sysv'
