@@ -1072,6 +1072,7 @@ for triplet in "${targets[@]}"; do
 		--enable-initfini-array \
 		--enable-libgomp \
 		--enable-libstdcxx-verbose \
+		--disable-multilib \
 		--disable-libsanitizer \
 		--disable-gnu-unique-object \
 		--disable-canonical-system-headers \
