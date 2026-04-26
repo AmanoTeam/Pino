@@ -1166,6 +1166,7 @@ for triplet in "${targets[@]}"; do
 		
 		[ -d "${sysroot_directory}" ] || continue
 		
+		cd "${sysroot_directory}"
 		mkdir "${sysroot_directory}/lib/"{gcc,static}
 		
 		for library in "${libraries[@]}"; do
