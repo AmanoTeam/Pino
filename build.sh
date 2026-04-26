@@ -572,7 +572,7 @@ if ! [ -f "${gcc_tarball}" ]; then
 	fi
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Prevent-libstdc-from-trying-to-implement-math-stubs.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Enable-automatic-linking-of-libandroid.patch"
+	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Enable-automatic-linking-of-libandroid.patch"
 fi
 
 # Follow Debian's approach to remove hardcoded RPATHs from binaries
