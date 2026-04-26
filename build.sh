@@ -82,7 +82,7 @@ declare build_nz='1'
 declare exe=''
 declare dll='.so'
 
-declare -ra targets=(
+declare -ra ktargets=(
 	'armv7-unknown-linux-androideabi'
 	'riscv64-unknown-linux-android'
 	'aarch64-unknown-linux-android'
@@ -91,6 +91,10 @@ declare -ra targets=(
 	# 'armv5-unknown-linux-androideabi'
 	# 'mipsel-unknown-linux-android'
 	# 'mips64el-unknown-linux-android'
+)
+
+declare -ra targets=(
+	'armv7-unknown-linux-androideabi'
 )
 
 declare -ra versions=(
@@ -185,6 +189,9 @@ declare -ra libraries=(
 	'libmpx'
 	'libmudflap'
 	'libmudflapth'
+	'liba_stb'
+	'libc_stb'
+	'libm_stb'
 )
 
 declare languages='c,c++'
@@ -1099,6 +1106,11 @@ for triplet in "${targets[@]}"; do
 		all --jobs="${max_jobs}"
 	env ${args} make install
 	
+	make -C "${workdir}/tools/stubs" clean
+	env ${args} make -C "${workdir}/tools/stubs" CC="${triplet}-gcc"
+	
+	cp "${workdir}/tools/stubs/lib"*'.a' "${toolchain_directory}/${triplet}/lib"
+	
 	cp --recursive "${toolchain_directory}/${triplet}/include" "$(dirname "${bionic_headers}")"
 	rm --recursive "${toolchain_directory}/${triplet}/include"
 	
@@ -1166,7 +1178,7 @@ for triplet in "${targets[@]}"; do
 		
 		[ -d "${sysroot_directory}" ] || continue
 		
-		cd "${sysroot_directory}"
+		cd "${sysroot_directory}/lib"
 		mkdir "${sysroot_directory}/lib/"{gcc,static}
 		
 		for library in "${libraries[@]}"; do
