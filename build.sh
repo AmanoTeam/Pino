@@ -1280,11 +1280,11 @@ for triplet in "${targets[@]}"; do
 			fi
 			
 			if (( status )); then
-				mkdir '../bin'
-				ln --symbolic --relative './nouzen/bin/'* '../bin'
-				ln --symbolic --relative "${toolchain_directory}/${triplet}${version}/bin/nz" "${toolchain_directory}/bin/${triplet}${version}-nz"
-				ln --symbolic --relative "${toolchain_directory}/${triplet}${version}/bin/apt" "${toolchain_directory}/bin/${triplet}${version}-apt"
-				ln --symbolic --relative "${toolchain_directory}/${triplet}${version}/bin/apt-get" "${toolchain_directory}/bin/${triplet}${version}-apt-get"
+				mkdir '../bin' || true
+				ln --symbolic --relative './nouzen/bin/'* '../bin' || true
+				ln --symbolic --relative "${toolchain_directory}/${triplet}${version}/bin/nz" "${toolchain_directory}/bin/${triplet}${version}-nz" || true
+				ln --symbolic --relative "${toolchain_directory}/${triplet}${version}/bin/apt" "${toolchain_directory}/bin/${triplet}${version}-apt" || true
+				ln --symbolic --relative "${toolchain_directory}/${triplet}${version}/bin/apt-get" "${toolchain_directory}/bin/${triplet}${version}-apt-get" || true
 			fi
 		fi
 	done
