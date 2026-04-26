@@ -922,6 +922,13 @@ for triplet in "${targets[@]}"; do
 		"${toolchain_directory}/include/bionic" \
 		"${toolchain_directory}/${triplet}/include"
 	
+	ln \
+		--symbolic \
+		--relative \
+		--force \
+		"${toolchain_directory}/${triplet}/include/${triplet}/asm" \
+		"${toolchain_directory}/${triplet}/include"
+	
 	touch "${toolchain_directory}/${triplet}/lib/liba_stb.a"
 	
 	if [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
