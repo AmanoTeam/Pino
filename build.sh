@@ -73,9 +73,6 @@ declare -r ninja_directory='/tmp/ninja-1.12.1'
 declare -r nz_directory="${workdir}/submodules/nz"
 declare -r nz_prefix='/tmp/nz'
 
-declare -r cxx_bits='/tmp/cxx-bits'
-declare -r include_unified_directory="/tmp/include"
-
 declare -r pieflags='-fPIE'
 declare -r ccflags='-w -O2'
 declare -r linkflags='-Xlinker -s'
@@ -1080,6 +1077,7 @@ for triplet in "${targets[@]}"; do
 		--disable-symvers \
 		--disable-c++-tools \
 		--disable-libstdcxx-pch \
+		--disable-werror \
 		--without-static-standard-libraries \
 		${extra_configure_flags} \
 		LDFLAGS="-L${toolchain_directory}/lib ${linkflags}"
