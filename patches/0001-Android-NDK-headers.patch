@@ -1,4 +1,4 @@
-From bca135779b311e44b6c753edee3c165ecb758772 Mon Sep 17 00:00:00 2001
+From 5d6c32da5d8ad9be0260c4f227abadd3647b726b Mon Sep 17 00:00:00 2001
 From: Kartatz <105828205+Kartatz@users.noreply.github.com>
 Date: Thu, 21 Aug 2025 22:12:32 -0300
 Subject: [PATCH] Android NDK headers
@@ -634,7 +634,7 @@ index 0000000..a1eff7c
 +#endif /* ANDROID_LEGACY_FENV_INLINES_MIPS_H */
 diff --git a/android/legacy_signal_inlines.h b/android/legacy_signal_inlines.h
 new file mode 100644
-index 0000000..b6e674a
+index 0000000..13b9203
 --- /dev/null
 +++ b/android/legacy_signal_inlines.h
 @@ -0,0 +1,130 @@
@@ -676,8 +676,8 @@ index 0000000..b6e674a
 +#include <errno.h>
 +#include <signal.h>
 +#include <string.h>
++#include <limits.h>
 +
-+/* Our kernel headers are missing these defines */
 +#if defined(__mips__) && !defined(__LP64__)
 +	#define __SIGRTMIN 32
 +	#define __SIGRTMAX 64
