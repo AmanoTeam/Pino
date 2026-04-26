@@ -992,8 +992,8 @@ for triplet in "${targets[@]}"; do
 		"${toolchain_directory}/${triplet}/bin/dwp${exe}"
 	
 	for bin in "${toolchain_directory}/${triplet}/bin/"*; do
-		unlink "${bin}"
-		cp "${binutils_gnu_wrapper}" "${bin}"
+		true # unlink "${bin}"
+		true # cp "${binutils_gnu_wrapper}" "${bin}"
 	done
 	
 	declare specs=''
