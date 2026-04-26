@@ -323,51 +323,43 @@ declare tarball_filename='/tmp/lib.tar.xz'
 
 cd '/tmp/bionic-libraries'
 
-ln \
-	--symbolic \
-	--relative \
+cp \
+	--recursive \
 	'aarch64-unknown-linux-android21' \
 	'aarch64-unknown-linux-android'
 
-ln \
-	--symbolic \
-	--relative \
+cp \
+	--recursive \
 	'armv5-unknown-linux-androideabi14' \
 	'armv5-unknown-linux-androideabi'
 
-ln \
-	--symbolic \
-	--relative \
+cp \
+	--recursive \
 	'armv7-unknown-linux-androideabi14' \
 	'armv7-unknown-linux-androideabi'
 
-ln \
-	--symbolic \
-	--relative \
+cp \
+	--recursive \
 	'i686-unknown-linux-android14' \
 	'i686-unknown-linux-android'
 
-ln \
-	--symbolic \
-	--relative \
+cp \
+	--recursive \
 	'mips64el-unknown-linux-android21' \
 	'mips64el-unknown-linux-android'
 
-ln \
-	--symbolic \
-	--relative \
+cp \
+	--recursive \
 	'mipsel-unknown-linux-android14' \
 	'mipsel-unknown-linux-android'
 
-ln \
-	--symbolic \
-	--relative \
+cp \
+	--recursive \
 	'riscv64-unknown-linux-android35' \
 	'riscv64-unknown-linux-android'
 
-ln \
-	--symbolic \
-	--relative \
+cp \
+	--recursive \
 	'x86_64-unknown-linux-android21' \
 	'x86_64-unknown-linux-android'
 
