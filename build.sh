@@ -1083,7 +1083,6 @@ for triplet in "${targets[@]}"; do
 		--disable-c++-tools \
 		--disable-libstdcxx-pch \
 		--without-static-standard-libraries \
-		--without-headers \
 		${extra_configure_flags} \
 		LDFLAGS="-L${toolchain_directory}/lib ${linkflags}"
 	
