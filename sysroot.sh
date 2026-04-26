@@ -331,7 +331,7 @@ cp \
 cp \
 	--recursive \
 	'armv5-unknown-linux-androideabi14' \
-	'armv5-unknown-linux-androideabi'
+	'armv5-unknown-linux-androideabi' || true
 
 cp \
 	--recursive \
@@ -346,12 +346,12 @@ cp \
 cp \
 	--recursive \
 	'mips64el-unknown-linux-android21' \
-	'mips64el-unknown-linux-android'
+	'mips64el-unknown-linux-android' || true
 
 cp \
 	--recursive \
 	'mipsel-unknown-linux-android14' \
-	'mipsel-unknown-linux-android'
+	'mipsel-unknown-linux-android' || true
 
 cp \
 	--recursive \
