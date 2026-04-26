@@ -74,7 +74,7 @@ declare -r nz_directory="${workdir}/submodules/nz"
 declare -r nz_prefix='/tmp/nz'
 
 declare -r cxx_bits='/tmp/cxx-bits'
-declare -r include_unified_directory="${toolchain_directory}/include/bionic"
+declare -r include_unified_directory="/tmp/include"
 
 declare -r pieflags='-fPIE'
 declare -r ccflags='-w -O2'
@@ -126,6 +126,8 @@ if [[ "${host}" = *'-mingw32' ]]; then
 	exe='.exe'
 	dll='.dll'
 fi
+
+declare -r bionic_headers='/tmp/include'
 
 declare -r gcc_wrapper="/tmp/gcc-wrapper${exe}"
 declare -r binutils_llvm_wrapper="/tmp/binutils-llvm-wrapper${exe}"
@@ -888,11 +890,9 @@ curl \
 	--output "${tarball}"
 
 tar \
-	--directory="${toolchain_directory}/include" \
+	--directory="$(dirname "${bionic_headers}")" \
 	--extract \
 	--file="${tarball}"
-
-mv "${toolchain_directory}/include/include" "${toolchain_directory}/include/bionic"
 
 for triplet in "${targets[@]}"; do
 	declare extra_configure_flags=''
@@ -915,19 +915,6 @@ for triplet in "${targets[@]}"; do
 	if [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'x86_64-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		base_version='21'
 	fi
-	
-	ln \
-		--symbolic \
-		--relative \
-		"${toolchain_directory}/include/bionic" \
-		"${toolchain_directory}/${triplet}/include"
-	
-	ln \
-		--symbolic \
-		--relative \
-		--force \
-		"${toolchain_directory}/${triplet}/include/${triplet}/asm" \
-		"${toolchain_directory}/${triplet}/include"
 	
 	touch "${toolchain_directory}/${triplet}/lib/liba_stb.a"
 	
@@ -1003,7 +990,11 @@ for triplet in "${targets[@]}"; do
 		true # cp "${binutils_gnu_wrapper}" "${bin}"
 	done
 	
-	declare specs=''
+	if (( native )); then
+		declare specs="-isystem ${bionic_headers} -isystem ${bionic_headers}/${triplet}"
+	else
+		declare specs=''
+	fi
 	
 	specs+=' %{!Wno-complain-wrong-lang: %{!Wcomplain-wrong-lang: -Wno-complain-wrong-lang}}'
 	specs+=' %{!Wno-psabi: %{!Wpsabi: -Wno-psabi}}'
@@ -1109,6 +1100,9 @@ for triplet in "${targets[@]}"; do
 		gcc_cv_objdump="${host}-objdump" \
 		all --jobs="${max_jobs}"
 	env ${args} make install
+	
+	cp --recursive "${toolchain_directory}/${triplet}/include" "$(dirname "${bionic_headers}")"
+	rm --recursive "${toolchain_directory}/${triplet}/include"
 	
 	cp "${workdir}/submodules/obggcc/tools/pkg-config.sh" "${toolchain_directory}/bin/${triplet}-pkg-config"
 	sed --in-place 's/OBGGCC/PINO/g' "${toolchain_directory}/bin/${triplet}-pkg-config"
@@ -1314,8 +1308,6 @@ else
 	cp "${workdir}/tools/ndk-patch.sh" "${toolchain_directory}/bin/ndk-patch"
 fi
 
-mv "${toolchain_directory}/include/bionic" "${toolchain_directory}"
-
 # Delete libtool files and other unnecessary files GCC installs
 rm \
 	--force \
@@ -1326,10 +1318,10 @@ rm \
 	"${toolchain_directory}/lib/cmake" \
 	"${toolchain_directory}/include"
 
-mv "${toolchain_directory}/bionic" "${toolchain_directory}/include"
+mv "${bionic_headers}" "${toolchain_directory}"
 
 for directory in "${toolchain_directory}/"*'-linux-android'*; do
-	rm --force "${directory}/include"
+	unlink "${directory}/include" || true
 	
 	ln \
 		--symbolic \
