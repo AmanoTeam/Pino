@@ -82,7 +82,7 @@ declare build_nz='1'
 declare exe=''
 declare dll='.so'
 
-declare -ra ktargets=(
+declare -ra targets=(
 	'armv7-unknown-linux-androideabi'
 	'riscv64-unknown-linux-android'
 	'aarch64-unknown-linux-android'
@@ -93,7 +93,7 @@ declare -ra ktargets=(
 	# 'mips64el-unknown-linux-android'
 )
 
-declare -ra targets=(
+declare -ra ktargets=(
 	'armv7-unknown-linux-androideabi'
 )
 
@@ -189,7 +189,7 @@ declare -ra libraries=(
 	'libmpx'
 	'libmudflap'
 	'libmudflapth'
-	'liba_stb'
+	'libandroid-stb'
 	'libc_stb'
 	'libm_stb'
 )

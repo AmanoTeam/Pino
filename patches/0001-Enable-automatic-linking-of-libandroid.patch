@@ -45,7 +45,7 @@ index b2aa816fb..bd289fd8f 100644
  #undef TARGET_PROVIDES_LIBATOMIC
  #endif
  
-+/* Define if the clock-related functions from the C library are implemented in libandroid rather than libc. */
++/* Define if we should link with the libandroid library by default. */
 +#ifndef USED_FOR_TARGET
 +#undef TARGET_AUTOLINK_LIBANDROID
 +#endif
@@ -263,7 +263,7 @@ index 06fa6078d..25a9c57e6 100644
 +
 +if test x$enable_autolink_libandroid = xyes ; then
 +  AC_DEFINE(TARGET_AUTOLINK_LIBANDROID, 1,
-+      [Define if the clock-related functions from the C library are implemented in libandroid rather than libc.])
++      [Define if we should link with the libandroid library by default.])
 +fi
 +
  if echo " ${TARGET_CONFIGDIRS} " | grep " libatomic " > /dev/null 2>&1 ; then
@@ -279,10 +279,10 @@ index 4a804ba96..89e54d0f6 100644
  
 +#if defined(TARGET_AUTOLINK_LIBANDROID) && defined(USE_LD_AS_NEEDED)
 +#if defined(USE_LD_AS_NEEDED_LDSCRIPT)
-+#define LINK_LIBANDROID_SPEC "%{!fno-link-libandroid: -landroid_asneeded } "
++#define LINK_LIBANDROID_SPEC "%{!fno-link-libandroid: -landroid-stb } "
 +#else
 +#define LINK_LIBANDROID_SPEC "%{!fno-link-libandroid:" LD_AS_NEEDED_OPTION \
-+			    " -landroid " LD_NO_AS_NEEDED_OPTION "} "
++			    " -landroid-stb " LD_NO_AS_NEEDED_OPTION "} "
 +#endif
 +#else
 +#define LINK_LIBANDROID_SPEC ""
