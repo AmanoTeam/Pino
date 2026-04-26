@@ -920,7 +920,7 @@ for triplet in "${targets[@]}"; do
 		--symbolic \
 		--relative \
 		"${toolchain_directory}/include/bionic" \
-		"${toolchain_directory}/${triplet}"
+		"${toolchain_directory}/${triplet}/include"
 	
 	touch "${toolchain_directory}/${triplet}/lib/liba_stb.a"
 	
