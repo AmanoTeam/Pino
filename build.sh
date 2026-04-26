@@ -1178,12 +1178,14 @@ for triplet in "${targets[@]}"; do
 					continue
 				fi
 				
-				ln \
-					--force \
-					--symbolic \
-					--relative \
-					"${file}" \
-					"${sysroot_directory}/lib"
+				if [ "${base_version}" != "${version}" ]
+					ln \
+						--force \
+						--symbolic \
+						--relative \
+						"${file}" \
+						"${sysroot_directory}/lib"
+				fi
 				
 				ln \
 					--force \
