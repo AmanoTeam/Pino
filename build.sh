@@ -179,11 +179,13 @@ declare -ra libraries=(
 	'liblsan'
 	'libtsan'
 	'libubsan'
-)
-
-declare -ra bits=(
-	''
-	'64'
+	'libquadmath'
+	'libcilkrts'
+	'libvtv'
+	'libgcov'
+	'libmpx'
+	'libmudflap'
+	'libmudflapth'
 )
 
 declare languages='c,c++'
@@ -920,7 +922,7 @@ for triplet in "${targets[@]}"; do
 		"${toolchain_directory}/include/bionic" \
 		"${toolchain_directory}/${triplet}"
 	
-	touch "${toolchain_directory}/${triplet}/lib/libc_stb.a"
+	touch "${toolchain_directory}/${triplet}/lib/liba_stb.a"
 	
 	if [ "${triplet}" = 'mipsel-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		hash_style='sysv'
@@ -1076,7 +1078,6 @@ for triplet in "${targets[@]}"; do
 		--disable-win32-utf8-manifest \
 		--disable-tls \
 		--disable-fixincludes \
-		--disable-werror \
 		--disable-symvers \
 		--disable-c++-tools \
 		--without-static-standard-libraries \
@@ -1163,34 +1164,43 @@ for triplet in "${targets[@]}"; do
 	for version in "${versions[@]}"; do
 		declare sysroot_directory="${toolchain_directory}/${triplet}${version}"
 		
-		cd "${sysroot_directory}" || continue
+		[ -d "${sysroot_directory}" ] || continue
 		
-		cd "${sysroot_directory}/lib"
+		mkdir "${sysroot_directory}/lib/"{gcc,static}
 		
-		mkdir 'gcc' 'static'
-		
-		ln --symbolic --relative './lib'*'.'{so,a} './static'
-		ln --symbolic --relative './crt'*'.o' './static'
-		
-		for library in "../../${triplet}/lib/lib"*.{so,a,1,spec}; do
-			declare name="$(basename "${library}")"
-			
-			if [[ "${name}" = *'*'* ]]; then
-				continue
-			fi
-			
-			if [ -f "${name}" ]; then
-				continue
-			fi
-			
-			if [[ "${name}" = *'.a' ]]; then
-				ln --symbolic --relative "${library}" './static'
-			elif [[ "${name}" = 'libgcc_s.so'* ]] || [[ "${name}" = 'libegcc.so'* ]]; then
-				ln --symbolic --relative "${library}" './static'
-			fi
-			
-			ln --symbolic "${library}" './'
-			ln --symbolic --relative "${library}" './gcc'
+		for library in "${libraries[@]}"; do
+			for file in "${toolchain_directory}/${triplet}/lib/${library}"*; do
+				if [[ "${file}" = *'*' ]]; then
+					continue
+				fi
+				
+				if ! ( [[ "${file}" = *'.so'* ]] || [[ "${file}" = *'.a' ]] ); then
+					continue
+				fi
+				
+				ln \
+					--force \
+					--symbolic \
+					--relative \
+					"${file}" \
+					"${sysroot_directory}/lib"
+				
+				ln \
+					--force \
+					--symbolic \
+					--relative \
+					"${file}" \
+					"${sysroot_directory}/lib/gcc"
+				
+				if [[ "${file}" = *'.a' ]]; then
+					ln \
+						--force \
+						--symbolic \
+						--relative \
+						"${file}" \
+						"${sysroot_directory}/lib/static"
+				fi
+			done
 		done
 		
 		if [[ "${host}" = *'-mingw32' ]]; then
