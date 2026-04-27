@@ -83,11 +83,11 @@ declare exe=''
 declare dll='.so'
 
 declare -ra targets=(
-	'armv7-unknown-linux-androideabi'
-	'riscv64-unknown-linux-android'
+	# 'armv7-unknown-linux-androideabi'
+	# 'riscv64-unknown-linux-android'
 	'aarch64-unknown-linux-android'
-	'i686-unknown-linux-android'
-	'x86_64-unknown-linux-android'
+	# 'i686-unknown-linux-android'
+	# 'x86_64-unknown-linux-android'
 	# 'armv5-unknown-linux-androideabi'
 	# 'mipsel-unknown-linux-android'
 	# 'mips64el-unknown-linux-android'
@@ -909,6 +909,13 @@ for triplet in "${targets[@]}"; do
 	enable_libsanitizer='--enable-libsanitizer'
 	enable_libgcobol=''
 	
+	ln \
+		--symbolic \
+		--relative \
+		--force \
+		"${bionic_headers}" \
+		"${toolchain_directory}/${triplet}"
+	
 	if [ "${triplet}" = 'riscv64-unknown-linux-android' ] || [ "${triplet}" = 'aarch64-unknown-linux-android' ] || [ "${triplet}" = 'x86_64-unknown-linux-android' ] || [ "${triplet}" = 'mips64el-unknown-linux-android' ]; then
 		abi64='1'
 	fi
@@ -996,7 +1003,7 @@ for triplet in "${targets[@]}"; do
 	done
 	
 	if (( native )); then
-		declare specs="%{!nostdinc: -I ${bionic_headers} -I ${bionic_headers}/${triplet}}"
+		declare specs="-isystem ${bionic_headers}/${triplet}"
 	else
 		declare specs=''
 	fi
