@@ -1120,8 +1120,8 @@ for triplet in "${targets[@]}"; do
 	
 	cp "${workdir}/tools/stubs/lib"*'.a' "${toolchain_directory}/${triplet}/lib"
 	
-	cp --recursive "${toolchain_directory}/${triplet}/include" "$(dirname "${bionic_headers}")"
-	rm --recursive "${toolchain_directory}/${triplet}/include"
+	# cp --recursive "${toolchain_directory}/${triplet}/include" "$(dirname "${bionic_headers}")"
+	unlink "${toolchain_directory}/${triplet}/include"
 	
 	cp "${workdir}/submodules/obggcc/tools/pkg-config.sh" "${toolchain_directory}/bin/${triplet}-pkg-config"
 	sed --in-place 's/OBGGCC/PINO/g' "${toolchain_directory}/bin/${triplet}-pkg-config"
