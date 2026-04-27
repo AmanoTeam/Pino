@@ -996,7 +996,7 @@ for triplet in "${targets[@]}"; do
 	done
 	
 	if (( native )); then
-		declare specs="-I ${bionic_headers} -I ${bionic_headers}/${triplet}"
+		declare specs="%{!nostdinc: -I ${bionic_headers} -I ${bionic_headers}/${triplet}}"
 	else
 		declare specs=''
 	fi
