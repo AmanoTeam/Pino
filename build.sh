@@ -1090,13 +1090,12 @@ for triplet in "${targets[@]}"; do
 		--disable-win32-utf8-manifest \
 		--disable-tls \
 		--disable-fixincludes \
-		--disable-symvers \
 		--disable-libstdcxx-pch \
 		--disable-werror \
 		--without-static-standard-libraries \
 		${extra_configure_flags} \
 		LDFLAGS="-L${toolchain_directory}/lib ${linkflags}"
-	
+	# --disable-symvers \
 	declare args=''
 	
 	if (( native )); then
