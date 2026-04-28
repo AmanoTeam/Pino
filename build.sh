@@ -83,11 +83,11 @@ declare exe=''
 declare dll='.so'
 
 declare -ra targets=(
+	'x86_64-unknown-linux-android'
 	'armv7-unknown-linux-androideabi'
 	'riscv64-unknown-linux-android'
 	'aarch64-unknown-linux-android'
 	'i686-unknown-linux-android'
-	'x86_64-unknown-linux-android'
 	# 'armv5-unknown-linux-androideabi'
 	# 'mipsel-unknown-linux-android'
 	# 'mips64el-unknown-linux-android'
@@ -1091,7 +1091,6 @@ for triplet in "${targets[@]}"; do
 		--disable-tls \
 		--disable-fixincludes \
 		--disable-symvers \
-		--disable-c++-tools \
 		--disable-libstdcxx-pch \
 		--disable-werror \
 		--without-static-standard-libraries \
