@@ -487,7 +487,7 @@ fi
 
 if ! [ -f "${gcc_tarball}" ]; then
 	if [ "${gcc_major}" != '17' ]; then
-		gcc_url='https://github.com/gcc-mirror/gcc/archive/releases/gcc-15.tar.gz'
+		gcc_url="https://github.com/gcc-mirror/gcc/archive/releases/gcc-${gcc_major}.tar.gz"
 		gcc_directory="/tmp/gcc-releases-gcc-${gcc_major}"
 	fi
 	
