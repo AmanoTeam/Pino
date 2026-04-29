@@ -1,0 +1,25 @@
+From a315ab3bfd249b6d1b65729ea8575f5766d7566b Mon Sep 17 00:00:00 2001
+From: Kartatz <105828205+Kartatz@users.noreply.github.com>
+Date: Wed, 29 Apr 2026 03:51:37 -0300
+Subject: [PATCH] a
+
+---
+ libstdc++-v3/src/c++23/print.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libstdc++-v3/src/c++23/print.cc b/libstdc++-v3/src/c++23/print.cc
+index a12c50bfb..ae91ec99e 100644
+--- a/libstdc++-v3/src/c++23/print.cc
++++ b/libstdc++-v3/src/c++23/print.cc
+@@ -23,7 +23,7 @@
+ // <http://www.gnu.org/licenses/>.
+ 
+ // We want to emit symbols for the inline functions in bits/print.h here.
+-#define _GLIBCXX_NO_INLINE_PRINT 1
++// #define _GLIBCXX_NO_INLINE_PRINT 1
+ #include <ostream>
+ #include <bits/ostream_print.h>
+ #include <print>
+-- 
+2.53.0
+
