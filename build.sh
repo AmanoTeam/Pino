@@ -486,7 +486,7 @@ if ! [ -f "${ninja_tarball}" ]; then
 fi
 
 if ! [ -f "${gcc_tarball}" ]; then
-	if [ "${gcc_major}" != '16' ]; then
+	if [ "${gcc_major}" != '17' ]; then
 		gcc_url='https://github.com/gcc-mirror/gcc/archive/releases/gcc-15.tar.gz'
 		gcc_directory="/tmp/gcc-releases-gcc-${gcc_major}"
 	fi
