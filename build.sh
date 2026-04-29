@@ -573,7 +573,6 @@ if ! [ -f "${gcc_tarball}" ]; then
 	
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/submodules/obggcc/patches/0001-Prevent-libstdc-from-trying-to-implement-math-stubs.patch"
 	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-Enable-automatic-linking-of-libandroid.patch"
-	patch --directory="${gcc_directory}" --strip='1' --input="${workdir}/patches/0001-a.patch"
 fi
 
 # Follow Debian's approach to remove hardcoded RPATHs from binaries
@@ -1104,7 +1103,7 @@ for triplet in "${targets[@]}"; do
 		args+="${environment}"
 	fi
 	
-	declare target_cflags="-O2 -isystem ${toolchain_directory}/${triplet}/include/${triplet}"
+	declare target_cflags="-isystem ${toolchain_directory}/${triplet}/include/${triplet}"
 	declare target_cxxflags="${target_cflags} -D_ABIN32=2"
 	
 	env ${args} make \
