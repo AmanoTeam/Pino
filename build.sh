@@ -943,7 +943,7 @@ for triplet in "${targets[@]}"; do
 	elif [ "${triplet}" = 'i686-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=i686 --with-tune=intel --with-fpmath=sse'
 	elif [ "${triplet}" = 'x86_64-unknown-linux-android' ]; then
-		true # extra_configure_flags+=' --with-arch=x86-64 --with-tune=intel --with-fpmath=sse'
+		extra_configure_flags+=' --with-arch=x86-64 --with-tune=intel --with-fpmath=sse'
 	elif [ "${triplet}" = 'riscv64-unknown-linux-android' ]; then
 		extra_configure_flags+=' --with-arch=rv64gc --with-abi=lp64d'
 	elif [ "${triplet}" = 'mipsel-unknown-linux-android' ]; then
@@ -1059,7 +1059,7 @@ for triplet in "${targets[@]}"; do
 		--with-gnu-ld \
 		--with-gnu-as \
 		--includedir="${toolchain_directory}/${triplet}/include" \
-		--enable-clocale='generic' \
+		--enable-clocale='gnu' \
 		--enable-__cxa_atexit \
 		--enable-cet='auto' \
 		--enable-checking='release' \
