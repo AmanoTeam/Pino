@@ -1086,11 +1086,11 @@ for triplet in "${targets[@]}"; do
 		--enable-autolink-libandroid \
 		--disable-multilib \
 		--disable-libsanitizer \
-		--enable-gnu-unique-object \
 		--disable-canonical-system-headers \
 		--disable-win32-utf8-manifest \
 		--disable-tls \
 		--disable-fixincludes \
+		--disable-gnu-unique-object \
 		--disable-symvers \
 		--disable-libstdcxx-pch \
 		--disable-werror \
