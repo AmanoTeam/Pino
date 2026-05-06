@@ -244,6 +244,8 @@ for directory in "${directories[@]}"; do
 		for subdirectory in "${cmake_directory}/"*; do
 			destination="${subdirectory}/bin/ninja"
 			
+			[ -d "${subdirectory}/bin" ] || mkdir "${subdirectory}/bin"
+			
 			if [[ "$(readlink "${destination}")" != "${source}" ]]; then
 				echo "symlinking ${source} to ${destination}"
 				symlink "${source}" "${destination}"

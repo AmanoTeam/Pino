@@ -165,11 +165,13 @@ declare -ra symlink_tools=(
 
 declare -ra libraries=(
 	'libstdc++'
+	'libestdc++'
 	'libatomic'
 	'libssp'
 	'libitm'
 	'libsupc++'
 	'libgcc'
+	'libegcc'
 	'libm2cor'
 	'libm2iso'
 	'libm2log'
